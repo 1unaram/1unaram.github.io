@@ -48,6 +48,9 @@ jobs:
       - name: Add Linux platform
         run: bundle lock --add-platform x86_64-linux
 
+      - name: Bundle Install
+        run: bundle install
+
       - name: Build site
         run: bundle exec jekyll b -d "_site${{ steps.pages.outputs.base_path }}"
         env:
