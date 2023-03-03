@@ -419,10 +419,6 @@ i { /* fontawesome icons */
   word-spacing: 1px;
 
   a {
-    &:not(:last-child) {
-      margin-right: 2px;
-    }
-
     &:not([class]):hover {
       @extend %link-hover;
     }
@@ -546,7 +542,6 @@ i { /* fontawesome icons */
 .img-link {
   color: transparent;
   display: inline-flex;
-  overflow: hidden;
 }
 
 .shimmer {
@@ -698,7 +693,10 @@ $sidebar-display: "sidebar-display";
   overflow-y: auto;
   width: $sidebar-width;
   z-index: 99;
-  background: var(--sidebar-bg);
+  // background: var(--sidebar-bg);
+  background: url('/assets/img/bgimg.jpg');
+  background-size: 100% 100%;
+  background-position: center;
 
   /* Hide scrollbar for Chrome, Safari and Opera */
   &::-webkit-scrollbar {
@@ -759,7 +757,7 @@ $sidebar-display: "sidebar-display";
       font-weight: 900;
       font-size: 1.5rem;
       letter-spacing: 0.5px;
-      color: rgba(134, 133, 133, 0.99);
+      color: rgba(255, 255, 255, 0.99);
     }
   }
 
@@ -782,6 +780,7 @@ $sidebar-display: "sidebar-display";
     letter-spacing: 1px;
     display: table-cell;
     vertical-align: middle;
+    color:white;
   }
 
   .nav-item {

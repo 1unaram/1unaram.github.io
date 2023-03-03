@@ -36,11 +36,11 @@
     );
 
   /* Sidebar */
-  --sidebar-bg: radial-gradient(circle, #242424 0%, #1d1f27 100%);
-  --sidebar-muted-color: #6d6c6b;
-  --sidebar-active-color: rgb(255, 255, 255, 0.8);
-  --nav-cursor-color: rgb(183, 182, 182);
-  --sidebar-btn-bg: rgb(117, 116, 116, 0.2);
+  --sidebar-bg: #eeeeee;
+  --sidebar-muted-color: rgb(210, 210, 210);
+  --sidebar-active-color: #fffd9c;
+  --nav-cursor-color: #757575;
+  --sidebar-btn-bg: rgba(255, 255, 255, 0.632);
 
   /* Topbar */
   --topbar-text-color: var(--text-color);
