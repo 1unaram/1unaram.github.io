@@ -1,9 +1,14 @@
 ---
-title: "[Write-Up] Quiz: x86 Assembly 2"
+title: "[Dreamhack] Quiz: x86 Assembly 2"
 date: 2022-03-20 00:00:00
 categories: [Write-Up, Dreamhack]
 tags: [assembly, dreamhack, quiz]
 ---
+
+> **Dreamhack x86 Assembly** 강의를 듣고 푼 Quiz를 정리하였습니다.
+{: .prompt-info}
+
+<br>
 
 ## # Quiz
 

@@ -1,5 +1,5 @@
 ---
-title: "[Write-Up] Quiz: x86 Assembly 1"
+title: "[Dreamhack] Quiz: x86 Assembly 1"
 date: 2022-02-28 00:00:00
 categories: [Write-Up, Dreamhack]
 tags: [assembly, dreamhack, quiz]
