@@ -4,7 +4,6 @@ icon: fas fa-info-circle
 order: 4
 ---
 
-
 <div align="center">
 
 <h1>Hi there. I am 1unaram 🖐</h1>
@@ -16,8 +15,8 @@ order: 4
 <h2>🏃‍♂️ Experience 🏃‍♂️</h2>
 <p>- [2022.08.01 ~ 2022.12.11] 2022년 대학생 보안 컨퍼런스 INCOGNITO 운영진</p>
 <p>- [2021.10.28 ~ 2023.02.28] 중앙대학교 소프트웨어학부 학과 동아리 CAUtion 회장</p>
-<p>- [2022.12.30 ~ NOW] 2023년 대학생 보안 컨퍼런스 INCOGNITO 운영진</p>
-
+<p>- [2022.03.02 ~ 2023.02.28] 중앙대학교 웹/앱 개발 중앙동아리 COMP 부회장</p>
+<p>- [2022.12.30 ~ NOW] 2022년 대학생 보안 컨퍼런스 INCOGNITO 운영진</p>
 
 <h2>🚀 Projects 🚀</h2>
 <p><a href="https://github.com/1unaram/Sulf">- [2021 COMP Team3 Project] Sulf</a></p>
