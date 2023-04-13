@@ -3,7 +3,7 @@ title: "[Record] Pycord로 동아리 물품 대여 Bot 만들기 with Notion API
 date: 2023-04-12 00:00:00
 categories: [Record]
 tags: [python, discord, discord.py, pycord, notion]
-publised: False
+published: False
 ---
 
 # # Intro
