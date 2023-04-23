@@ -362,4 +362,32 @@ bandit17@bandit:~$ diff passwords.old passwords.new
 # Level17 -> Level18
 ---
 
+이번 level은 특별하게도 `ssh bandit18@bandit.labs.overthewire.org -p 2220` 명령을 통해 ssh 연결 후 이전 레벨에서 얻은 password를 입력하면 ssh 연결이 바로 끊긴다. Level Goal에 적혀있듯이 `.bashrc` 파일이 수정되었기에 ssh를 통해 실행된 terminal이 영향을 받은 것이다. `ssh`는 원격 연결 이외에도 원격 코드 실행을 허용하는 점을 이용하면 된다.
+
 ```shell
+ssh bandit18@bandit.labs.overthewire.org -p 2220 ls
+...
+bandit18@bandit.labs.overthewire.org's password:
+readme
+
+ssh bandit18@bandit.labs.overthewire.org -p 2220 cat readme
+...
+bandit18@bandit.labs.overthewire.org's password:
+awhqfNnAbc1naukrpqDYcF95h7HoMTrC
+```
+<br>
+
+# Level18 -> Level19
+---
+
+```shell
+bandit19@bandit:~$ ls
+bandit20-do
+bandit19@bandit:~$ ./bandit20-do cat /etc/bandit_pass/bandit20
+VxCazJaVykI6W36BkBU0mJTCM8rR95XT
+```
+
+<br>
+
+# Level20 -> Level21
+---
