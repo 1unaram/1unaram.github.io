@@ -2,8 +2,8 @@
 title: '[Wargame] Over The Wire - Bandit'
 date: 2023-04-13 00:00:00
 categories: [Write-Up]
-tags: [wargame, overthewire, bandit]   
-published: true 
+tags: [wargame, overthewire, bandit]
+published: true
 ---
 
 # OverTheWire - Bandit
@@ -123,7 +123,7 @@ z7WtoNQU2XfjmMtWA8u5rN4vzqu4v99S
 
 <br>
 
-# Level7 -> Level8  
+# Level7 -> Level8
 ---
 
 ```shell
@@ -359,7 +359,7 @@ bandit17@bandit:~$ diff passwords.old passwords.new
 
 <br>
 
-# Level17 -> Level18
+# Level18 -> Level19
 ---
 
 이번 level은 특별하게도 `ssh bandit18@bandit.labs.overthewire.org -p 2220` 명령을 통해 ssh 연결 후 이전 레벨에서 얻은 password를 입력하면 ssh 연결이 바로 끊긴다. Level Goal에 적혀있듯이 `.bashrc` 파일이 수정되었기에 ssh를 통해 실행된 terminal이 영향을 받은 것이다. `ssh`는 원격 연결 이외에도 원격 코드 실행을 허용하는 점을 이용하면 된다.
@@ -369,7 +369,6 @@ ssh bandit18@bandit.labs.overthewire.org -p 2220 ls
 ...
 bandit18@bandit.labs.overthewire.org's password:
 readme
-
 ssh bandit18@bandit.labs.overthewire.org -p 2220 cat readme
 ...
 bandit18@bandit.labs.overthewire.org's password:
@@ -377,7 +376,7 @@ awhqfNnAbc1naukrpqDYcF95h7HoMTrC
 ```
 <br>
 
-# Level18 -> Level19
+# Level19 -> Level20
 ---
 
 ```shell
@@ -391,3 +390,52 @@ VxCazJaVykI6W36BkBU0mJTCM8rR95XT
 
 # Level20 -> Level21
 ---
+
+```shell
+bandit20@bandit:~$ ./suconnect
+Usage: ./suconnect <portnumber>
+This program will connect to the given port on localhost using TCP. If it receives the correct password from the other side, the next password is transmitted back.
+```
+
+`suconnect` 라는 프로그램은 특정 포트에 TCP 연결을 하고, 해당 포트로부터 correct password(bandit20 password)를 전송하면 다음 password(bandit21 password)를 주는 프로그램인듯 하다.
+
+<br>
+
+1. (1번 터미널)우선 nc listen으로 특정 포트를 열어두자
+```shell
+bandit20@bandit:~$ nc -l 12345
+```
+
+2. (2번 터미널)다른 터미널에서 bandit20에 접속한 후에 `suconnect`를 이용하여 12345 포트에 접속하자
+```shell
+bandit20@bandit:~$ ./suconnect 12345
+```
+
+3. (1번 터미널)listen 포트에서 bandit20 password를 입력하자
+```shell
+bandit20@bandit:~$ nc -l 12345
+VxCazJaVykI6W36BkBU0mJTCM8rR95XT
+```
+
+4. (2번 터미널)password를 읽고, 다음 password를 전송한다는 문구를 확인한다
+```shell
+bandit20@bandit:~$ ./suconnect 12345
+Read: VxCazJaVykI6W36BkBU0mJTCM8rR95XT
+Password matches, sending next password
+```
+
+5. (1번 터미널)다음 password를 확인한다
+``shell
+bandit20@bandit:~$ nc -l 12345
+VxCazJaVykI6W36BkBU0mJTCM8rR95XT
+NvEJF7oVjkddltPSrdKEFOllh9V1IBcq
+```
+
+<br>
+
+# Level21 -> Level22
+---
+
+```shell
+
+```
