@@ -24,7 +24,7 @@ ssh bandit0@bandit.labs.overthewire.org -p 2220
 
 <br>
 
-# Level0 -> Level1
+## Level0 -> Level1
 ---
 
 ```shell
@@ -36,7 +36,7 @@ NH2SXQwcBdpmTEzi3bvBHMM9H66vVXjL
 
 <br>
 
-# Level1 -> Level2
+## Level1 -> Level2
 ---
 
 ```shell
@@ -48,7 +48,7 @@ rRGizSaX8Mk1RTb1CNQoXTcYZWU6lgzi
 
 <br>
 
-# Level2 -> Level3
+## Level2 -> Level3
 ---
 
 ```shell
@@ -60,7 +60,7 @@ aBZ0W5EmUfAf7kHTQeOwd8bauFJ2lAiG
 
 <br>
 
-# Level3 -> Level4
+## Level3 -> Level4
 ---
 
 ```shell
@@ -78,7 +78,7 @@ bandit3@bandit:~/inhere$ cat .hidden
 
 <br>
 
-# Level4 -> Level5
+## Level4 -> Level5
 ---
 
 ```shell
@@ -96,7 +96,7 @@ bandit4@bandit:~/inhere$ cat ./-file00 ./-file01 ./-file02 ./-file03 ./-file04 .
 
 <br>
 
-# Level5 -> Level6
+## Level5 -> Level6
 ---
 
 ```shell
@@ -111,7 +111,7 @@ P4L4vucdmLnm8I7Vl7jG1ApGSfjYKqJU
 
 <br>
 
-# Level6 -> Level7
+## Level6 -> Level7
 ---
 
 ```shell
@@ -123,7 +123,7 @@ z7WtoNQU2XfjmMtWA8u5rN4vzqu4v99S
 
 <br>
 
-# Level7 -> Level8
+## Level7 -> Level8
 ---
 
 ```shell
@@ -133,7 +133,7 @@ millionth       TESKZC0XvTetK0S9xNwm25STk5iWrBvP
 
 <br>
 
-# Level8 -> Level9
+## Level8 -> Level9
 ---
 
 ```shell
@@ -143,7 +143,7 @@ EN632PlfYiZbn3PhVK3XOGSlNInNE00t
 
 <br>
 
-# Level9 -> Level10
+## Level9 -> Level10
 ---
 
 ```shell
@@ -158,7 +158,7 @@ bandit9@bandit:~$ strings data.txt | grep -e '^='
 
 <br>
 
-# Level10 -> Level11
+## Level10 -> Level11
 ---
 
 ```shell
@@ -168,7 +168,7 @@ The password is 6zPeziLdR2RKNdNYFNb6nVCKzphlXHBM
 
 <br>
 
-# Level11 -> Level12
+## Level11 -> Level12
 ---
 
 ```shell
@@ -178,7 +178,7 @@ The password is JVNBBFSmZwKKOP0XbFXOoW8chDz5yVRv
 
 <br>
 
-# Level12 -> Level13
+## Level12 -> Level13
 ---
 
 ```shell
@@ -235,7 +235,7 @@ The password is wbWdlBxEir4CaE8LaPhauuOo6pwRmrDw
 
 <br>
 
-# Level13 -> Level14
+## Level13 -> Level14
 ---
 
 ```shell
@@ -249,7 +249,7 @@ fGrHPx402xGC7U7rXKDaxiWFTOiF0ENq
 
 <br>
 
-# Level14 -> Level15
+## Level14 -> Level15
 ---
 
 ```shell
@@ -266,7 +266,7 @@ Connection closed by foreign host.
 
 <br>
 
-# Level15 -> Level16
+## Level15 -> Level16
 ---
 
 ```shell
@@ -296,7 +296,7 @@ closed
 
 <br>
 
-# Level16 -> Level17
+## Level16 -> Level17
 ---
 
 ```shell
@@ -346,7 +346,7 @@ VwOSWtCA7lRKkTfbr2IDh6awj9RNZM5e
 
 <br>
 
-# Level17 -> Level18
+## Level17 -> Level18
 ---
 
 ```shell
@@ -359,7 +359,7 @@ bandit17@bandit:~$ diff passwords.old passwords.new
 
 <br>
 
-# Level18 -> Level19
+## Level18 -> Level19
 ---
 
 이번 level은 특별하게도 `ssh bandit18@bandit.labs.overthewire.org -p 2220` 명령을 통해 ssh 연결 후 이전 레벨에서 얻은 password를 입력하면 ssh 연결이 바로 끊긴다. Level Goal에 적혀있듯이 `.bashrc` 파일이 수정되었기에 ssh를 통해 실행된 terminal이 영향을 받은 것이다. `ssh`는 원격 연결 이외에도 원격 코드 실행을 허용하는 점을 이용하면 된다.
@@ -376,7 +376,7 @@ awhqfNnAbc1naukrpqDYcF95h7HoMTrC
 ```
 <br>
 
-# Level19 -> Level20
+## Level19 -> Level20
 ---
 
 ```shell
@@ -388,7 +388,7 @@ VxCazJaVykI6W36BkBU0mJTCM8rR95XT
 
 <br>
 
-# Level20 -> Level21
+## Level20 -> Level21
 ---
 
 ```shell
@@ -433,7 +433,7 @@ NvEJF7oVjkddltPSrdKEFOllh9V1IBcq
 
 <br>
 
-# Level21 -> Level22
+## Level21 -> Level22
 ---
 
 ```shell
@@ -449,7 +449,7 @@ chmod: changing permissions of '/tmp/t7O6lds9S0RqQh9aMcz6ShpAoZKF7fgv': Operatio
 bandit21@bandit:~$ cat /tmp/t7O6lds9S0RqQh9aMcz6ShpAoZKF7fgv
 WdDozAdTM2z9DiFEQ2mGlwngMfj4EZff
 ```
-# Level22 -> Level23
+## Level22 -> Level23
 ---
 
 ```shell
@@ -474,7 +474,7 @@ bandit22@bandit:/etc/cron.d$ cat /tmp/8ca319486bfbbc3663ea0fbe81326349
 QYw0Y2aiA672PsMmh9puTQuhoz8SyR2G
 ```
 
-# Level23 -> Level24
+## Level23 -> Level24
 ---
 
 ```shell
@@ -559,3 +559,108 @@ cron이 `cronjob_bandit24.sh`를 실행할 때까지 잠시 기다린 후에, pa
 bandit23@bandit:~$ cat /tmp/bandit24_pass
 VAfGXJ1PBSsPSnvsjI8p759leLZ9GGar
 ```
+
+<br>
+
+## Level24 -> Level25
+---
+
+```shell
+bandit24@bandit:~$ nc localhost 30002
+I am the pincode checker for user bandit25. Please enter the password for user bandit24 and the secret pincode on a single line, separated by a space.
+VAfGXJ1PBSsPSnvsjI8p759leLZ9GGar 0000
+Wrong! Please enter the correct pincode. Try again.
+```
+
+위와 같이 30002 포트에서 pincode를 체크하는 데몬이 실행 중이다. 문제 설명대로 0000부터 9999까지 브루트포싱을 수행하는 방법 밖에 없다. shell script를 작성해보자.
+
+<br>
+
+```shell
+bandit24@bandit:~$ mkdir /tmp/my_bandit24
+bandit24@bandit:~$ cd /tmp/my_bandit24
+bandit24@bandit:/tmp/my_bandit24$ vim brute_force.sh
+bandit24@bandit:/tmp/my_bandit24$ cat brute_force.sh
+#!/bin/bash
+
+for i in {0000..9999}
+        do
+                echo "VAfGXJ1PBSsPSnvsjI8p759leLZ9GGar $i"
+        done
+
+bandit24@bandit:/tmp/my_bandit24$ ./brute_force.sh | nc localhost 30002 | grep -v 'Wrong'
+I am the pincode checker for user bandit25. Please enter the password for user bandit24 and the secret pincode on a single line, separated by a space.
+Correct!
+The password of user bandit25 is p7TaowMYrmu23Ol8hiZh9UvD0O9hpx8d
+
+Exiting.
+```
+
+<br>
+
+## Level25 -> Level26
+---
+
+```shell
+bandit25@bandit:~$ ls
+bandit26.sshkey
+bandit25@bandit:~$ ssh bandit26@localhost -i bandit26.sshkey -p 2220
+The authenticity of host '[localhost]:2220 ([127.0.0.1]:2220)' can't be established.
+...
+  Enjoy your stay!
+
+  _                     _ _ _   ___   __
+ | |                   | (_) | |__ \ / /
+ | |__   __ _ _ __   __| |_| |_   ) / /_
+ | '_ \ / _` | '_ \ / _` | | __| / / '_ \
+ | |_) | (_| | | | | (_| | | |_ / /| (_) |
+ |_.__/ \__,_|_| |_|\__,_|_|\__|____\___/
+Connection to localhost closed
+```
+
+홈 디렉터리에 있는 sshkey 파일을 이용하여 bandit26 사용자로 접속을 시도하면, 접속이 되자마자 끊긴다. 문제에서 주어진 것처럼 bandit26의 shell을 살펴보자.
+
+<br>
+
+```shell
+bandit25@bandit:~$ cat /etc/passwd | grep 'bandit25'
+bandit25:x:11025:11025:bandit level 25:/home/bandit25:/bin/bash
+bandit25@bandit:~$ cat /etc/passwd | grep 'bandit26'
+bandit26:x:11026:11026:bandit level 26:/home/bandit26:/usr/bin/showtext
+bandit25@bandit:~$ ls -al /usr/bin/showtext
+-rwxr-xr-x 1 root root 58 Apr 23 18:04 /usr/bin/showtext
+bandit25@bandit:~$ cat /usr/bin/showtext
+#!/bin/sh
+
+export TERM=linux
+
+exec more ~/text.txt
+exit 0
+```
+
+bandit26 사용자는 bandit25 사용자와 달리 `/bin/bash`  쉘을 사용하지 않고 `/usr/bin/showtext`라는 파일을 사용하고 있음을 알 수 있다. 해당 파일은 기타 사용자도 읽고 실행할 수 있는 권한을 갖고 있었고, 파일을 출력해보았다.
+
+`/usr/bin/showtext` 파일에서 `exec more ~/text.txt` 명령 부분을 살펴볼 수 있는데, 이는 bandit26의 홈 디렉터리에 존재하는 `text.txt`라는 파일을 `more` 명령어로 실행 후에 종료(`exit 0`)함을 알 수 있다.
+
+`more` 명령어는 파일을 현재 터미널 크기에 맞게끔 출력하는 명령어인데, `text.txt` 파일을 해당 명령어로 읽고 있으므로, 터미널 창을 조절하여 프로그램을 바로 종료하지 않도록 할 수 있다.
+
+<br>
+
+![image](https://user-images.githubusercontent.com/37824335/234309552-40d44bc3-b68e-4076-8460-af7a17d839a9.png)
+
+위처럼 터미널 크기를 줄이면 `more` 명령어가 실행 중인 것을 확인할 수 있고, `more`의 옵션 중 `v`키를 누르면 vi 에디터를 실행할 수 있다.
+
+이제 vi 에디터의 기능 중 명령 모드에서 `:r {파일명}`을 입력하면 외부 파일을 해당 파일에 삽입할 수 있으므로 `/etc/bandit_pass/bandit26` 파일 내용을 삽입하여 보자.
+
+<br>
+
+![image](https://user-images.githubusercontent.com/37824335/234311095-7b28ec4d-1169-4ba8-909c-badff4ec007b.png)
+
+위와 같이 password `c7GvcKlw9mC7aUQaPx7nwFstuAIBw1o1` 를 읽을 수 있다.
+
+<br>
+
+## Level26 -> Level27
+---
+
+```shell
