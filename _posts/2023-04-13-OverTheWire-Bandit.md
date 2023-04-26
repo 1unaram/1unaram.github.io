@@ -24,6 +24,8 @@ ssh bandit0@bandit.labs.overthewire.org -p 2220
 
 <br>
 
+# # Level 1 ~ 5
+
 ## Level0 -> Level1
 ---
 
@@ -96,6 +98,8 @@ bandit4@bandit:~/inhere$ cat ./-file00 ./-file01 ./-file02 ./-file03 ./-file04 .
 
 <br>
 
+# # Level 6 ~ 10
+
 ## Level5 -> Level6
 ---
 
@@ -157,6 +161,8 @@ bandit9@bandit:~$ strings data.txt | grep -e '^='
 ```
 
 <br>
+
+# # Level 11 ~ 15
 
 ## Level10 -> Level11
 ---
@@ -265,6 +271,8 @@ Connection closed by foreign host.
 ```
 
 <br>
+
+# # Level 16 ~ 20
 
 ## Level15 -> Level16
 ---
@@ -387,6 +395,8 @@ VxCazJaVykI6W36BkBU0mJTCM8rR95XT
 ```
 
 <br>
+
+# # Level 21 ~ 25
 
 ## Level20 -> Level21
 ---
@@ -598,6 +608,8 @@ Exiting.
 
 <br>
 
+# # Level 26 ~ 30
+
 ## Level25 -> Level26
 ---
 
@@ -663,4 +675,366 @@ bandit26 사용자는 bandit25 사용자와 달리 `/bin/bash`  쉘을 사용하
 ## Level26 -> Level27
 ---
 
+문제에 접근하기 위해서는 bandit26 사용자로 접속하여 shell을 실행해야 한다. 이전 레벨 단계에서 vim에 접속까지 한다음에 명령 모드에서 `:set shell=/bin/bash` 명령을 입력한다. 이제 `:sh` 명령을 입력하면 bash shell을 실행할 수 있다.
+
+<br>
+
 ```shell
+bandit26@bandit:~$ ls
+bandit27-do  text.txt
+bandit26@bandit:~$ ./bandit27-do cat /etc/bandit_pass/bandit27
+YnQpBuifNMas1hcUFk70ZmqkhUU2EuaS
+```
+
+<br>
+
+## Level27 -> Level28
+---
+
+```shell
+bandit27@bandit:~$ mkdir /tmp/bandit27
+bandit27@bandit:~$ cd /tmp/bandit27
+bandit27@bandit:/tmp/bandit27$ git clone ssh://bandit27-git@localhost/home/bandit27-git/repo
+Cloning into 'repo'...
+The authenticity of host 'localhost (127.0.0.1)' can't be established.
+ED25519 key fingerprint is SHA256:C2ihUBV7ihnV1wUXRb4RrEcLfXC5CXlhmAAM/urerLY.
+This key is not known by any other names
+Are you sure you want to continue connecting (yes/no/[fingerprint])? ^[[A^[[A^[[A^C
+bandit27@bandit:/tmp/bandit27$ git clone ssh://bandit27-git@localhost:2220/home/bandit27-git/repo
+Cloning into 'repo'...
+The authenticity of host '[localhost]:2220 ([127.0.0.1]:2220)' can't be established.
+ED25519 key fingerprint is SHA256:C2ihUBV7ihnV1wUXRb4RrEcLfXC5CXlhmAAM/urerLY.
+This key is not known by any other names
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Could not create directory '/home/bandit27/.ssh' (Permission denied).
+Failed to add the host to the list of known hosts (/home/bandit27/.ssh/known_hosts).
+                         _                     _ _ _
+                        | |__   __ _ _ __   __| (_) |_
+                        | '_ \ / _` | '_ \ / _` | | __|
+                        | |_) | (_| | | | | (_| | | |_
+                        |_.__/ \__,_|_| |_|\__,_|_|\__|
+
+
+                      This is an OverTheWire game server.
+            More information on http://www.overthewire.org/wargames
+
+bandit27-git@localhost's password:
+remote: Enumerating objects: 3, done.
+remote: Counting objects: 100% (3/3), done.
+remote: Compressing objects: 100% (2/2), done.
+remote: Total 3 (delta 0), reused 0 (delta 0), pack-reused 0
+Receiving objects: 100% (3/3), done.
+bandit27@bandit:/tmp/bandit27$ ls
+repo
+bandit27@bandit:/tmp/bandit27$ ls repo
+README
+bandit27@bandit:/tmp/bandit27$ cat repo/README
+The password to the next level is: AVanL161y9rsbcJIsFHuw35rjaOM19nR
+```
+
+<br>
+
+## Level28 -> Level29
+---
+
+```shell
+bandit28@bandit:~$ mkdir /tmp/bandit28
+bandit28@bandit:~$ cd /tmp/bandit28
+bandit28@bandit:/tmp/bandit28$ git clone ssh://bandit28-git@localhost:2220/home/bandit28-git/repo
+Cloning into 'repo'...
+...
+bandit28-git@localhost's password:
+remote: Enumerating objects: 9, done.
+remote: Counting objects: 100% (9/9), done.
+remote: Compressing objects: 100% (6/6), done.
+remote: Total 9 (delta 2), reused 0 (delta 0), pack-reused 0
+Receiving objects: 100% (9/9), done.
+Resolving deltas: 100% (2/2), done.
+bandit28@bandit:/tmp/bandit28$ ls
+repo
+bandit28@bandit:/tmp/bandit28$ cd repo
+bandit28@bandit:/tmp/bandit28/repo$ ls
+README.md
+bandit28@bandit:/tmp/bandit28/repo$ cat README.md
+# Bandit Notes
+Some notes for level29 of bandit.
+
+## credentials
+
+- username: bandit29
+- password: xxxxxxxxxx
+```
+
+현재 README.md는 password가 지워진 상태이다. git log를 확인해보면
+
+<br>
+
+```shell
+bandit28@bandit:/tmp/bandit28/repo$ git log
+commit 899ba88df296331cc01f30d022c006775d467f28 (HEAD -> master, origin/master, origin/HEAD)
+Author: Morla Porla <morla@overthewire.org>
+Date:   Sun Apr 23 18:04:39 2023 +0000
+
+    fix info leak
+
+commit abcff758fa6343a0d002a1c0add1ad8c71b88534
+Author: Morla Porla <morla@overthewire.org>
+Date:   Sun Apr 23 18:04:39 2023 +0000
+
+    add missing data
+
+commit c0a8c3cf093fba65f4ee0e1fe2a530b799508c78
+Author: Ben Dover <noone@overthewire.org>
+Date:   Sun Apr 23 18:04:39 2023 +0000
+
+    initial commit of README.md
+```
+
+세 개의 commit을 확인할 수 있고, 그 중 두 번째 커밋에 data가 있을 것 같다. checkout 명령어로 커밋 시점으로 이동하자.
+
+<br>
+
+```shell
+bandit28@bandit:/tmp/bandit28/repo$ git checkout abcff758fa6343a0d002a1c0add1ad8c71b88534
+Previous HEAD position was c0a8c3c initial commit of README.md
+HEAD is now at abcff75 add missing data
+bandit28@bandit:/tmp/bandit28/repo$ cat README.md
+# Bandit Notes
+Some notes for level29 of bandit.
+
+## credentials
+
+- username: bandit29
+- password: tQKvmcwNYcFS6vmPHIUSI3ShmsrQZK8S
+```
+
+<br>
+
+## Level29 -> Level30
+---
+
+```shell
+bandit29@bandit:~$ mkdir /tmp/bandit29
+bandit29@bandit:~$ cd /tmp/bandit29
+bandit29@bandit:/tmp/bandit29$ git clone ssh://bandit29-git@localhost:2220/home/bandit29-git/repo
+Cloning into 'repo'...
+...
+Resolving deltas: 100% (2/2), done.
+bandit29@bandit:/tmp/bandit29$ ls
+repo
+bandit29@bandit:/tmp/bandit29$ cd repo
+bandit29@bandit:/tmp/bandit29/repo$ ls
+README.md
+bandit29@bandit:/tmp/bandit29/repo$ cat README.md
+# Bandit Notes
+Some notes for bandit30 of bandit.
+
+## credentials
+
+- username: bandit30
+- password: <no passwords in production!>
+bandit29@bandit:/tmp/bandit29/repo$ git log
+commit 4bd5389f9f2b9e96ba517aa751ee58d051905761 (HEAD -> master, origin/master, origin/HEAD)
+Author: Ben Dover <noone@overthewire.org>
+Date:   Sun Apr 23 18:04:40 2023 +0000
+
+    fix username
+
+commit 1a57cf10158f133c4f40ff82251f605a7618631d
+Author: Ben Dover <noone@overthewire.org>
+Date:   Sun Apr 23 18:04:40 2023 +0000
+
+    initial commit of README.md
+bandit29@bandit:/tmp/bandit29/repo$ git checkout 1a57cf10158f133c4f40ff82251f605a7618631d
+Note: switching to '1a57cf10158f133c4f40ff82251f605a7618631d'.
+...
+HEAD is now at 1a57cf1 initial commit of README.md
+bandit29@bandit:/tmp/bandit29/repo$ ls
+README.md
+bandit29@bandit:/tmp/bandit29/repo$ cat README.md
+# Bandit Notes
+Some notes for bandit30 of bandit.
+
+## credentials
+
+- username: bandit29
+- password: <no passwords in production!>
+```
+
+이전 레벨과는 다르게 이전 commit으로 커밋 시점을 이동하여도 password를 확인할 수 없다. password 필드에서 확인할 수 있는 것처럼 production 브랜치는 password를 제외시킨 것 같다.
+
+그렇다면 원격 저장소의 development용 브랜치를 찾아 password를 확인하자.
+
+<br>
+
+```shell
+bandit29@bandit:/tmp/bandit29/repo$ git branch -r
+  origin/HEAD -> origin/master
+  origin/dev
+  origin/master
+  origin/sploits-dev
+bandit29@bandit:/tmp/bandit29/repo$ git checkout -t origin/dev
+Branch 'dev' set up to track remote branch 'dev' from 'origin'.
+Switched to a new branch 'dev'
+bandit29@bandit:/tmp/bandit29/repo$ git branch
+* dev
+  master
+bandit29@bandit:/tmp/bandit29/repo$ cat README.md
+# Bandit Notes
+Some notes for bandit30 of bandit.
+
+## credentials
+
+- username: bandit30
+- password: xbhV3HpNGlTIdnjUrdAlPzc2L6y9EOnS
+```
+
+
+<br> 
+
+# # Level 31 ~
+
+## Level30 -> Level31
+---
+
+```shell
+bandit30@bandit:~$ mkdir /tmp/bandit30
+bandit30@bandit:~$ cd /tmpbandit30
+-bash: cd: /tmpbandit30: No such file or directory
+bandit30@bandit:~$ cd /tmp/bandit30
+bandit30@bandit:/tmp/bandit30$ git clone ssh://bandit30-git@localhost:2220/home/bandit30-git/repo
+Cloning into 'repo'...
+...
+Receiving objects: 100% (4/4), done.
+bandit30@bandit:/tmp/bandit30$ ls
+repo
+bandit30@bandit:/tmp/bandit30$ cd repo
+bandit30@bandit:/tmp/bandit30/repo$ ls
+README.md
+bandit30@bandit:/tmp/bandit30/repo$ cat README.md
+just an epmty file... muahaha
+bandit30@bandit:/tmp/bandit30/repo$ git log
+commit 59530d30d299ff2e3e9719c096ebf46a65cc1424 (HEAD -> master, origin/master, origin/HEAD)
+Author: Ben Dover <noone@overthewire.org>
+Date:   Sun Apr 23 18:04:42 2023 +0000
+
+    initial commit of README.md
+bandit30@bandit:/tmp/bandit30/repo$ git branch
+* master
+bandit30@bandit:/tmp/bandit30/repo$ git branch -r
+  origin/HEAD -> origin/master
+  origin/master
+```
+
+이전 레벨과는 다르게 변경 사항, 브랜치 등의 주요 내용이 보이지 않는다.
+
+git에서 또 다른 내용을 기입할 수 있는 기능 중 태그(tag)에 대해 조회해보자.
+
+<br>
+
+```shell
+bandit30@bandit:/tmp/bandit30/repo$ git tag
+secret
+bandit30@bandit:/tmp/bandit30/repo$ git show secret
+OoffzGDlzhAlerFJ2cAiz1D41JW1Mhmt
+```
+
+<br>
+
+## Level31 -> Level32
+---
+
+```shell
+bandit31@bandit:~$ mkdir /tmp/bandit31
+bandit31@bandit:~$ cd /tmp/bandit31
+bandit31@bandit:/tmp/bandit31$ git clone ssh://bandit31-git@localhost:2220/home/bandit31-git/repo
+Cloning into 'repo'...
+...
+Receiving objects: 100% (4/4), done.
+bandit31@bandit:/tmp/bandit31$ ls
+repo
+bandit31@bandit:/tmp/bandit31$ cd repo
+bandit31@bandit:/tmp/bandit31/repo$ ls
+README.md
+bandit31@bandit:/tmp/bandit31/repo$ cat README.md
+This time your task is to push a file to the remote repository.
+
+Details:
+    File name: key.txt
+    Content: 'May I come in?'
+    Branch: master
+
+bandit31@bandit:/tmp/bandit31/repo$ git branch
+* master
+bandit31@bandit:/tmp/bandit31/repo$ echo 'May I come in?' > key.txt
+bandit31@bandit:/tmp/bandit31/repo$ git add -f key.txt
+bandit31@bandit:/tmp/bandit31/repo$ git commit -m 'Add file'
+[master 0c159d9] Add file
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+bandit31@bandit:/tmp/bandit31/repo$ git push
+The authenticity of host '[localhost]:2220 ([127.0.0.1]:2220)' can't be established.
+...
+Total 6 (delta 1), reused 0 (delta 0), pack-reused 0
+remote: ### Attempting to validate files... ####
+remote:
+remote: .oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.
+remote:
+remote: Well done! Here is the password for the next level:
+remote: rmCBvG56y58BXzv98yZGdO7ATVL5dW8y
+remote:
+remote: .oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.
+remote:
+remote:
+remote: .oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.
+remote:
+remote: Wrong!
+remote:
+remote: .oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.oOo.
+remote:
+To ssh://localhost:2220/home/bandit31-git/repo
+ ! [remote rejected] master -> master (pre-receive hook declined)
+error: failed to push some refs to 'ssh://localhost:2220/home/bandit31-git/repo'
+```
+
+<br>
+
+## Level32 -> Level33
+---
+
+```shell
+lunaram@DESKTOP-6FMR5E6:/mnt/c/Users/Rami$ ssh bandit32@bandit.labs.overthewire.org -p2220
+                         _                     _ _ _
+                        | |__   __ _ _ __   __| (_) |_
+                        | '_ \ / _` | '_ \ / _` | | __|
+                        | |_) | (_| | | | | (_| | | |_
+                        |_.__/ \__,_|_| |_|\__,_|_|\__|
+...
+WELCOME TO THE UPPERCASE SHELL
+>> ls
+sh: 1: LS: not found
+```
+
+위와 같이 shell이 실행되는데, uppercase shell이라고 한 것처럼 명령을 대문자로 바꾸어 인식이 되지 않는다.
+
+<br>
+
+```shell
+>> !@#123
+sh: 1: !@#123: not found
+```
+
+특수기호 및 숫자는 변환이 되지 않는데, 이를 이용하여 일반 shell을 의미하는 `$0` 변수를 입력하여 shell을 실행하여 password를 읽어내자.
+
+<br>
+
+```shell
+>> $0
+$ ls
+uppershell
+$ pwd
+/home/bandit32
+$ whoami
+bandit33
+$ cat /etc/bandit_pass/bandit33
+odHo63fHiFqcWWJG9rLiLDtPm45KzUKy
+```
