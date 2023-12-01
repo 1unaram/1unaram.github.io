@@ -1,5 +1,5 @@
 ---
-title: Webhacking.kr Write-Ups
+title: '[Wargame] Webhacking.kr Write-Ups'
 date: 2023-02-06 00:00:00
 categories: [Write-Up]
 tags: [webhacking, webhacking.kr]   
@@ -221,6 +221,36 @@ form 태그 내에 input 태그 두 개가 있었고 그 중 버튼에 `ck()` �
 
 ---
 
+## 🚩 old-15
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/1c9cea64-b076-4c21-9197-045a05803772)
+
+문제 페이지에 들어가면 위와 같은 문구와 함께 사이트에 접근할 수 없고 확인 버튼을 누르면 webhacking.kr 메인 페이지로 이동한다.
+
+burp suite를 이용해 접속할 때의 패킷을 잡아보자.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/f9ffbc0d-1709-4f83-806a-767276aa7549)
+
+요청에 따라 응답 패킷을 확인하면 alert 함수가 실행되고 이후에 `location.href='/';` 구문에 따라 메인 페이지로 이동하는 것이다.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/ea8e153a-105f-4aea-b8b6-bd9d6c2acc01)
+
+그러나 플래그를 얻을 수 있는 페이지로 이동하는 a 태그가 이후에 삽입되므로, 위처럼 메인 페이지로 이동하는 구문을 주석처리하여 응답 패킷을 받으면
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/5a1808f8-5ba8-4843-9d05-989cb773d3db)
+
+a 태그를 확인할 수 있고, 이를 누르면 플래그를 획득하여 문제를 풀 수 있다.
+
+<br>
+
+---
+
 ## 🚩 old-16
 
 ![image](https://user-images.githubusercontent.com/37824335/227120196-634574ca-75bb-46ef-8dc6-19c08a75130e.png)
@@ -394,6 +424,44 @@ webhacking.kr 사이트는 로그인 상태에서 문제 사이트에 접근할 
 
 ---
 
+## 🚩 old-26
+
+문제 페이지에 접속하면 페이지의 소스를 볼 수 있는 view-source 링크를 확인할 수 있다. 해당 링크로 이동해보자.
+
+```php
+<?php
+  // id 파라미터로 받은 값에서 'admin'이라는 문자열과 정규식 검사를 하여 같다면 "no!"를 출력하고 프로그램을 종료한다. 
+  if(preg_match("/admin/",$_GET['id'])) { echo"no!"; exit(); }
+
+  // id 파라미터로 받은 값을 urldecode 함수를 통해 디코딩하고 해당 값을 id 파라미터 값에 다시 담는다.
+  $_GET['id'] = urldecode($_GET['id']);
+
+  // id 파라미터 값이 문자열 'admin'과 같다면 문제를 해결한다.
+  if($_GET['id'] == "admin"){
+    solve(26);
+  }
+?>
+```
+
+소스코드에서 중요한 부분은 위와 같다. 우리는 정규식 검사에서 'admin' 문자열을 우회하여 id 파라미터로 넘기면 문제를 풀 것만 같다. 하지만 percent-encoding으로 url 인코딩도 해보았지만 문제는 풀리지 않았다.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/7f3b0c55-20de-4d38-bff2-ec50c4c2be76)
+
+이때, `urldecode` 함수를 주목하였다. 해당 함수에 대한 정보를 php 공식 홈페이지에서 확인하였다. 여기서 하나의 정보를 얻을 수 있었는데, `$_GET`과 `$_REQUEST` 변수는 이미 디코딩 되어 있다는 것이다. 우리가 `id` 파라미터를 넘길 때 `$_GET` 변수에는 이 값이 이미 한 번 디코딩 되어 있고,  `urldecode($_GET['id'])` 구문은 디코딩된 문자열을 다시 한 번 디코딩하는 셈이 되는 것이다. 따라서 디코딩이 2번 되는 것을 확인할 수 있다.
+
+<br>
+
+```
+admin -> %61%64%6d%69%6e
+%61%64%6d%69%6e -> %25%36%31%25%36%34%25%36%64%25%36%39%25%36%65
+```
+
+따라서 우리는 `id` 파라미터 값으로 'admin' 문자열을 두 번 인코딩한 값을 넘겨주면 문제를 풀 수 있다.
+
+---
+
 ## 🚩 old-27
 
 ![image](https://user-images.githubusercontent.com/37824335/227121891-0e54b8b6-b567-4c1c-b69f-e2a950929b72.png)
@@ -487,3 +555,82 @@ Webhacking.kr은 로그인을 해야 문제 페이지에 접근할 수 있기 �
 ![image](https://user-images.githubusercontent.com/37824335/227122526-ac1271ca-ac22-49a3-85d5-a9624878bcc8.png){: w="400"}
 
 hit는 테이블 태그의 `onclick` 속성으로 위와 같이 URL을 통해 GET 호출을 하고 있었고, 나의 User Name을 매개변수로 하여 호출하도록 하였다. 반복을 하며 'vote_check'명의 cookie도 중간 중간 삭제 해주었고 코드를 실행하니 풀렸다!
+
+<br>
+
+---
+
+## 🚩 old-39
+
+문제 페이지에서는 입력 값을 제출할 수 있는 양식과 소스를 볼 수 있는 링크가 있었다. 임의의 문자열을 전송해도 아무 일도 일어나지 않으므로 소스를 확인하자.
+
+<br>
+
+```php
+<?php
+  // db 연결
+  $db = dbconnect();
+
+  if($_POST['id']){
+
+    // id 값에서 문자열 \\ 값을 제거
+    $_POST['id'] = str_replace("\\","",$_POST['id']);
+
+    // id 값에서 문자열 ' 값을 '' 으로 변경
+    $_POST['id'] = str_replace("'","''",$_POST['id']);
+
+    // id 값에서 문자열을 0번째 인덱스부터 15개의 문자까지 추출
+    $_POST['id'] = substr($_POST['id'],0,15);
+
+    // id 값을 이용하여 sql 구문을 구성하여 쿼리 실행
+    $result = mysqli_fetch_array(mysqli_query($db,"select 1 from member where length(id)<14 and id='{$_POST['id']}"));
+
+    // result[0] 값이 1인 경우 문제 해결
+    if($result[0] == 1){
+      solve(39);
+    }
+  }
+?>
+```
+
+소스코드에서 중요한 부분은 위와 같다. 여기서 입력한 id 값을 문자열 가공한 이후에 sql 구문을 실행하여 원하는 값을 조회해야함을 알 수 있다. id 값을 포함하여 실행하는 SQL 구문은 아래와 같다.
+
+<br>
+
+```
+member 테이블에서 id 문자열 길이가 14보다 작고 id 값이 사용자가 입력한 id 값과 같은 데이터가 있다면 1 값을 반환한다.
+```
+
+<br>
+
+`select 1 from member where length(id)<14 and id='~`
+
+우선 우리가 입력하는 id 값은 쿼리 중 ~ 위치에 입력된다. 이때 입력된 값이 싱글 쿼터 `'` 로 열었지만 싱글 쿼터로 닫지 않아 온전한 문자열로 인식되지 않음을 알 수 있다. 그렇다고 `'`를 사용하면 `str_replace` 함수에 의해 `''`로 변경되어 문법 오류가 발생한다. 게다가 문자열 `\\`을 제거 시키기 때문에 `\\'`와 같이 사용하여 `'`를 문자로 인식시킬 수 없다. 우리는 테이블에 존재하는 id 중 길이가 14보다 작으며 문자열로 인식 시키기 위해 싱글 쿼터 하나를 뒤에 붙여야 한다.
+
+<br>
+
+```php
+$_POST['id'] = substr($_POST['id'],0,15);
+```
+
+우선, 싱글 쿼터 하나를 입력할 방법은 위의 구문에 의해 찾을 수 있다. 총 15개의 입력 값 이후의 값은 잘리기 때문에 15번째 문자가 싱글 쿼터라면, `str_replace` 함수에 의해 16번째에 싱글쿼터가 하나 추가될 것이고, `substr` 함수에 의해 추가된 싱글쿼터가 잘릴 것이다. 이러면 우선 `id='12345678901234'`와 같이 문자열로 인식시킬 수 있다.
+
+<br>
+
+그러나 두 번째 문제가 있다. 14자리의 id 값을 가진 데이터가 테이블에 존재한다고 가정해도 쿼리문에서 `length(id)<14` 조건이 존재하기에 애초에 조건은 항상 False가 된다.
+
+<br>
+
+[https://techblog.woowahan.com/2559/](https://techblog.woowahan.com/2559/)
+
+그렇다면 방법이 없는가? 위의 블로그에서 해답을 찾을 수 있었다. 간단히 요약하자면, MySQL에서는 문자열을 비교할 때 하나의 문자열 오른쪽 끝에 공백이 있을 때 다른 문자열에 공백을 이용해 문자열 길이를 맞추고 비교한다. 따라서 문자열 오른쪽 끝에 공백이 있더라도 이를 제외한 문자열끼리만 비교한다는 뜻이다.
+
+그렇기에 `임의의 id 값 + 14번째 자리까지 공백 채우기  + '`를 추가하면 결과적으로 `id 값 + '`로 이루어진 문자열이 쿼리문에 들어가는 것이다. 여기서 id 값은 대부분의 테이블에 있는 admin으로 구성하면,
+
+<br>
+
+```
+admin         '
+```
+
+이와 같이 페이로드를 구성할 수 있고, 제출하면 문제를 풀 수 있다.
