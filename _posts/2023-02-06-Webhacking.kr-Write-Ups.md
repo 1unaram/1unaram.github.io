@@ -2,8 +2,8 @@
 title: '[Wargame] Webhacking.kr Write-Ups'
 date: 2023-02-06 00:00:00
 categories: [Write-Up]
-tags: [webhacking, webhacking.kr]   
-published: true 
+tags: [webhacking, webhacking.kr]
+published: true
 ---
 
 
@@ -40,7 +40,7 @@ published: true
 ?>
 ```
 
-하단 코드에서 문제를 풀 수 있는 힌트를 얻었다. `user_lv` 명의 쿠키 값이 3 초과 4 미만이어야 문제를 풀 수 있음을 확인하였다. 
+하단 코드에서 문제를 풀 수 있는 힌트를 얻었다. `user_lv` 명의 쿠키 값이 3 초과 4 미만이어야 문제를 풀 수 있음을 확인하였다.
 
 <br>
 
@@ -81,7 +81,7 @@ published: true
 
 ![image](https://user-images.githubusercontent.com/37824335/227118428-b3e2381b-c5dd-45bf-b9ce-84f79918a880.png){: w="600"}
 
-코드에서 필요없는 부분은 지웠다. 해당 코드는 `user`, `password` name의 쿠키 값을 가져와 위에서 진행한 문자열 치환의 역을 수행하고, base64 문자열을 20번 반복 decode하여 결과 문자열이 id와 passwword가 각각 `admin`과 `nimda`라는 문자열과 일치하면 문제가 풀리는 듯하다. 그럼 우리는 `admin`과 `nimda`를 역으로 치환하고, base64 decode를 20번 수행하여 나온 문자열을 쿠키로 각각 설정하면 문제가 풀리는 것을 알 수 있다. 단순 반복 과정이니 Python으로 코드를 짜보자. 
+코드에서 필요없는 부분은 지웠다. 해당 코드는 `user`, `password` name의 쿠키 값을 가져와 위에서 진행한 문자열 치환의 역을 수행하고, base64 문자열을 20번 반복 decode하여 결과 문자열이 id와 passwword가 각각 `admin`과 `nimda`라는 문자열과 일치하면 문제가 풀리는 듯하다. 그럼 우리는 `admin`과 `nimda`를 역으로 치환하고, base64 decode를 20번 수행하여 나온 문자열을 쿠키로 각각 설정하면 문제가 풀리는 것을 알 수 있다. 단순 반복 과정이니 Python으로 코드를 짜보자.
 
 <br />
 
@@ -123,7 +123,7 @@ base64 인코딩과 디코딩 과정이 필요하므로 python 내장 모듈 **b
 ![image](https://user-images.githubusercontent.com/37824335/227119312-fb3603a0-28bf-45b6-bc13-303ff1436ce5.png)
 
 다른 부분은 화면을 그리는 태그들이 존재하였고, 트랙 위의 **O**를 그리는 태그는 `onclick`, `onmouseover`, `onmouseout` 속성을 가지고 있었다.
-`onmouseover`과 `onmouseout` 속성은 **O** 글자와 **yOu** 글자를 변경하는 역할을 하였고, `onclick` 속성은 클릭 시에 1px씩 글자를 오른쪽으로 옮기는 역할을 하고 있었다. 클릭해보면 
+`onmouseover`과 `onmouseout` 속성은 **O** 글자와 **yOu** 글자를 변경하는 역할을 하였고, `onclick` 속성은 클릭 시에 1px씩 글자를 오른쪽으로 옮기는 역할을 하고 있었다. 클릭해보면
 
 <br>
 
@@ -180,7 +180,7 @@ base64 인코딩과 디코딩 과정이 필요하므로 python 내장 모듈 **b
 
 이를 만족시키는 문자열을 `val` 인자로 전달해야 한다. 정규식을 충족시키는 문자열을 작성해보면,
 `1aaaaa_[ip주소]%09p%09a%09s%09s`
-가 될 수 있다. 여기서 %09는 tab 문자를 url encode 방식으로 나타낸  것이다. 
+가 될 수 있다. 여기서 %09는 tab 문자를 url encode 방식으로 나타낸  것이다.
 
 `https://webhacking.kr/challenge/code-2/?val=1aaaaa_[ip주소]%09p%09a%09s%09s`
 이를 주소창에 인자로 입력하여 GET 방식으로 넘겨주면,
@@ -205,7 +205,7 @@ base64 인코딩과 디코딩 과정이 필요하므로 python 내장 모듈 **b
 
 ![image](https://user-images.githubusercontent.com/37824335/227119993-0945b50e-4099-4e80-9a63-eefbeb77d766.png)
 
-form 태그 내에 input 태그 두 개가 있었고 그 중 버튼에 `ck()` 함수가 onClilck 속성으로 지정되어 있었다. 스크립트 구문에 `ck()` 함수의 내용이 있었고, 셋 째줄까지는 대략 브라우저의 URL의 ".kr" 문자열의 인덱스 값에 30을 곱한 값을 `ul` 변수에 저장하고 있었다. 이를 입력해야 하는 것으로 보였다. 
+form 태그 내에 input 태그 두 개가 있었고 그 중 버튼에 `ck()` 함수가 onClilck 속성으로 지정되어 있었다. 스크립트 구문에 `ck()` 함수의 내용이 있었고, 셋 째줄까지는 대략 브라우저의 URL의 ".kr" 문자열의 인덱스 값에 30을 곱한 값을 `ul` 변수에 저장하고 있었다. 이를 입력해야 하는 것으로 보였다.
 
 <br>
 
@@ -318,7 +318,7 @@ body 태그에는 font 태그 4개 사이에 script문이 들어있었다. body 
 
 ![image](https://user-images.githubusercontent.com/37824335/227120688-d99f3c09-9319-4e94-a175-9db87216d1fd.png)
 
-홈페이지를 구성하는 PHP 파일이 있다. 그 중 중요한 php 코드만을 보자. 
+홈페이지를 구성하는 PHP 파일이 있다. 그 중 중요한 php 코드만을 보자.
 GET 방식으로 `no` 파라미터를 받아온다. 그 다음 `preg_match()` 함수를 통해 받아온 파라미터 값에서 정규표현식으로 매칭되는 문자열이 있는지 검사하여 있다면, 종료하는 형식이다. 이를 우회하여 **SQL Injection** 공격 기법으로 데이터베이스서 값을 꺼내어 `result` 변수에 "admin" 문자열을 집어 넣으면 풀리는 문제이다. 문자열 우회를 위해 정규표현식을 분석해보자.
 
 <br>
@@ -394,7 +394,7 @@ from time import sleep
 
 ![image](https://user-images.githubusercontent.com/37824335/227121347-67d6349d-242c-4590-9f47-b0d8f26420c7.png)
 
-webhacking.kr 사이트는 로그인 상태에서 문제 사이트에 접근할 수 있기 때문에 사용자에게 id, password를 입력 받고 
+webhacking.kr 사이트는 로그인 상태에서 문제 사이트에 접근할 수 있기 때문에 사용자에게 id, password를 입력 받고
 
 <br>
 
@@ -424,13 +424,79 @@ webhacking.kr 사이트는 로그인 상태에서 문제 사이트에 접근할 
 
 ---
 
+## 🚩 old-24
+
+문제 페이지에 접속하면 클라이언트의 ip와 agent 정보와 소스보기 링크를 확인할 수 있다. "Wrong IP!" 문구를 보아 IP를 조작해야함을 알 수 있다. 소스코드를 확인하자.
+
+<br>
+
+```php
+// $_SERVER, $_COOKIE 배열 속의 키 값을 변수화
+extract($_SERVER);
+extract($_COOKIE);
+
+// 변수 값 저장
+$ip = $REMOTE_ADDR;
+$agent = $HTTP_USER_AGENT;
+
+if($REMOTE_ADDR){
+  // $REMOTE_ADDR 문자열 필터링
+  $ip = htmlspecialchars($REMOTE_ADDR);
+  $ip = str_replace("..",".",$ip);
+  $ip = str_replace("12","",$ip);
+  $ip = str_replace("7.","",$ip);
+  $ip = str_replace("0.","",$ip);
+}
+
+...(생략)...
+
+// 필터링된 $ip 변수 문자열이 127.0.0.1과 같을 경우 문제 해결
+if($ip=="127.0.0.1"){
+  solve(24);
+  exit();
+}
+else{
+  echo "<hr><center>Wrong IP!</center>";
+}
+```
+
+코드에서 주요한 부분은 위와 같다. 서버에 접속한 클라이언트의 정보를 담은 `$_SERVER` 배열과 `$_COOKIE` 배열의 키 값을 변수화하고 그 중 클라이언트의 ip 값을 담은 `$REMOTE_ADDR` 변수 값을 필터링한 값이 문자열 '127.0.0.1'이면 문제를 해결할 수 있다.
+
+<br>
+
+여기서 주목해야하는 점은 클라이언트의 ip 값을 `$_SERVER[$REMOTE_ADDR]`와 같이 배열에 직접 접근하여 값을 가져오는 것이 아니라 배열의 키 값을 변수화하였다는 점이다. 이때 `$_SERVER` 배열뿐만 아니라 `$_COOKIE` 배열도 변수화하고 있는데, `extract` 함수로 `$_COOKIE` 배열을 나중에 변수화하고 있기 때문에 `$_SERVER`의 키 값과 중복된다면 `$_COOKIE` 배열의 키 값으로 변수 값이 정해진다. php 코드를 통해 이를 확인해보았다.
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/7cb08698-aafb-4cbb-aa4a-79d14e808533)
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/79003277-c96d-4041-a992-ccc60fb06acd)
+
+<br>
+
+그러므로 클라이언트가 요청 시에 조작할 수 없는 `$_SERVER` 배열 대신에 `$_COOKIE` 값을 이용하여 `$REMOTE_ADDR`을 전송하면 그 값을 지정할 수 있다. 따라서 필터링을 우회하여 문자열 '127.0.0.1'을 만들수 있는 문자열 `112277...00...00...1`을 요청 cookie 값에 포함하여 요청을 보내보자.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/d3ea8f8f-030e-479c-844a-172f31fd3072)
+
+위와 같이 쿠키 값을 포함하여 요청을 전송하면
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/ec260ae4-04b0-4797-baa6-33b78a054da4)
+
+클라이언트 ip를 조작할 수 있다.
+
+<br>
+
+---
+
 ## 🚩 old-26
 
 문제 페이지에 접속하면 페이지의 소스를 볼 수 있는 view-source 링크를 확인할 수 있다. 해당 링크로 이동해보자.
 
 ```php
 <?php
-  // id 파라미터로 받은 값에서 'admin'이라는 문자열과 정규식 검사를 하여 같다면 "no!"를 출력하고 프로그램을 종료한다. 
+  // id 파라미터로 받은 값에서 'admin'이라는 문자열과 정규식 검사를 하여 같다면 "no!"를 출력하고 프로그램을 종료한다.
   if(preg_match("/admin/",$_GET['id'])) { echo"no!"; exit(); }
 
   // id 파라미터로 받은 값을 urldecode 함수를 통해 디코딩하고 해당 값을 id 파라미터 값에 다시 담는다.
@@ -524,7 +590,7 @@ URL로 요청하면,
 ![image](https://user-images.githubusercontent.com/37824335/227122221-077240f1-6718-41c2-91ed-81a145b0f263.png){: w="400"}
 
 
-문제 페이지에 들어가니 1500여개의 Webhacking.kr 유저의 목록이 있었고 유저별로 hit 점수가 있었다. 유저 한 명을 클릭하니 그의 hit이 늘어난 것으로 보아 100번 클릭해야 하는 문제로 보였다. 그러나 한 번 hit한 후로는 
+문제 페이지에 들어가니 1500여개의 Webhacking.kr 유저의 목록이 있었고 유저별로 hit 점수가 있었다. 유저 한 명을 클릭하니 그의 hit이 늘어난 것으로 보아 100번 클릭해야 하는 문제로 보였다. 그러나 한 번 hit한 후로는
 
 <br>
 
@@ -555,6 +621,63 @@ Webhacking.kr은 로그인을 해야 문제 페이지에 접근할 수 있기 �
 ![image](https://user-images.githubusercontent.com/37824335/227122526-ac1271ca-ac22-49a3-85d5-a9624878bcc8.png){: w="400"}
 
 hit는 테이블 태그의 `onclick` 속성으로 위와 같이 URL을 통해 GET 호출을 하고 있었고, 나의 User Name을 매개변수로 하여 호출하도록 하였다. 반복을 하며 'vote_check'명의 cookie도 중간 중간 삭제 해주었고 코드를 실행하니 풀렸다!
+
+<br>
+
+---
+
+## 🚩 old-38
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/556010bf-f17c-458d-8134-b2aefdce11af)
+
+문제 페이지에 접속하면 'Log Injection'이라는 문구와 로그인 하는 입력 창 하나를 발견할 수 있다. 무작위 문자열을 입력하고 로그인 시도하자 아무 일도 일어나지 않았다. 요청과 응답 패킷을 확인하다가 해당 페이지의 주석에서 admin page로 이동할 수 있는 경로를 알게 되었다. 해당 페이지로 이동하자 나의 ip 주소와 내가 입력한 값들을 볼 수 있었고, 다른 사용자의 정보까지 로그로 확인할 수 있었다. 'admin'으로 로그인 해야한다는 문구를 확인할 수 있다.
+
+<br>
+
+Log Injection을 통해 내 ip가 admin으로 로그인 되었음을 나타내야 하는 문제이다. 입력 값이 그대로 admin 페이지에 추가되는 것으로 보아, 내 ip가 admin으로 로그인 하였다는 로그를 남기도록 해보자.
+
+<br>
+
+`guest\n{내 ip 주소}:admin`
+
+처음에는 이와 같이 입력하여 넘겨보았다.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/acfb8f58-5b79-487c-98d8-2042da91a508)
+
+그러나 `\n` 문자가 그대로 출력되었는데, 요청 시에 바디 값이 `id=guest%5Cn118.235.15.246%3Aadmin`로 전달되었었다. URL 인코딩되어 넘어갔음을 알 수 있다. 그래서 입력 값을 다양하게 하면서 요청을 해보았다.
+
+|--|--|--|
+|입력|요청|결과|
+|--|--|--|
+|guest\n{ip}:admin|id=guest%5Cn{ip}%3Aadmin|{ip}:guest\n{ip}:admin|
+|guest\r\n{ip}:admin|id=guest%5Cr%5Cn{ip}%3Aadmin|{ip}:guest\r\n{ip}:admin|
+|guest%0a{ip}:admin|id=guest%250aip%3Aadmin|{ip}:guest%0a{ip}:admin|
+
+<br>
+
+여러 시도 끝에 두 가지 해결 방법이 있었다.
+
+<br>
+
+1. `<input>` 태그가 아닌 `<textarea>`로 입력 창을 바꾸어 줄바꿈 키 입력 후 요청
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/bbf46d9d-f3c3-40cb-925a-a7a7dc5efeff)
+
+위와 같이 요청할 때 바디 값이 `id=guest%0D%0A118.235.15.246%3Aadmin`로 설정되며 줄바꿈 처리 됨.
+
+<br>
+
+2. 요청 시에 바디 값을 `id=guest%0D%0A118.235.15.246%3Aadmin`로 바꾸어 요청
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/baa868fa-09e7-4755-aa2c-2fb65d236c3a)
+
+마찬가지로 줄바꿈 처리되어 요청 전송 됨.
+
+<br>
+
+이제 admin 페이지에 접속해보면 문제를 풀었다는 alert를 확인할 수 있다.
 
 <br>
 
