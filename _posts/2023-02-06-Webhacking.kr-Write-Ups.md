@@ -644,6 +644,253 @@ hit는 테이블 태그의 `onclick` 속성으로 위와 같이 URL을 통해 GE
 
 ---
 
+## 🚩 old-33
+
+---
+
+이 문제는 단계별로 문제를 풀며 그 다음 단계의 문제 페이지 경로를 알아내어 최종 문제까지 풀어내는 문제이다. 페이지의 소스를 보고 요구하는 조건을 만족시키면 다음 단계로 넘어가는 링크를 제공하도록 되어있다.
+
+첫 번째 문제부터 확인해보자.
+
+<br>
+
+```php
+<?php
+if($_GET['get']=="hehe") echo "<a href=???>Next</a>";
+else echo("Wrong");
+?>
+```
+
+GET 요청 시에 파라미터 `get` 값으로 `hehe` 값을 포함시켜 요청하면 된다.
+
+<br>
+
+```
+https://webhacking.kr/challenge/bonus-6/?get=hehe
+```
+
+위와 같이 요청하면 다음 단계로 넘어갈 수 있다.
+
+<br>
+
+```php
+<?php
+if($_POST['post']=="hehe" && $_POST['post2']=="hehe2") echo "<a href=???>Next</a>";
+else echo "Wrong";
+?>
+
+```
+
+두 번째 문제는 바디 값으로 `post` 데이터에 `hehe`를, `post2` 데이터에 `hehe2`를 포함하여 **POST** 요청을 보내면 된다.
+
+콘솔 도구를 통해서도 요청할 수 있지만 응답 패킷에 `form`을 삽입하여 요청 해보자.
+
+<br>
+
+```html
+<form action="lv2.php" method="post">
+  <input name="post">
+  <input name="post2">
+  <input type=submit>
+</form>
+```
+
+위의 구문을 응답 패킷에 추가하고, 각각의 input 값으로 `hehe`와 `hehe2`를 넣어주고 제출하면 다음 문제로 넘어갈 수 있다.
+
+<br>
+
+```php
+<?php
+if($_GET['myip'] == $_SERVER['REMOTE_ADDR']) echo "<a href=???>Next</a>";
+else echo "Wrong";
+?>
+```
+
+세 번째 문제는 문제를 접속한 컴퓨터의 공인 IP 값을 `myip` 파라미터에 포함시켜 GET 요청을 보내면 된다.
+
+```
+https://webhacking.kr/challenge/bonus-6/33.php?myip={공인ip}
+```
+
+<br>
+
+```php
+<?php
+if($_GET['password'] == md5(time())) echo "<a href=???>Next</a>";
+else echo "hint : ".time();
+?>
+```
+
+네 번째 문제는 php에서 `time` 함수 값을 `md5` 함수를 통해 암호화한 값을 `password` 파라미터에 포함시켜 GET 요청을 보내면 되는 문제이다.
+
+새로고침할 때마다 hint로 제공되는 time 값의 포맷에 따라 몇 초 뒤의 시간 값을 온라인 md5 암호화 툴을 이용하여 생성된 문자열을 이용해  해당 시간 때까지 새로고침하면 문제를 풀 수 있다.
+
+<br>
+
+|-----|----|
+|time()|md5(time())|
+|1701696200|c4f184e9285c85f721c80625538d0096|
+
+```
+https://webhacking.kr/challenge/bonus-6/l4.php?password=c4f184e9285c85f721c80625538d0096
+```
+
+<br>
+
+```php
+<?php
+if($_GET['imget'] && $_POST['impost'] && $_COOKIE['imcookie']) echo "<a href=???>Next</a>";
+else echo "Wrong";
+?>
+
+```
+
+다섯 번째 문제는 다음 조건을 만족시켜 요청을 보내야한다.
+
+1. `imget` 파라미터를 포함시켜 **GET** 요청
+2. `impost` 데이터를 포함하여 **POST** 요청
+3. `imcookie` 쿠키 값을 포함시켜 요청
+
+<br>
+
+```html
+<form action="md555.php" method="post">
+  <input name="impost">
+  <input type="submit">
+</form>
+```
+
+우선 2번 조건을 위해 위와 같은 응답 패킷에 `form`을 삽입하였다.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/c0eb25f2-7612-4d44-b196-162c30616032)
+
+그 다음으로 input 값에 아무 데이터를 삽입하고, 요청을 보내는 패킷에서 URL 부분에 `imget` 파라미터 값을 포함하였고, `imcookie` 값을 쿠키 값으로 지정하면 위와 같은 패킷이 구성된다. 이대로 요청을 보내면 다음 단계로 넘어갈 수 있다.
+
+<br>
+
+```php
+<?php
+if($_COOKIE['test'] == md5($_SERVER['REMOTE_ADDR']) && $_POST['kk'] == md5($_SERVER['HTTP_USER_AGENT'])) echo "<a href=???>Next</a>";
+else echo "hint : {$_SERVER['HTTP_USER_AGENT']}";
+?>
+```
+
+여섯 번째 문제는 다음 조건을 만족시키면 문제를 해결할 수 있다.
+
+1. `test` 쿠기 값으로 공인 ip 값을 md5 암호화한 값을 포함시킨다.
+2. 바디 값에 `kk` 값으로 클라이언트의 `HTTP_USER_AGENT` 값을 md5 암호화한 값을 포함시켜 **POST** 요청을 한다.
+
+<br>
+
+```html
+<form action="gpcc.php" method="post">
+  <input name="kk">
+  <input type="submit">
+</form>
+```
+
+2번 조건을 위해 마찬가지로 응답 패킷에 `form`을 삽입하고, input 데이터로 hint를 통해 얻은 값을 암호화하여 전달하자.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/0e4e7eca-de7a-4d62-918c-0bf7afdcae8e)
+
+이때 요청 패킷에 cookie 값을 포함시켜 전송하면 다음 단계로 넘어갈 수 있다.
+
+<br>
+
+```php
+<?php
+$_SERVER['REMOTE_ADDR'] = str_replace(".","",$_SERVER['REMOTE_ADDR']);
+if($_GET[$_SERVER['REMOTE_ADDR']] == $_SERVER['REMOTE_ADDR']) echo "<a href=???>Next</a>";
+else echo "Wrong<br>".$_GET[$_SERVER['REMOTE_ADDR']];
+?>
+```
+
+일곱 번째 문제는 코드 해석에 주의해야 하는 문제이다. 공인 ip 값에서 `.`을 제거한 값을 `$_SERVER['REMOTE_ADDR']` 변수에 할당하고, 해당 값을 파라미터 이름과 값으로 하여 **GET** 요청하면 된다.
+
+<br>
+
+```
+https://webhacking.kr/challenge/bonus-6/wtff.php?118235412=118235412
+```
+
+이런식으로 요청하면 다음 단계로 넘어갈 수 있다.
+
+<br>
+
+```php
+<?php
+
+// GET 요청 시에 받은 파라미터의 키와 값을 변수화한다.
+extract($_GET);
+
+// GET 파라미터에 addr 값이 없다면 addr 변수에 공인 ip를 할당한다.
+if(!$_GET['addr']) $addr = $_SERVER['REMOTE_ADDR'];
+
+// addr 변수 값이 127.0.0.1 과 같다면 다음 단계 링크를 제공한다.
+if($addr == "127.0.0.1") echo "<a href=???>Next</a>";
+else echo "Wrong";
+?>
+```
+
+여덟 번째 문제에서는 주어진 소스코드를 위와 같이 분석하였다. 파라미터로 `addr` 키 값을 `127.0.0.1`로 넘겨주면 `extract` 함수에 의해 `addr` 키 값이 변수로 지정되고, 이에 첫 번째 if문이 실행되지 않는다. 두 번째 if문에서 변수 `addr` 값을 비교하는데 우리는 `127.0.0.1`을 넘겨주었기에 조건이 참이 되고 다음 단계로 넘어갈 수 있다.
+
+<br>
+
+```php
+<?php
+for($i=97;$i<=122;$i=$i+2){
+  $answer.=chr($i);
+}
+if($_GET['ans'] == $answer) echo "<a href=???.php>Next</a>";
+else echo "Wrong";
+```
+
+아홉 번째 문제는 ASCII 값 97부터 2씩 증가하며 122까지 문자로 변환하며 문자를 붙이고, 해당 문자열을 `ans` 파라미터 값으로 포함하여 **GET** 요청을 보내면 된다.
+
+<br>
+
+```
+https://webhacking.kr/challenge/bonus-6/nextt.php?ans=acegikmoqsuwy
+```
+
+위의 주소와 같이 요청하면 다음 단계로 넘어갈 수 있다.
+
+<br>
+
+```php
+<?php
+$ip = $_SERVER['REMOTE_ADDR'];
+for($i=0;$i<=strlen($ip);$i++) $ip=str_replace($i,ord($i),$ip);
+$ip=str_replace(".","",$ip);
+$ip=substr($ip,0,10);
+$answer = $ip*2;
+$answer = $ip/2;
+$answer = str_replace(".","",$answer);
+$f=fopen("answerip/{$answer}_{$ip}.php","w");
+fwrite($f,"<?php include \"../../../config.php\"; solve(33); unlink(__FILE__); ?>");
+fclose($f);
+?>
+
+```
+
+마지막 문제인 열 번째 문제는 공인 ip 문자열을 가공하고 해당 문자열을 포함한 경로에 있는 php 파일에 접근하면 문제를 풀 수 있다. 문자열 가공하는 과정을 따라가는 방법도 있겠지만, php 파일 하나를 임시로 만들어 변수 값 `answer`과 `ip`를 획득하였다.
+
+php 파일은 `{최상위 경로}/answerip/{$answer}_{$ip}.php`에 있었고, url에 입력하여 접근하니 문제를 풀 수 있었다.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/b96c32ff-9ba6-4ed5-b033-67f702598fa4)
+
+<br>
+
+
+---
+
+
 ## 🚩 old-36
 
 ```
@@ -674,8 +921,6 @@ Please help me recover.
 리눅스의 cat 명령어를 통해 해당 파일을 열어보면 위와 같이 flag 변수에 담겨 있는 flag 값을 확인할 수 있었다. auth 탭에서 인증하면 문제를 풀 수 있다.
 
 <br>
-
-
 
 ---
 
