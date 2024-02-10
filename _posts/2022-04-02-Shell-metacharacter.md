@@ -1,7 +1,7 @@
 ---
 title: "[Study] Shell Metacharacter"
 date: 2022-04-02 00:00:00
-categories: [Study]
+categories: [Study, Pwnable]
 tags: [linux, os]
 ---
 

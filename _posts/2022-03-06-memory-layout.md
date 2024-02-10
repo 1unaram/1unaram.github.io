@@ -1,8 +1,8 @@
 ---
 title: '[Study] Memory Layout'
 date: 2022-03-06 00:00:00
-categories: [Study]
-tags: [os, memory, linux]    
+categories: [Study, CS]
+tags: [os, memory, linux]
 ---
 
 # Memory Layout?
@@ -102,7 +102,7 @@ char *str_ptr = "readonly"; // - (3)
 int main() {...}
 ```
 
-**(1)** - `data_rwstr`은 `"writable_data"`을 가리키는 *전역 변수*이기 때문에 **data 세그먼트**에 저장됨. 
+**(1)** - `data_rwstr`은 `"writable_data"`을 가리키는 *전역 변수*이기 때문에 **data 세그먼트**에 저장됨.
 
 **(2)** - `"readonly_data"` 문자열이 const에 의해 *상수 문자열*로 저장되었기 때문에 **rodata 세그먼트**에 저장됨.
 
@@ -127,7 +127,7 @@ int main() {...}
 <br />
 
 ### Heap Segment
-: C언어에서 `malloc()`, `calloc()`와 같은 함수를 통해 프로그램 실행 중 동적으로 할당받는 메모리가 위치하는 영역. 
+: C언어에서 `malloc()`, `calloc()`와 같은 함수를 통해 프로그램 실행 중 동적으로 할당받는 메모리가 위치하는 영역.
 
 - 읽기 권한**(r)**과 쓰기 권한**(w)**이 부여됨.
 - **낮은 주소**에서 **높은 주소**로 메모리에 할당.
@@ -144,7 +144,7 @@ int main() {...}
 |**.data**|초기화된 *전역변수*가 위치하는 영역|읽기/쓰기|초기화된 *전역변수*, *전역상수*|
 |**.rdata**|초기화된 *전역상수*나 *임포트 데이터*가 위치하는 영역|읽기|*전역상수*, *외부 함수 정보 등의 임포트 데이터*|
 |**Stack Segment**|임시 변수가 위치하는 영역|읽기/쓰기|*지역변수*, *함수의 인자* 등|
-|**Heap Segment**|사용자에 의해 실행 중에 동적으로 사용되는 영역|읽기/쓰기|malloc(), calloc() 등으로 할당받은 메모리| 
+|**Heap Segment**|사용자에 의해 실행 중에 동적으로 사용되는 영역|읽기/쓰기|malloc(), calloc() 등으로 할당받은 메모리|
 
 ## Linux Memory Layout
 
@@ -154,5 +154,5 @@ int main() {...}
 |**Data Segment**|초기화된 데이터가 위치하는 영역|읽기 or 읽기/쓰기|초기화된 *전역변수*, *전역상수*|
 |**BSS Segment**|초기화되지 않은 데이터가 위치하는 영역|읽기/쓰기|초기화되지 않은 *전역변수*|
 |**Stack Segment**|임시 변수가 위치하는 영역|읽기/쓰기|*지역변수*, *함수의 인자* 등|
-|**Heap Segment**|사용자에 의해 실행 중에 동적으로 사용되는 영역|읽기/쓰기|malloc(), calloc() 등으로 할당받은 메모리| 
+|**Heap Segment**|사용자에 의해 실행 중에 동적으로 사용되는 영역|읽기/쓰기|malloc(), calloc() 등으로 할당받은 메모리|
 

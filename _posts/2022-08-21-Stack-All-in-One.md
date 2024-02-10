@@ -1,7 +1,7 @@
 ---
 title: '[Study] Stack All-in-One'
 date: 2022-08-21 00:00:00
-categories: [Study, Pwnable]
+categories: [Study, CS]
 tags: [pwnable, stack]
 ---
 
@@ -19,7 +19,7 @@ tags: [pwnable, stack]
 
 ---
 
-우선 Stack이란, 
+우선 Stack이란,
 프로그램이 실행될 때 운영체제는 프로세스가 사용 가능한 **가상 메모리(Virtual Memory)**공간을 할당해주는데 이 가상 메모리의 구성을 **메모리 레이아웃(Memory Layout)**이라고 하고, 그 중 <u>지역변수, 함수의 return address, 함수의 매개변수</u>와 같은 임시 변수들이 프로그램 실행 중에 동적으로 할당 받아 저장되는 메모리 공간을 **Stack**이라고 합니다.
 
 <br />
@@ -43,7 +43,7 @@ Stack은 Windows와 Linux에서 **Stack Segment**라고 하는 공간을 뜻하�
 ---
 
 첫 번째로, 스택 프레임에 대해서 알아보겠습니다.
-스택 프레임(Stack Frame)이란, 프로그램이 실행되며 함수 호출 시 <u>함수의 매개변수, 호출이 끝난 뒤 돌아갈 반환 주소(return address) 값, 함수 내에서 선언된 지역 변수</u> 등이 저장되는데, 이렇게 스택 영역에 저장되는 함수의 호출 정보를 **스택 프레임(Stack Frame)**이라고 합니다. 
+스택 프레임(Stack Frame)이란, 프로그램이 실행되며 함수 호출 시 <u>함수의 매개변수, 호출이 끝난 뒤 돌아갈 반환 주소(return address) 값, 함수 내에서 선언된 지역 변수</u> 등이 저장되는데, 이렇게 스택 영역에 저장되는 함수의 호출 정보를 **스택 프레임(Stack Frame)**이라고 합니다.
 함수가 호출되면 스택 프레임을 생성하고(메모리 블록이라고 이해하면 좋음) 함수가 반환되면 스택 프레임을 반납합니다(메모리 반환).스택 프레임을 이용하여 함수에 사용하는 변수들을 효율적으로 관리할 수 있고, 함수 호출 이전의 상태로 돌아갈 수 있습니다.
 
 🔽 스택 프레임 구조
@@ -68,16 +68,16 @@ Stack은 Windows와 Linux에서 **Stack Segment**라고 하는 공간을 뜻하�
 int add(int c, int d) {
 	int e = c;
     int f = d;
-    
+
     return e + f;
 }
 
 int main() {
 	int a, b;
-    
+
     a = 2;
     b = 3;
-    
+
     printf("%d", add(a, b));
 }
 ```
@@ -86,13 +86,13 @@ int main() {
 2. 지역 변수 int형(4byte) `a`, `b` 생성
 3. `2`, `3`을 각각 할당
 4. `add(a, b)`의 반환 값을 int형으로 출력
-	
+
     a. `add` 함수 실행
 
     b. 지역 변수 int형(4byte) `c`, `d`에 `a`, `b` 값 할당
 
     c. `c + d` 값을 return
-    
+
 <br />
 
 디버거를 통해 차근차근 확인해봅시다. 사용한 디버거는 [pwndbg](https://github.com/pwndbg/pwndbg)입니다.
@@ -159,7 +159,7 @@ pwndbg> disassemble main
     pop rbp
     ```
 
-    의 명령어와 같은 동작을 하는 명령어로, 해당 함수를 호출하며 기준이 되었던 rbp 레지스터의 값을 <u>이전 함수의 rbp 값</u>으로 재설정 해주는 과정입니다. rsp를 rbp 값으로 재설정 해주는 동작은 함수에서 사용했던 지역 변수를 **정리**한다는 의미를 가집니다. 
+    의 명령어와 같은 동작을 하는 명령어로, 해당 함수를 호출하며 기준이 되었던 rbp 레지스터의 값을 <u>이전 함수의 rbp 값</u>으로 재설정 해주는 과정입니다. rsp를 rbp 값으로 재설정 해주는 동작은 함수에서 사용했던 지역 변수를 **정리**한다는 의미를 가집니다.
     `pop rbp`를 통해 스택 top(현재 rsp가 가리키고 있는 곳, rbp)에 있는 값을 꺼내어 rbp 레지스터에 저장합니다.
 
     > 여기서, <u>이전 함수의 rbp</u>를 저장하는 곳을 **Stack Frame Pointer(SFP)**라고 부릅니다. 현재 스택 프레임의 기준을 세우면서, 이전 함수의 rbp 공간을 저장하는 역할을 하고 있습니다.
@@ -196,7 +196,7 @@ pwndbg> disassemble main
 
 ![image](https://user-images.githubusercontent.com/37824335/224683417-df967759-4899-4961-86fe-60b2be74874f.png)
 
-그림을 통해 설명하겠습니다. 
+그림을 통해 설명하겠습니다.
 
 <br>
 
@@ -252,7 +252,7 @@ pwndbg> disassemble main
 <br>
 
 > **`x64` 환경인데 `edx`, `eax`, `edi`, `esi`와 같은 레지스터를 사용하는 이유?**
-예를 들어, `edx` 레지스터는 `rdx` 레지스터의 <u>하위 32bit와 호환</u>됩니다. 
+예를 들어, `edx` 레지스터는 `rdx` 레지스터의 <u>하위 32bit와 호환</u>됩니다.
 자세한 내용은 [이곳](https://velog.io/@1unaram/OS-Register#%EB%A0%88%EC%A7%80%EC%8A%A4%ED%84%B0-%ED%98%B8%ED%99%98)을 참고해주세요.
 {: .prompt-tip}
 
@@ -275,11 +275,11 @@ pwndbg> disassemble add
 - `add` 호출 전 : `main` 함수에서 `add` 함수를 호출하기 전에 <u>`main` 함수에서 호출한 명령어(`add(a, b)`) 그 다음 명령어 주소를 **RET** 공간에 저장합니다.</u> 이때, `rsp`는 `RET`를 가리킬 것입니다.
 
 - 함수의 프롤로그
-	
+
     - `<add+4>` : main 함수의 `rbp` 값을 stack에 저장해둡니다. `add` 함수가 종료되면 이 값을 꺼내어 `main`으로 복귀 시 `rbp`로 사용할 예정입니다.
     - `<add+5>` : 현재 `rsp`가 가리키는 위치를 `rbp`로 설정합니다.
-    
-  
+
+
 `<add+8>` 부터는 지역 변수의 위치를 고려하여 `add` 함수의 스택 프레임을 다시 그려보겠습니다.
 
 <br>
@@ -291,12 +291,12 @@ pwndbg> disassemble add
 
 - `e = c` 명령어 과정
     - `<add+14>` : `rbp - 0x14`(=2) 값을 `eax`에 저장합니다.
-    - `<add+17>` : `eax`(=2) 값을 `rbp - 0x4`에 저장합니다. 
-    
+    - `<add+17>` : `eax`(=2) 값을 `rbp - 0x4`에 저장합니다.
+
 - `f = d` 명령어 과정
     - `<add+20>` : `rbp - 0x18`(=3) 값을 `eax`에 저장합니다.
     - `<add+23>` : `eax`(=3) 값을 `rbp - 0x8`에 저장합니다.
-    
+
 - `c + d` 명령어 과정
     - `<add+26>` : `rbp - 0x4`(=2) 값을 `edx`에 저장합니다.
     - `<add+29>` : `rbp - 0x8`(=3) 값을 `eax`에 저장합니다.
@@ -319,7 +319,7 @@ pwndbg> x/10x 0x7fffffffe110-0x20
 - 함수의 에필로그
     - `<add+34>` : `leave` 역할을 하는 코드가 존재해야 하나, `mov rsp, rbp` 명령어가 존재하지 않습니다. 이는 `add` 함수 내에서 stack을 확장하지 않았기 때문에 `rsp` 값이 함수의 시작 시점의 값과 동일하기 때문에 스택을 정리할 필요가 없기 때문입니다. main 함수의 rbp를 저장하고 있는 **SFP**에서 값을 꺼내어 rbp를 설정해줍니다.
     - `<add+35>` : **RET**에 저장되어 있던 복귀해야할 명령어 주소를 꺼내어 `jump` 합니다. `main` 함수로 돌아가는 셈입니다.
-    
+
 <br />
 
 > **Assembly**

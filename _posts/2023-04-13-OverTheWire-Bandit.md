@@ -1,7 +1,7 @@
 ---
 title: '[Wargame] Over The Wire - Bandit'
 date: 2023-04-13 00:00:00
-categories: [Write-Up]
+categories: [Write-Up, Pwnable]
 tags: [wargame, overthewire, bandit]
 published: true
 ---
@@ -890,7 +890,7 @@ Some notes for bandit30 of bandit.
 ```
 
 
-<br> 
+<br>
 
 # # Level 31 ~
 
