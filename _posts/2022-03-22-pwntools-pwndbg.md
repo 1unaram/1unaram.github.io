@@ -1,7 +1,7 @@
 ---
 title: '[Study] pwntools & pwndbg'
 date: 2022-03-22 00:00:00
-categories: [Study, Pwnable]
+categories: [Study, System Hacking]
 tags: [pwnable, pwntools, pwndbg]
 ---
 
