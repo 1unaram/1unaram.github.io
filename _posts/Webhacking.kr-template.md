@@ -1,7 +1,7 @@
 ---
 title: '[Wargame] Webhacking.kr old- ()'
 date: 2023-00-00 00:00:00
-categories: [Wargame]
+categories: [Wargame, webhacking.kr]
 tags: [webhacking, webhacking.kr]
 published: False
 ---
