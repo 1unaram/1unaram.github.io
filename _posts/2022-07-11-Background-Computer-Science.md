@@ -173,8 +173,6 @@ A. 힙 세그먼트
 
 ## Quiz: x86 Assembly 2
 
-<br>
-
 [[Dreamhack] Quiz: x86 Assembly 2](https://1unaram.github.io/posts/quiz-assembly2/)
 
 <br>
