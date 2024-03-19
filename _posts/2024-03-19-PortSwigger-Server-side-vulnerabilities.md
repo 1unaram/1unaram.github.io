@@ -22,19 +22,24 @@ Directory traversal로 알려져 있다. 이 취약점은 공격자에게 어플
 
 <br>
 
-판매 중인 상품을 보여주는 쇼핑 어플리케이션을 생각해보자. 이는 다음과 같은 HTML을 사용하여 이미지를 로딩할 것이다.
-
 `<img src="/loadImage?filename=218.png">`
 
-`loadImage` url은 `filename` 파라미터를 받고 특정 파일의 내용을 보여준다. 만약 이미지 파일이 `/var/www/images/` 위치에 저장되어 있다면 다음과 같은 파일 경로를 읽을 것이다.
-
-`/var/www/images/218.png`
+판매 중인 상품을 보여주는 쇼핑 어플리케이션을 생각해보자. 이는 위와 같은 HTML을 사용하여 이미지를 로딩할 것이다.
 
 <br>
 
-이 어플리케이션은 path traversal 공격에 대한 처리가 없다면, 공격자는 다음 URL을 요청함으로써 서버의 파일 시스템으로부터 `/etc/passwd` 파일을 조회할 수 있을 것이다.
+`/var/www/images/218.png`
+
+`loadImage` url은 `filename` 파라미터를 받고 특정 파일의 내용을 보여준다. 만약 이미지 파일이 `/var/www/images/` 위치에 저장되어 있다면 위와 같은 파일 경로를 읽을 것이다.
+
+
+<br>
 
 `https://insecure-website.com/loadImage?filename=../../../etc/passwd`
+
+이 어플리케이션은 path traversal 공격에 대한 처리가 없다면, 공격자는 위의 URL을 요청함으로써 서버의 파일 시스템으로부터 `/etc/passwd` 파일을 조회할 수 있을 것이다.
+
+<br>
 
 문자열 `../`는 파일 시스템 내에서 <u>이전 파일 경로로 이동</u>하는 것을 의미하는 유효한 파일 경로이다. `../../../` 문자열을 통해 파일 시스템의 root `/`으로 이동할 수 있고, `/etc/passwd` 파일을 읽을 수 있게 된다.
 
@@ -42,9 +47,11 @@ Directory traversal로 알려져 있다. 이 취약점은 공격자에게 어플
 
 해당 파일은 Unix 기반 시스템에서는 서버에 등록된 사용자의 세부정보를 포함한 기본 파일이지만, 공격자가 같은 방법을 이용하면 다른 임의의 파일을 조회할 수도 있을 것이다.
 
-Windows에서는 `../`와 `..\` 모두 유효한 directory traversal 문자열이다. 다음은 Windows 기반 서버에서 유효한 공격 예시이다.
+<br>
 
 `https://insecure-website.com/loadImage?filename=..\..\..\windows\win.ini`
+
+Windows에서는 `../`와 `..\` 모두 유효한 directory traversal 문자열이다. 위는 Windows 기반 서버에서 유효한 공격 예시이다.
 
 <br>
 
@@ -68,11 +75,15 @@ Windows에서는 `../`와 `..\` 모두 유효한 directory traversal 문자열�
 
 Access Control은 어떤 사람이나 어떤 것이 동작을 수행하거나 리소스에 접근에 인가되었는지에 대한 어플리케이션의 제한이다. 웹 어플리케이션에서 이는 Authentication(권한 부여)와 Session management(세션 관리)에 달려 있다.
 
+<br>
+
 - **Authentication**은 사용자가 누구인지를 확인하는 과정
 
 - **Session management**은 연속된 HTTP 요청이 같은 사용자로부터 이루어졌는지를 확인하는 과정
 
 - **Access control**은 사용자가 동작을 수행하려는 시도가 허용되는지 판단하는 과정
+
+<br>
 
 Broken access controls은 흔하게 발생하고 치명적인 보안 취약점으로 종종 존재한다. Access controls의 설계와 관리는 비즈니스, 조직, 그리고 기술 구현에 대한 법적 제한에 적용되는 복잡하고 동적인 문제이다. Access control 설계 결정은 사람에 의해 이루어지기에, 오류에 대한 가능성이 높다.
 
@@ -88,9 +99,11 @@ Broken access controls은 흔하게 발생하고 치명적인 보안 취약점�
 
 vertical privilege escalation은 어플리케이션이 민감한 기능에 대한 어느 보호도 되어있지 않을 때 발생한다. 예를 들어, 관리자 기능은 일반 사용자의 기본 페이지로부터가 아닌 관리자의 기본 페이지로부터 연결되어 있어야 한다. 그러나, 관리자와 관련된 url을 탐색함으로써 사용자가 관리자 기능에 접근할 수도 있을 것이다.
 
-예를 들어, 한 웹사이트가 다음과 같은 url로 민감한 기능을 호스팅하고 있다고 하자.
+<br>
 
 `https://insecure-website.com/admin`
+
+예를 들어, 한 웹사이트가 위와 같은 url로 민감한 기능을 호스팅하고 있다고 하자.
 
 이는 사용자 인터페이스 기능에 접근하는 링크를 갖고 있는 관리자 뿐만 아니라 접근이 허락되지 않은 어떠한 사용자에 의해서도 접근 가능할지도 모른다. 몇몇의 경우에는, 관리자 url이 `robots.txt` 파일과 같은 위치에 노출될 수도 있다.
 
@@ -123,6 +136,8 @@ url이 어느 곳에도 노출되어 있지 않더라도, 공격자는 민감한
 위의 url을 통해 관리자 기능을 호스팅하는 어플리케이션이 있다고 하자.
 
 이는 공격자가 곧바로 예측할 수는 없지만, 어플리케이션이 사용자에게 여전히 url을 노출시킬 수 있다. url은 사용자의 역할에 따라 사용자 인터페이스를 구축하는 Javascript에서 노출될 수 있다.
+
+<br>
 
 ```javascript
 <script>
@@ -158,6 +173,7 @@ url이 어느 곳에도 노출되어 있지 않더라도, 공격자는 민감한
 <br>
 
 `https://insecure-website.com/login/home.jsp?admin=true`
+
 `https://insecure-website.com/login/home.jsp?role=1`
 
 위와 같은 예시처럼 어플리케이션이 사용자가 제출한 값에 따라 access control 결정을 하기도 한다. 이 방법은 사용자가 값을 수정하고 관리자 기능과 같이 사용자가 접근해서는 안되는 기능에 접근할 수 있기 때문에 안전하지 않다.
