@@ -6,6 +6,13 @@ tags: [webhacking, portswigger]
 published: True
 ---
 
+> [[PortSwigger Academy](https://portswigger.net/web-security/learning-paths)] Server-side vulnerabilities를 수강하고 정리하였습니다.
+{: .prompt-info }
+
+<br>
+
+<br>
+
 # #Path traversal
 
 ---
@@ -55,7 +62,7 @@ Windows에서는 `../`와 `..\` 모두 유효한 directory traversal 문자열�
 
 <br>
 
-## Lab: File path traversal, simple case
+## 🚩Lab: File path traversal, simple case
 
 ![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/328156d7-4194-47a2-9bd4-3955c2cd9b94)
 
@@ -113,7 +120,7 @@ url이 어느 곳에도 노출되어 있지 않더라도, 공격자는 민감한
 
 <br>
 
-## Lab: Unprotected admin functionality
+## 🚩Lab: Unprotected admin functionality
 
 ![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/34222cd0-35d7-4772-a6b2-ff45674d5432)
 
@@ -156,7 +163,7 @@ url이 어느 곳에도 노출되어 있지 않더라도, 공격자는 민감한
 
 <br>
 
-## Lab: Unprotected admin functionality with unpredictable URL
+## 🚩Lab: Unprotected admin functionality with unpredictable URL
 
 ![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/3d041339-c414-479e-b9e1-c10315a807e5)
 
@@ -180,7 +187,7 @@ url이 어느 곳에도 노출되어 있지 않더라도, 공격자는 민감한
 
 <br>
 
-## Lab: User role controlled by request parameter
+## 🚩Lab: User role controlled by request parameter
 
 ![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/6c7af10c-b820-4b25-ba9d-5bbd7334f91a)
 
@@ -217,7 +224,7 @@ Horizontal privilege escalation 공격은 vertical privilege escalation 공격 �
 
 <br>
 
-## Lab: User ID controlled by request parameter, with unpredictable user IDs
+## 🚩Lab: User ID controlled by request parameter, with unpredictable user IDs
 
 ![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/66ffdb79-8b5c-4710-91c8-d20005afc51d)
 
@@ -249,7 +256,7 @@ Horizontal privilege escalation 공격은 vertical privilege escalation 공격 �
 
 <br>
 
-## Lab: User ID controlled by request parameter with password disclosure
+## 🚩Lab: User ID controlled by request parameter with password disclosure
 
 ![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/b90a4829-348b-4bf9-8d87-d54731966cf6)
 
@@ -266,3 +273,206 @@ Horizontal privilege escalation 공격은 vertical privilege escalation 공격 �
 <br>
 
 # #Authentication
+
+## Authentication vulnerabilitis
+
+Authentication vulnerabilities는 개념적으로 이해하기 쉬우나, 이는 인증과 보안 사이의 명백한 관계 때문에 치명적이다. Authentication vulnerabilities는 공격자가 민감한 데이터와 기능에 접근할 수 있도록 해준다. 또한 추가적인 익스플로잇을 위한 공격 표면을 노출시기기도 한다. 이러한 이유로 authentication vulunerabilities를 식별하고 익스플로잇하는 방법과 흔한 보호 수단을 우회하는 방법을 배우는 것이 중요하다.
+
+<br>
+
+## What is the difference between authentication and authorization?
+
+인증은 한 사용자가 그들이 누구인지 주장하는 것을 확인하는 절차이다. 권한은 한 사용자가 어떠한 행동을 해도 되는지 확인하는 과정을 포함하고 있다.
+
+<br>
+
+예를 들어, 인증이 한 사이트에 접근을 시도하는 사용자명 `Carlos123`을 가진 누군가가 계정을 가진 인물과 동일한 인물인지를 결정한다. 일단 `Carlos123`이 인증되면, 그 사용자의 권한이 어떤 행동들이 허락되는지를 결정한다. 예를 들어, 사용자가 다른 사용자에 대한 개인 정보를 접근할 수 있는 권한을 가지거나 다른 사용자의 계정을 삭제할 수 있는 등의 행동을 수행하는 권한을 가질 수 있다.
+
+<br>
+
+## Brute-force attacks
+
+Brute-force 공격은 공격자가 유효한 자격 증명을 추측하기 위해 시행 착오 시스템을 사용하는 경우를 말한다. 이 공격은 전형적으로 사용자의 이름과 패스워드 wordlist를 사용하여 자동화되어 있다. 이 공격을 위한 툴을 사용하는 이 자동화 과정은 잠재적으로 공격자가 빠른 속도로 막대한 횟수의 로그인 시도를 할 수 있게 해준다. Brute-forcing은 사용자 이름과 비밀번호를 완전히 무작위하게 만드는 경우만 존재하지는 않는다. 기본적인 논리 혹은 공개적으로 이용 가능한 지식을 이용함으로써 공격자는 미세 조정하여 훨씬 더 정확한 추측을 할 수 있다. 이것은 이러한 공격의 효율성을 상당히 증가시킨다. 사용자를 이증하는 유일한 방법으로 비밀번호 기반 로그인을 사용하는 웹 사이트는 충분한 brute-force 보호 기법을 적용하지 않는다면 매우 높은 취약점을 가질 수 있다.
+
+<br>
+
+
+## Brute-forcing usernames
+
+사용자명은 이메일 주소와 같이 인식 가능한 패턴에 부합하는 경우에 특히 쉽게 추측할 수 있다. 예를 들어, `firstname.lastname@somecompany.com` 형식을 사용하는 매우 흔한 비즈니스 로그인 방식을 볼 수 있다. 그러나, 분명한 패턴이 존재하지 않더라도 높은 권한을 갖고 있는 계정이 `admin`이나 `administrator`와 같은 예측 가능한 사용자명으로 만들어지는 경우도 있다. 감사 중에 웹 사이트가 잠재적인 사용자명을 공개적으로 노출하고 있는지 확인해라. 예를 들어, 로그인 없이 사용자의 프로필에 접근할 수 있는가? 그렇다면 실제적인 프로필의 내용이 숨겨져 있더라도, 프로필에서 사용된 이름은 로그인할 때 사용되는 사용자명이랑 같은 경우가 있다. 또한 이메일 주소가 노출되지 않는지 HTTP 응답을 체크해야만 한다. 때때로는 응답에 관리자와 같이 높은 권한을 가진 사용자의 이메일 주소가 포함되기도 한다.
+
+<br>
+
+## Brute-forcing passwords
+
+패스워드도 마찬가지로 brute-force 공격을 받을 수 있으며, 패스워드의 강도에 따라 난이도가 달라질 수 있다. 많은 웹 사이트는 패스워드 정책 폼을 사용하는데, 이는 사용자가 brute-force 공격만으로 크랙하기 여러운 높은 엔트로피를 가진 패스워드를 생성하도록 강제한다. 다음은 일반적으로 패스워드를 강제할 때 포함되는 것이다.
+
+- 최소 글자 수
+- 대소문자 혼합
+- 1개 이상의 특수문자
+
+그러나, 높은 엔트로피를 가진 패스워드는 컴퓨터 혼자만으로는 크랙하기 어려운 반면에, 우리는 사용자가 무의식적으로 이 시스템에 도입한 취약점을 익스플로잇하기 위해 사람의 행동에 대한 기본적인 지식을 이용할 수 있다. 무작위의 글자 조합으로 강한 패스워드를 만드는 것보다 사용자가 기억할 수 있는 패스워드를 선택하여 비밀번호 정책에 맞추려고 시도하는 경우가 많다. 예를 들어, `mypassword`가 패스워드로 허용되지 않았다면 사용자는 `Mypassword!`나 `Myp4$$w0rd`와 같은 것을 대신에 시도해볼 수 있다.
+
+<br>
+
+정책에 따라 사용자가 정기적으로 패스워드를 변경하도록 요구하는 경우에 사용자들이 선호하는 패스워드로 바꾸기 위해 사소하고 예측 가능한 변화를 만드는 일은 흔히 일어난다. 예를 들어, `Mypassword1!`는 `Mypassword1?`나 `Mypassword2!`가 될 수 있다. 가능한 자격 증명이나 예측 가능한 패턴에 대한 지식은 brute-force 공격을 더 정교하게 만들어 단순히 가능한 모든 글자 조합을 반복하는 것보다 더욱 효과적으로 만들 수 있다.
+
+<br>
+
+## Username enumeration
+
+사용자명 열거(Username enumeration)은 공격자가 주어진 사용자명이 유효한지 확인하기 위해 웹 사이트 동작의 변화를 관측할 수 있게 해준다. 사용자명 열거는 일반적으로 로그인 페이지(예를 들어, 유효한 사용자명을 입력했으나 패스워드가 틀린 경우) 혹은 회원가입 페이지에서 이미 사용 중인 사용자명을 입력했을 경우에 발생한다. 이는 공격자가 유효한 사용자명의 최종 후보 목록을 생성할 수 있기 때문에 로그인 brute-force 공격에 대한 시간과 노력을 막대하게 줄일 수 있다. 로그인 페이지를 brute-force 공격을 시도하는 동안 다음 사항의 차이점에 특히 주의해야 한다.
+
+- **상태 코드** : brute-force 공격을 하는 동안에 응답받은 HTTP 상태 코드는 대부분의 추측이 틀릴 것이기 때문에 동일할 가능성이 높다. 만약 다른 상태 코드를 받았다면, 사용자명이 맞았다는 강력한 표시이다. 웹 사이트에서는 결과에 관계없이 항상 동일한 상태 코드를 반환하는 것이 가장 좋은 방법이지만 이 방법이 항상 지켜지는 것은 아니다.
+
+- **에러 메시지** : 때때로는 사용자명과 패스워드 모두 틀린 경우거나 패스워드만 틀린 경우에 따라 반환하는 에러 메시지가 다를 수 있다. 웹 사이트에서는 두 경우에 동일하고 일반적인 메시지를 사용하는 것이 가장 좋은 방법이지만 작은 타이핑 오류가 가끔 발생한다. 렌더링된 페이지에 해당 문자가 보이지 않는 경우에도 문자 하나만 잘못되어도 두 메시지가 구분된다.
+
+- **응답 시간** : 대부분의 요청이 비슷한 응답 시간으로 처리된 경우, 이로부터 벗어나는 것은 뒤에서 뭔가 다른 일이 일어나고 있음을 나타낸다. 이는 사용자명이 맞았다는 추측을 나타내는 또다른 지표이다. 예를 들어, 한 웹 사이트가 사용자명이 유효한 경우에만 패스워드가 맞는지를 체크할 수 있다. 이 추가적인 과정은 응답 시간을 조금 늘릴 수 있다. 이는 미묘할 수도 있는데, 공격자는 웹 사이트가 처리하는데 눈에 띄게 오래 걸리는 과도하게 긴 패스워드를 입력함으로써 지연 시간을 더 분명하게 만들 수 있다.
+
+<br>
+
+## 🚩Lab: Username enumeration via different responses
+
+이 문제는 주어진 wordlists를 이용해 brute-force 공격으로 로그인을 하는 문제이다. 파이썬 requests 모듈을 이용하여 코드를 짜는 방법도 있겠지만 Burp Suite의 **Intruder** 기능을 이용하여 문제를 해결해보자. Intruder는 Burp Suite에서 제공하는 웹 어플리케이션을 대상으로 사용자 정의 공격을 할 수 있는 자동화 도구이다.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/24feb153-5c41-4a8b-9739-345fe92ca82f)
+
+우선 **Proxy - HTTP history** 탭에서 로그인을 시도한 요청 패킷을 찾아 우클릭하여 **Send to Intruder**를 클릭한다.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/0dae99bc-4be8-4deb-9d46-980aae2650e5)
+
+**Intruder - Positions** 탭에서 **Attack type**을 <u>Sniper</u>로 체크한다. **Payload positions**에서 POST 요청에 포함되는 값을 변경할 수 있는데, 위의 이미지처럼 username은 `§`로 감싸 변수처럼 만들어주고 패스워드는 아무런 값을 대입해두자. 우선 username을 알아내기 위함이다.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/6ccaf7a3-abd6-493b-9cad-0f9c1712df8e)
+
+**Intruder - Payloads** 탭에서 **Payload sets**을 위의 이미지처럼 설정하여 준다.
+
+<br>
+
+문제에서 주어진 username의 wordlist를 복사하여 **Payload settings**에서 Paste를 눌러 리스트를 생성해준다.
+
+<br>
+
+이제 우측 상단에 있는 **Start attack** 버튼을 눌러 공격을 시작한다. 잠시 기다리면 모든 단어에 대해서 자동으로 username 값을 변경하며 요청을 처리하고 각종 정보를 보여준다.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/5b676151-78a5-4c72-8c7c-4d4f2012756a)
+
+모든 단어에 대해 시도하고 나면 Length 값이 다른 하나의 요청을 찾을 수 있다. 이 페이로드가 올바른 username인 것을 알아낼 수 있다.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/20b550ab-3afd-4b64-b399-d326401db14e)
+
+이제 username을 `antivirus`로 채우고 password 값을 변수화하고 wordlist를 수정하여 같은 방식으로 공격을 시도하면 위와 같이 상태 코드와 길이가 다른 요청을 찾을 수 있고, `qwerty`가 올바른 password임을 알아낼 수 있다.
+
+<br>
+
+## Bypassing two-factor authentication
+
+때로는 이중 인증(two-factor authentication) 구현에 결함이 있어 완전히 우회하는 경우도 있다. 만약 사용자에게 처음으로 비밀번호를 입력하라는 메시지가 표시된 다음에 구별된 페이지에서 인증 코드를 입력하라는 메시지가 표시되면, 사용자는 인증 코드를 입력하기 전에 사실상 "로그인" 상태에 있다. 이러한 경우에 첫 번째 인증 단계를 완료한 후 "로그인 전용" 페이지로 직접 건너뛸 수 있는지 테스트해 볼 가치가 있다. 때때로 웹 사이트가 페이지를 로딩하기 전에 두 번째 단계를 완료했는지 여부를 실제로 확인하지 않을 수도 있다.
+
+<br>
+
+## 🚩Lab: 2FA simple bypass
+
+간단한 이중 인증 우회 문제이다. 우선 주어진 계정 `carlos:montoya`로 로그인을 한다. 이제 이중 인증 코드를 입력하는 창을 볼 수 있는데 이때, *Back to lab description* 버튼을 눌러 메인 화면으로 이동한다. 이 상태는 이미 로그인된 상태이다. 이제 My account로 이동하면 쉽게 문제를 풀 수 있다.
+
+<br>
+
+<br>
+
+# #Server-side request forgery (SSRF)
+
+서버 측 요청 위조(Sever-side request forgery) 즉, SSRF는 공격자가 서버 측 어플리케이션을 의도되지 않은 경로로 요청을 보내도록 만들 수 있도록 하는 웹 보안 취약점이다. 일반적인 SSRF 공격에서 공격자는 서버가 조직 인프라 내의 내부 전용 서비스에 연결되도록 할 수 있다. 다른 경우로 공격자는 서버가 임의의 외부 시스템에 연결됟록 할 수 있다. 이는 인증 자격 증명과 같은 민감한 데이터가 유출될 수 있다.
+
+<br>
+
+## SSRF attacks against the server
+
+서버에 대한 SSRF 공격에서, 공격자는 loopback 네트워크 인터페이스를 통해 어플리케이션이 어플리케이션을 호스팅하는 서버에 HTTP 요청을 다시 보내도록 한다. 여기에는 일반적으로 `127.0.0.1`(loopback 어댑터를 가리키는 예약된 IP 주소) 혹은 `localhost`(같은 어댑터를 위해 일반적으로 사용되는 이름)과 같은 호스트 이름이 포함된 URL을 제공하는 작업이 포함된다.
+
+<br>
+
+```
+POST /product/stock HTTP/1.0
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 118
+
+stockApi=http://stock.weliketoshop.net:8080/product/stock/check%3FproductId%3D6%26storeId%3D1
+```
+
+예를 들어, 사용자가 특정한 상점에 한 상품이 재고가 있는지 사용자가 확인할 수 있는 쇼핑 어플리케이션이 있다고 가정하자. 재고 정보를 제공하기 위해서는 어플리케이션은 다양한 백엔드 REST API 쿼리를 해야만 한다. 프론트엔드 HTTP 요청을 통해 관련 백엔드 API 엔드포인트에 URL을 전달하여 이를 수행한다. 사용자가 상품에 대한 재고 상태를 조회할 때, 브라우저는 위와 같은 요청을 보낸다.
+
+<br>
+
+```
+POST /product/stock HTTP/1.0
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 118
+
+stockApi=http://localhost/admin
+```
+
+이는 서버가 특정한 URL에 요청을 보내고, 재고 상태를 조회하고, 이를 사용자에게 전달한다. 위의 예시는 공격자가 서버에 로컬 URL을 지정하도록 요청을 수정할 수 있다.
+
+서버는 `/admin` URL에 있는 내용을 가져오고 이를 사용자에게 전달한다.
+
+<br>
+
+공격자는 `/admin` URL에 방문할 수 있지만 관리 기능은 일반적으로 인증된 사용자만 액세스할 수 있다. 이는 공격자가 관심있는 내용을 전혀 볼 수 없는 것을 의미한다. 그러나 로컬 서버에서 `/admin` URL로 요청을 보낸다면, 일반적인 액세스 제어는 우회된다. 요청이 신뢰할 수 있는 경로에서 시작된 것으로 나타나므로 어플리케이션은 모든 액세스를 관리 기능에 제공한다.
+
+<br>
+
+## 🚩Lab: Basic SSRF against the local server
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/ede5c922-a8db-4b93-85c4-011a41337f69)
+
+한 상품의 세부 정보 페이지로 들어가면 각 나라의 재고를 확인할 수 있다. Check stock 버튼을 누를 때 요청하는 패킷을 확인하면 위와 같이 `stockApi` 값을 전달하고 있다. 이제 해당 API를 `http://localhost/admin`로 변경하여 요청을 해보자.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/1f1e5adb-f6f9-4e6b-8651-ac14ab9bc068)
+
+왼쪽과 같이 요청을 보내면 오른쪽과 같은 응답을 얻는데 이는 관리자 페이지임을 알 수 있다. carlos 계정을 삭제하는 부분은 `a` 태그로 경로가 있으므로 `/admin/delete?username=carlos` 경로로 요청을 보내면 된다. 이제 다시 `stockApi` 값을 `stockApi=http://localhost/admin/delete?username=carlos`와 같이하여 요청을 전송하면 문제가 해결됨을 알 수 있다.
+
+<br>
+
+## SSRF attacks against other back-end systems
+
+어떤 경우에서는 어플리케이션 서버가 사용자가 직접적으로 접근할 수 없는 백엔드 시스템과 상호작용할 수 있다. 이러한 시스템은 라우팅할 수 없는 개인 IP 주소가 있는 경우가 많다. 백엔드 시스템은 일반적으로 네트워크 토폴로지에 의해 보호되므로 보안 상태가 약한 경우가 많다. 많은 경우에 내부 백엔드 시스템에는 시스템과 상호작용할 수 있는 사람은 누구나 인증 없이 액세스할 수 있는 중요한 기능이 포함되어 있다.
+
+<br>
+
+```
+POST /product/stock HTTP/1.0
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 118
+
+stockApi=http://192.168.0.68/admin
+```
+
+이전 예시에서 `https://192.168.0.68/admin` 백엔드 URL에서 관리자 인터페이스가 있다고 해보자. 공격자는 SSRF 취약점을 익스플로잇하기 위해 위와 같은 요청을 보내고 관리자 인터페이스에 액세스할 수 있다.
+
+<br>
+
+## 🚩Lab: Basic SSRF against another back-end system
+
+이 문제는 이전 문제와 같이 재고를 체크하는 기능에서 요청할 때 포함하는 `stockApi` 값을 `192.168.0.X`로 하여 관리자 페이지에 접근하면 되는 문제이다. 마찬가지로 **Intruder** 기능을 이용하여 마지막 숫자 값을 0부터 255로 하여 응답이 다른 주소를 찾아내면 된다. 페이로드는 `stockApi=http://192.168.0.§1§:8080/admin`로 하여 기능을 사용하면 된다.
+
+<br>
+
+`192.168.0.142`에서 `200` 응답코드를 받을 수 있고 `stockApi=http://192.168.0.142:8080/admin/delete?username=carlos` 값을 포함하여 요청을 보내면 문제를 해결할 수 있다.
+
+<br>
+
+<br>
+
+# #File upload vulnerabilites
