@@ -6,7 +6,7 @@ tags: [webhacking, portswigger]
 published: True
 ---
 
-> [[PortSwigger Academy](https://portswigger.net/web-security/learning-paths)] Server-side vulnerabilities를 수강하고 정리하였습니다.
+> [[PortSwigger Academy Server-side vulnerabilities](https://portswigger.net/web-security/learning-paths/server-side-vulnerabilities-apprentice)] 를 수강하고 정리하였습니다.
 {: .prompt-info }
 
 <br>

