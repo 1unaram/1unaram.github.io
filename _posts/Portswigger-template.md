@@ -1,21 +1,17 @@
 ---
 title: '[PortSwigger] '
 date: 2024-00-00 00:00:00
-categories: [Wargame, PortSwigger]
-tags: [webhacking]
+categories: [Study, PortSwigger]
+tags: [webhacking, portswigger]
 published: False
 ---
 
-## 🚩 문제 파악
-
----
-
-
+> [[PortSwigger Academy SQL Injection](https://portswigger.net/web-security/learning-paths/sql-injection)] 을 수강하고 정리하였습니다.
+{: .prompt-info }
 
 <br><br>
 
-
-## 🚩 문제 풀이
+# #What is SQL injection?
 
 ---
 
