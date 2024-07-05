@@ -807,6 +807,6 @@ SQL injection(SQLi)는 공격자가 어플리케이션이 데이터베이스에 
 
 로그인 페이지에서 `username` 값으로 `administrator'--`을, `password` 값으로 임의의 문자를 넣어 로그인하면 패스워드를 체크하는 구문이 주석 처리되어 패스워드 없이 `administrator` 계정으로 로그인 할 수 있다.
 
-<br>
+<br><br>
 
 ![image](https://github.com/1unaram/1unaram.github.io/assets/37824335/496362b9-a2d5-4bc1-8e5e-c2393a43f619)
