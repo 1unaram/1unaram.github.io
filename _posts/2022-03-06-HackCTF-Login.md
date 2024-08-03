@@ -1,7 +1,7 @@
 ---
 title: '[HackCTF] Login'
 date: 2022-03-06 00:00:00
-categories: [HackCTF, Wargame]
+categories: [Wargame, HackCTF]
 tags: [hackctf, wargame, webhacking]
 ---
 

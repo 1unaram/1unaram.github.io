@@ -1,7 +1,7 @@
 ---
 title: "[H4CKING GAME] REV - Keygen"
 date: 2022-05-16 00:00:00
-categories: [H4CKING GAME, Wargame]
+categories: [Wargame, H4CKING GAME]
 tags: [wargame, reversing]
 ---
 
