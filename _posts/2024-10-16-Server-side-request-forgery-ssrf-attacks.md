@@ -3,7 +3,7 @@ title: '[PortSwigger] Server-side request forgery (SSRF) attacks'
 date: 2024-10-16 00:00:00
 categories: [Study, PortSwigger]
 tags: [webhacking, portswigger]
-published: True
+published: False
 ---
 
 > [[PortSwigger Academy Server-side request forgery (SSRF) attacks](https://portswigger.net/web-security/learning-paths/ssrf-attacks)] 을 수강하고 정리하였습니다.
