@@ -1,9 +1,9 @@
 ---
 title: "[PortSwigger] Academy: Web Cache Deception"
-date: 2024-12-20 00:00:00
+date: 2025-01-11 00:00:00
 categories: [Study, PortSwigger]
 tags: [webhacking, portswigger]
-published: False
+published: True
 ---
 
 > [[PortSwigger Academy Web Cache Deception](https://portswigger.net/web-security/learning-paths/web-cache-deception)] 을 수강하고 정리하였습니다.
@@ -165,7 +165,7 @@ URL 경로 매핑은 URL 경로를 파일, 스크립트, 명령어 실행과 같
 <br>
 
 > Burp Scanner는 스캔 중 경로 매핑 모순에 의해 발생하는 web cache deception 취약점을 자동으로 찾아낼 수 있다. Web Cache Deception Scanner BApp을 사용하여 잘못 구성된 웹 캐시를 찾아낼 수도 있다.
-> {: .prompt-info}
+{: .prompt-info}
 
 <br><br>
 
@@ -213,7 +213,7 @@ URL 경로 매핑은 URL 경로를 파일, 스크립트, 명령어 실행과 같
 
 <br><br>
 
-# Using delimiter discrepancies
+# #Using delimiter discrepancies
 
 ---
 
@@ -270,7 +270,7 @@ URL 경로 매핑은 URL 경로를 파일, 스크립트, 명령어 실행과 같
 <br>
 
 > 몇몇의 구분자는 브라우저가 캐시에 요청을 전달하기 이전에 처리될 수 있다. 이는 어떤 구분자는 익스플로잇에 상요될 수 없다는 것을 의미한다. 예를 들어, `{`, `}`, `<`, `>`와 같은 문자를 URL 인코딩하고, `#`을 사용하여 경로를 잘라낸다. 만일, 캐시나 원본 서버가 이러한 캐릭터를 디코딩한다면, 익스플로잇에 인코딩된 버전을 사용하는 것이 가능할 수도 있다.
-> {. :prompt-info }
+> {: .prompt-info }
 
 <br>
 
@@ -343,3 +343,209 @@ URL 경로 매핑은 URL 경로를 파일, 스크립트, 명령어 실행과 같
 웹 서비가 특정한 디렉터리 내의 정적인 리소스들을 저장하는 것이 흔한 관례이다. 캐시 규칙은 `/static`, `/asstes`, `/scripts`, `/images`와 같이 특정한 URL 경로 접두사를 매칭함으로써 이러한 디렉터리를 타겟하곤 한다. 이러한 규칙들은 마찬가지로 web cache deception에 취약하다.
 
 <br>
+
+<br>
+
+# #Using normalization discrepancies
+
+---
+
+## Normalization discrepancies
+
+정규화 다양한 URL 경로 표현을 표준 형식으로 바꾸는 과정을 말한다. 이는 인코딩된 문자를 디코딩하고 dot-segments를 해석하는 것을 수반하지만, 파서마다 상당히 다르다.
+
+캐시와 원본 서버가 URL을 정규화하는 방식에서의 모순은 공격자가 각 파서마다 다르게 해석되는 경로 탐색 페이로드를 만들어내는 것을 가능하게 해준다.
+
+<br>
+
+예를 들어 `/static/..%2fprofile`에서, `/` 문자를 디코딩하고 dot-segments를 해석하는 원본 서버는 경로를 `/profile`로 해석하고 프로필 정보를 반환한다. dot-segments를 해석하지 않거나 `/` 문자를 디코딩하지 않는 캐시는 경로를 `/static/..%2fprofile`로 해석할 것이다. 캐시가 `/static` 접두사가 붙은 요청에 대한 응답을 저장하는 경우, 프로필 정보를 캐싱하고 제공한다.
+
+<br>
+
+위의 예시에서 볼 수 있듯이 경로 탐색 시퀀스에서 각 dot-segment는 인코딩될 필요가 있다. 그렇지 않으면, 피해자의 브라우저는 요청을 캐시에 전달하기 전에 이를 해석할 것이다. 따라서 공격 가능한 정규화 모순이 발생하려면 캐시나 원본 서버가 경로 탐색 시퀀스의 문자를 디코딩하고 dot-segments도 해석해야 한다.
+
+<br>
+
+## Detecting normalization by the origin server
+
+원본 서버가 URL 경로를 정규화하는 방법을 테스트하기 위해서는 경로 탐색 시퀀스와 경로의 시작 부분에 임의의 디렉터리를 사용하여 캐싱할 수 없는 리소스에 요청을 보내면 된다. 캐싱할 수 없는 리소스를 고르기 위해 `POST`와 같은 비멱등적(결과가 바뀌는) 방식을 찾아야 한다.
+
+<br>
+
+예를 들어 `/profile`을 `/aaa/..%2fprofile`로 수정하면,
+
+- 응답이 원래의 응답과 동일하고 프로필 정보를 반환할 때, 이는 경로가 `/profile`로 해석되고 있고 원본 서버는 `/`를 디코딩하고 dot-segment를 해석한다는 것을 알 수 있다.
+
+- 응답이 `404` 에러 메시지를 반환하는 것과 같이 원래의 응답과 동일하지 않는다면, 이는 경로가 `/aaa/..%2fprofile`로 해석되고 있고 원본 서버가 `/`를 디코딩 않거나 dot-segment를 해석하지 않는다는 것을 알 수 있다.
+
+> 정규화에 대해 테스트할 때, dot-segment 내의 두 번째 `/`만을 인코딩 하는 것으로 시작해보아야 한다. 이는 몇몇의 CDNs이 `/`에 뒤따르는 정적 디렉터리 접두사를 일치시키기 때문에 중요하다.
+> 마찬가지로 전체 경로 탐색 시퀀스를 인코딩하거나 `/` 대신 `.`을 인코딩하는 것을 시도해볼 수 있다. 이는 때때로 파서가 시퀀스를 디코딩하는지 여부에 영향을 미칠 수 있다.
+{: .prompt-info }
+
+<br>
+
+## Detecting normalization by the cache server
+
+캐시 서버가 경로를 정규화하는 방법을 테스트하기 위해서는 다양한 방법을 사용할 수 있다. 정적인 디렉터리를 식별하는 것부터 시작할 수 있다. 흔하게 사용되는 정적 디렉터리 접두사와 캐싱된 응답을 갖고 있는 요청을 찾는데, 2xx 응답, 스크립트, 이미지, CSS MIME 타입의 메시지를 힌트로 하여 정적인 리소스에 포커싱할 수 있다.
+
+이후에 캐싱된 응답을 갖고 있는 요청을 선택하고 다시 경로 탐색 시퀀스와 정적 경로의 시작 부분에 있는 임의의 디렉터리와 함께 요청을 보낸다. 캐싱되었다는 근거를 포함하고 있는 응답을 갖고 있는 요청을 선택한다.
+
+<br>
+
+예를 들어 `/aaa/...%2fassets/js/stockCheck.js`에서,
+
+- 응답이 더 이상 캐싱되지 않는 경우는 캐시가 엔드포인트에 매핑되기 이전에 경로를 정규화하지 않을 것이라는 것을 의미한다. 이는 `/assets` 접두사에 근거한 캐시 규칙이 존재한다는 것을 알 수 있다.
+- 응답이 여전히 캐싱되는 경우에는 캐시가 경로를 `/assets/js/stockCheck.js`로 정규화한다는 것을 의미한다.
+
+<br>
+
+두 경우 모두, 파일 확장자에 기반하는 등 다른 캐시 규칙으로 인해 응답이 캐싱될 수 있다. 캐시 규칙이 정적 디렉터리 기반인지를 확인하기 위해서는 디렉터리 접두사 뒤의 경로를 임의의 문자열로 바꿔야 한다. 예를 들어 `/assets/aaa`에서 응답이 여전히 캐싱된다면, 캐시 규칙이 `/assets` 접두사에 기반한다는 것을 확인할 수 있다. 만일 응답이 캐싱되는 것으로 보이지 않는다면, 이는 때로는 `404` 응답이 캐싱되지 않는 경우도 있기 때문에 반드시 정적인 디렉터리 캐시 규칙을 배제하는 것이 아니다.
+
+> 익스플로잇을 시도하지 않고 캐시가 dot-segments를 디코딩하고 URL 경로를 디코딩하는지 여부를 확실하게 판단하지 못할 수도 있다.
+{: .prompt-info }
+
+<br>
+
+## Exploiting normalization by the origin server
+
+원본 서버가 인코딩된 dot-segments를 해석하나 캐시는 그렇지 않는 경우, 다음 구조를 따라 페이로드를 만들어냄으로써 모순을 익스플로잇 시도할 수 있다.
+
+`/<static-directory-prefix>/..%2f<dynamic-path>`
+
+<br>
+
+예를 들어 `/assets/..%2fprofile` 페이로드를 보면, 캐시는 경로를 `/assets/..%2fprofile`로 해석하고 원본 서버는 `/profile`로 해석한다. 이에 원본 서버는 캐시에 저장된 동적 프로필 정보를 반환한다.
+
+<br>
+
+## 🚩Lab: Exploiting origin server normalization for web cache deception
+
+![image](https://github.com/user-attachments/assets/178b0dce-4061-4344-9d74-0f400bfdacd4)
+
+이전 랩과 같은 환경의 문제이다. 우선 Burp의 Intruder를 통해 원본 서버에서 처리하는 delimeter가 무엇인지 찾아낸다. 여기서는 `?` 문자만을 delimiter로 처리하는 것을 알게 되었다. 그러나 해당 페이지는 캐싱되지 않는 것을 확인하였고, 캐시 서버에 의해 캐싱되는 엔드포인트를 찾아야 한다.
+
+<br>
+
+서비스의 다른 페이지를 둘러보다가 `/resources/images/avatarDefault.svg`라는 요청을 보내는 것을 확인하였다. `/resources`라는 디렉터리에 정적인 파일들을 모아놓는 것으로 추정할 수 있고 해당 요청에 대한 응답 헤더에 `X-Cache` 헤더가 있는 것으로 보아 해당 페이지는 캐싱되는 것을 알 수 있었다.
+
+<br>
+
+`/resources` 경로를 타겟으로 하여 원본 서버와 캐시 서버가 URL 정규화를 시키는 방식을 알아보아야 한다. `/resources/..%2fmy-account` 경로로 요청을 보내자, 응답으로 `/my-account` 페이지를 얻는 것을 확인할 수 있고 본래 `/my-account`로 요청을 보낼 때의 응답 패킷의 헤더에는 `X-Cache`가 없었으나 이 요청에 대한 응답 패킷의 헤더에는 `X-Cache`가 존재하는 것으로 보아 캐시 서버는 경로를 `/resources/..%2fmy-account`로 해석하고 있는 것을 알 수 있다. 여기서 원본 서버와 캐시 서버의 URL 정규화 과정에서 모순이 발생한다는 사실을 이용할 수 있다.
+
+<br>
+
+![image](https://github.com/user-attachments/assets/9d12ab15-c337-4a00-8c74-9c33e23db661)
+
+이제 **Go to exploit server** 탭으로 이동하여 타겟 피해자인 `carlos`가 페이지를 요청할 수 있도록 패킷을 작성하자. 피해자가 `/resources/..%2fmy-account`로 요청을 보내되, 이미 캐시 서버에 캐싱된 URL을 피하기 위하여 delimiter인 `?`를 추가하여 임의의 URL을 새롭게 만들면 된다.`/resources/..%2fmy-account?qwe` 경로로 요청을 보내도록 하여 `carlos`의 API key가 담긴 페이지를 캐시 서버가 캐싱하도록 하고 해당 경로로 다시 요청을 보내면 `X-Cache` 값이 `miss`에서 `hit`로 바뀌며 API key를 획득할 수 있다.
+
+<br>
+
+##  Exploiting normalization by the cache server
+
+만일 캐시 서버가 인코딩된 dot-segments를 해석하지만 원본 서버는 그렇지 않는 경우, 다음 구조에 따라서 페이로드를 구성함으로써 모순을 익스플로잇 시도할 수 있다.
+
+`/<dynamic-path>%2f%2e%2e%2f<static-directory-prefix>`
+
+> 캐시 서버에 의한 정규화를 익스플로인할 때, 경로 탐색 시퀀스 내의 모든 문자들을 인코딩해야 한다. 인코딩된 문자들을 사용하는 것이 구분자를 사용할 때 예상치 못한 동작을 방지할 수 있고, 또한 캐시는 디코딩된 것들을 다룰 것이기 때문에 정적 디렉터리 접두사가 뒤이어 나오는 인코딩 되지 않은 `/`를 가질 필요가 없다.
+{: .prompt-info }
+
+<br>
+
+이러한 상황에서, 경로 탐색만으로는 익스플로잇하기에 충분하지 않다. 예를 들어, 캐시 서버와 원본 서버가 페이로드 `/profile%2f%2e%2e%2fstatic`를 해석하는 방법을 보자. 캐시는 경로를 `/static`으로 해석하고, 원본 서버는 경로를 `/profile%2f%2e%2e%2fstatic`으로 해석한다. 따라서 원본 서버는 프로필 정보 대신 에러 메시지를 반환할 가능성이 크다.
+
+<br>
+
+이 모순을 익스플로잇하기 위해서는 마찬가지로 원본 서버에서는 사용하지만 캐시 서버에서는 사용하지 않는 구분자를 식별할 필요가 있다. 동적인 경로 다음으로 가능한 구분자를 추가함으로써 테스트 해보아야 한다. 원본 서버가 구분자를 사용하는 경우, URL 경로가 잘리게 되고 동적인 정보를 반환할 것이다. 캐시 서버가 구분자를 사용하지 않는 경우, 경로가 올바르게 해석되고 응답이 캐싱될 것이다.
+
+<br>
+
+예를 들어 원본 서버에서 `;`를 구분자로 사용할 때 페이로드 `/profile;%2f%2e%2e%2fstatic`에서, 캐시는 경로를 `/static`으로 해석하고 원본 서버는 `/profile`로 해석한다. 이에 원본 서버는 캐시에 저장된 동적 프로필 정보를 반환한다.
+
+<br>
+
+## 🚩Lab: Exploiting cache server normalization for web cache deception
+
+이번 랩 역시 이전 랩들과 같은 유형의 문제이다. 우선 `wiener`의 계정을 로그인하고 API key가 존재하는 동적 페이지 `/my-account`에 접속한다.
+
+<br>
+
+캐시 서버와 원본 서버가 어떻게 정규화를 진행하는지를 알아보기 위하여 이전 랩에서 사용한 경로 `/resources/..%2fmy-account`를 요청하여 본다. 응답으로 `404` 에러를 확인할 수 있는데 이는 원본 서버가 정규화 과정에서 dot-segment와 디코딩을 진행하지 않는다는 것을 알 수 있다. 또한 응답 패킷의 헤더에 `X-Cache` 값 역시 없는 것으로 보아 캐시 서버 역시 정규화 과정이 원본 서버와 같이 dot-segment와 디코딩을 진행하지 않는다는 것을 알 수 있다.
+
+<br>
+
+![image](https://github.com/user-attachments/assets/596cbad5-3ea3-4715-bf58-66df68e3f953)
+
+이번에는 `/my-account` 경로에서 정규화 테스트를 해볼 수 있는데, 요청 경로를 `/<dynamic-path>%2f%2e%2e%2f<static-directory-prefix>` 구조에 맞추어 `/my-account`에서 `/my-account%2f%2e%2e%2fresources`로 변경하여 요청하여 본다. 마찬가지로 응답 패킷으로 `404` 에러를 확인할 수 있는데 이는 <u>원본 서버가 정규화 과정에서 dot-segments와 디코딩 과정을 진행하지 않는다</u>는 사실을 알 수 있다. 그러나, `X-Cache` 헤더를 발견할 수 있고 재요청 시에 `miss` 값에서 `hit` 값으로 변경되는 것으로 보아 <u>캐시 서버는 정규화 과정에서 dot-segments와 디코딩 과정을 진행한다</u>는 사실을 알 수 있다.
+
+<br>
+
+![image](https://github.com/user-attachments/assets/4092cfa1-0366-4ef3-a3de-09ad05253e58)
+
+그렇다면 원본 서버가 정규화 시에 해석하지 않는 부분을 URL 경로에서 자를 수 있도록 인코딩된 문자열 앞에 가능한 구분자를 찾을 필요가 있다. 이는 Burp에서 Intruder 기능을 이용하여 `/my-account$delimiter$aaa.js` 경로로 요청을 보내어 `#`과 `?`, `%23`, `%3f` 문자들이 구분자로서 해석되는 것을 알 수 있다.
+
+<br>
+
+이제 다음 4가지 조합의 경로를 요청할 수 있다.
+
+- `/my-account#%2f%2e%2e%2fresources`
+- `/my-account?%2f%2e%2e%2fresources`
+- `/my-account%23%2f%2e%2e%2fresources`
+- `/my-account%3f%2f%2e%2e%2fresources`
+
+위의 요청 중에서 응답 패킷이 `200` 값을 가지며 `X-Cache` 헤더를 가지는 요청은 `%23`을 구분자로 사용했을 때 뿐이다. 이는 URL이 해석될 때 캐싱 서버에서는 `?`와 `%3f`를 쿼리 문자열을 경로로 포함하지 않고, `#`은 일반적으로 서버로 전달되지 않기 때문에 경로 탐색에 사용할 수 없는 것이다. 따라서 `%23`을 경로의 일부로 처리하여 캐싱하기에 `/my-account%23/../../resources`를 그대로 캐싱 경로로 저장하게 되는 것이다.
+
+<br>
+
+![image](https://github.com/user-attachments/assets/971b6362-aacb-4932-91a0-4cee5506d510)
+
+이제 **Go to exploit server** 탭으로 이동 후 패킷의 내용을 해당 경로로 타겟 피해자 `carlos`가 접속하도록 하여 API key가 담긴 페이지가 캐싱되도록,  `resource` 경로 뒤에 `?`와 임의의 문자열을 추가하여 전달하자.
+
+<br>
+
+전달 후에 동일한 경로로 접속하면 `X-Cache` 값이 `hit`로 되어 캐싱된 것을 확인할 수 있고 `carlos`의 API key 값을 획득할 수 있다.
+
+<br>
+
+<br>
+
+# #Exploiting file name cache rules
+
+---
+
+`robots.txt`, `index.html`, `favicon.ico`와 같은 특정 파일들은 웹 서버에서 흔하게 찾아볼 수 있다. 이들은 자주 변하지 않기 대문에 캐싱되는 가능성이 크다. 캐시 규칙은 파일 이름 문자열을 매칭함으로써 이러한 파일들을 타겟한다. 파일 이름 캐시 규칙이 존재하는지 알기 위해서는 가능한 파일에 대한 `GET` 요청을 보내고 응답이 캐싱되었는지 확인하면 된다.
+
+<br>
+
+## Detecting normalization discrepancies
+
+원본 서버가 URL 경로를 어떻게 정규화하는지를 테스트하기 위해서는 정적 디렉터리 캐시 규칙을 위해 앞서 사용했던 같은 방식을 사용하면 된다.
+
+캐시 서버가 URL 경로를 어떻게 정규화하는지를 테스트하기 위해서는 경로 탐색 시퀀스를 포함하고 파일 이름 이전에 임의의 디렉터리를 포함한 요청을 보내면 된다. 예를 들어 `/aaa%2f%2e%2e%2findex.html`에서, 응답이 캐싱되었다면 이는 캐시가 경로를 `/index.html`로 정규화하고 있다는 것을 나타내고, 응답이 캐싱되지 않았다면 이는 캐시가 `/`를 디코딩하지 않고 dot-segment를 해석하지 못하여 `/aaa%2f%2e%2e%2findex.html`로 해석하지 않는다는 것을 의미한다.
+
+<br>
+
+## Exploiting normalization discrepancies
+
+요청이 정확한 파일 이름에 매칭되었을 경우에만 응답이 캐싱되기 때문에, 캐시 서버가 dot-segments를 해석하나 원본 서버는 그렇지 않는 모순만을 익스플로잇할 수 있을 것이다. 단지 정적 디렉터리 캐시 규칙에 대한 방법에서 정적 디렉터리 접두사를 파일 이름으로 바꾸어 익스플로잇할 수 있다.
+
+<br>
+
+<br>
+
+# #Preventing web cache deception vulnerabilities
+
+---
+
+web cache deception 취약점을 방지하기 위해서는 다양한 스텝을 밟을 수 있다.
+
+- 동적인 리소스를 마킹하기 위해 항상 `Cache-Control` 헤더를 사용하고 `no-store`과 `private`와 같은 지시어로 설정한다.
+
+- 캐시 규칙이 `Cache-Control` 헤더를 오버라이드 하지 않게 하기 위해 CDN 설정을 구성한다.
+
+- CDN이 web cache deception 공격에 대해 제공하는 모든 보호 기능을 활성화 시킨다. 많은 CDN은 응답의 `Content-Type`가 요청의 URL 파일 확장자를 매칭하는지 확인하는 캐시 규칙을 설정하는 기능을 제공한다. 예를 들어, Cloudflare의 Cache Deception Armor가 있다.
+
+- 원본 서버와 캐시 서버가 URL 경로를 해석하는 방식 사이에서 어떠한 모순도 존재하지 않도록 검증한다.
+
+<br>
+
+![image](https://github.com/user-attachments/assets/d3d4a58c-f0a9-47c0-a6d4-ba6b7da55b12)
