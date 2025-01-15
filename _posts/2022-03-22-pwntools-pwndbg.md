@@ -205,22 +205,49 @@ def slog(n, m): return success(": ".join([n, hex(m)]))
 # <span style="color: blue" >\# pwndbg</span>
 ---
 
-## 명령어
+## 사용법
 
-### 1. 메모리 주소 조사 (x)
+- `gdb file` : 디버깅 시작
 
-- Options
+- `readelf file` : ELF 확인
+    - Entry point address(진입점, EP) : ELF 실행 시 진입점의 값부터 프로그램 실행
 
-    - g : 8byte
-    - w : 4byte
-    - h : 2byte
-    - b : 1byte
-    <br>
-    - o : 8진법
-    - x : 16진법
-    - u : 10진법
-    - t : 2진법
-    <br>
-    - i : 명령어
-    - c : ASCII 바이트
-    - s : 문자열
+- `start` : 진입점부터 프로그램 분석
+
+- gdb 명령어 축약
+    - `b` : break
+    - `c` : continue
+    - `r` : run
+    - `si` : step into (서브루틴의 내부로 들어감)
+    - `ni` : next instruction (서브루틴의 내부로 들어가지 않음)
+    - `i` : info
+    - `k` : kill
+    - `pd` : pdisas
+
+- `disassemble func` : 해당 함수가 반환될 때까지 디스어셈블하여 보여줌
+    - `u` /`nearpc` : 가독성 있게 보여줌
+
+- `finish` : step into로 들어간 함수 내부에서 함수의 끝까지 한 번에 실행
+
+- `x` : 메모리 주소 검사(특정 주소에서 원하는 길이만큼의 데이터를 원하는 형식으로 인코딩하여 볼 수 있음)
+    - Format letters
+        - `o` : 8진법
+        - `x` : 16진법
+        - `z` : 16진법, 왼쪽에 0으로 패딩
+        - `d` : 10진법
+        - `u` : unsigned 10진법
+        - `t` : 2진법
+        - `f` : float
+        - `a` : 주소
+        - `i` : 명령어
+        - `c` : ASCII 바이트
+        - `s` : 문자열
+    - Size letters
+        - b : 1byte
+        - h : 2byte(halfword)
+        - w : 4byte(word)
+        - g : 8byte(giant)
+
+- `tele` : 메모리 덤프 기능
+
+- `vmap` : 가상 메모리의 레이아웃을 보여줌
