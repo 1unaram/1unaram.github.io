@@ -243,11 +243,23 @@ def slog(n, m): return success(": ".join([n, hex(m)]))
         - `c` : ASCII 바이트
         - `s` : 문자열
     - Size letters
-        - b : 1byte
-        - h : 2byte(halfword)
-        - w : 4byte(word)
-        - g : 8byte(giant)
+        - `b` : 1byte
+        - `h` : 2byte(halfword)
+        - `w` : 4byte(word)
+        - `g` : 8byte(giant)
 
 - `tele` : 메모리 덤프 기능
 
 - `vmap` : 가상 메모리의 레이아웃을 보여줌
+
+- `catch` : 특정 이벤트가 발생했을 때, 프로세스를 중지시킴
+
+    e.g.) `pwndbg> catch syscall arch_prctl`
+
+- `watch` : 특정 주소에 저장된 값이 변경되면 프로세스를 중단시킴
+
+    e.g.) `pwndbg> watch *(0x7ffff7d7f740+0x28)`
+
+- `b` : breakpoint 설정
+
+    e.g.) `pwndbg> b*main` : `main` 함수에 중단점 설정

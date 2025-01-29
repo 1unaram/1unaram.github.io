@@ -136,7 +136,7 @@ pwndbg> disassemble main
 
 먼저 <span style="color: red">**함수의 프롤로그(Prolog)**</span>란, 함수 호출 후 스택 프레임의 유지를 위해 시행되는 명령어 과정입니다. 명령어는 다음과 같이 구성되어 있습니다.
 
-**(1) `push rbp`**W
+**(1) `push rbp`**
 
 **(2) `mov rbp, rsp`**
 
