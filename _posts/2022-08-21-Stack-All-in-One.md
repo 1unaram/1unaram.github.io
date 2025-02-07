@@ -356,7 +356,7 @@ pwndbg> x/10x 0x7fffffffe110-0x20
 <br />
 
 > **참고 자료** <br>
-> [http://www.tcpschool.com/c/c_memory_stackframe](http://www.tcpschool.com/c/c_memory_stackframe) <br>
+> [https://www.tcpschool.com/c/c_memory_stackframe](https://www.tcpschool.com/c/c_memory_stackframe) <br>
 > [https://sy99.tistory.com/13](https://sy99.tistory.com/13) <br>
 > [https://popcorntree.tistory.com/61](https://popcorntree.tistory.com/61) <br>
 > [https://dreamhack.io/](https://dreamhack.io/)
