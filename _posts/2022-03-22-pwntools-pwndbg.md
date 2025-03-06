@@ -224,3 +224,9 @@ def slog(n, m): return success(": ".join([n, hex(m)]))
     - i : 명령어
     - c : ASCII 바이트
     - s : 문자열
+
+<br>
+
+### 2. 스택 상태 검사
+
+- bt : 스택 프레임의 백트레이스 출력
