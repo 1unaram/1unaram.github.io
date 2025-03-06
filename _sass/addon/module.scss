@@ -7,7 +7,7 @@
 %heading {
   color: var(--heading-color);
   font-weight: 400;
-  font-family: Lato, "Microsoft Yahei", sans-serif;
+  font-family: Lato, 'Microsoft Yahei', sans-serif;
 }
 
 %section {
@@ -106,7 +106,7 @@
 }
 
 %sidebar-links {
-  color: rgba(200, 200, 200, 0.9);
+  color: rgba(51, 51, 51, 0.9);
   -webkit-user-select: none;
   -moz-user-select: none;
   user-select: none;
@@ -150,7 +150,7 @@
   transform: translateX(-50%);
 }
 
-@mixin prompt($type, $fa-content, $fa-style: "solid") {
+@mixin prompt($type, $fa-content, $fa-style: 'solid') {
   &.prompt-#{$type} {
     background-color: var(--prompt-#{$type}-bg);
 
