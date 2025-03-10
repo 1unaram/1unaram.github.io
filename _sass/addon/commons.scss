@@ -5,22 +5,22 @@
 html {
   @media (prefers-color-scheme: light) {
     &:not([data-mode]),
-    &[data-mode="light"] {
+    &[data-mode='light'] {
       @include light-scheme;
     }
 
-    &[data-mode="dark"] {
+    &[data-mode='dark'] {
       @include dark-scheme;
     }
   }
 
   @media (prefers-color-scheme: dark) {
     &:not([data-mode]),
-    &[data-mode="dark"] {
+    &[data-mode='dark'] {
       @include dark-scheme;
     }
 
-    &[data-mode="light"] {
+    &[data-mode='light'] {
       @include light-scheme;
     }
   }
@@ -32,7 +32,7 @@ body {
   background: var(--body-bg);
   color: var(--text-color);
   -webkit-font-smoothing: antialiased;
-  font-family: "Source Sans Pro", "Microsoft Yahei", sans-serif;
+  font-family: 'Source Sans Pro', 'Microsoft Yahei', sans-serif;
   line-height: 1.75;
 }
 
@@ -90,7 +90,7 @@ img {
       animation: fade-in 0.4s ease-in;
     }
 
-    &[data-lqip="true"] {
+    &[data-lqip='true'] {
       &.lazyload,
       &.lazyloading {
         -webkit-filter: blur(20px);
@@ -98,7 +98,7 @@ img {
       }
     }
 
-    &:not([data-lqip="true"]) {
+    &:not([data-lqip='true']) {
       &.lazyload,
       &.lazyloading {
         background: var(--img-bg);
@@ -138,7 +138,7 @@ blockquote {
   padding-left: 1rem;
   color: var(--blockquote-text-color);
 
-  &[class^="prompt-"] {
+  &[class^='prompt-'] {
     border-left: 0;
     position: relative;
     padding: 1rem 1rem 1rem 3rem;
@@ -161,10 +161,10 @@ blockquote {
     }
   }
 
-  @include prompt("tip", "\f0eb", "regular");
-  @include prompt("info", "\f06a");
-  @include prompt("warning", "\f06a");
-  @include prompt("danger", "\f071");
+  @include prompt('tip', '\f0eb', 'regular');
+  @include prompt('info', '\f06a');
+  @include prompt('warning', '\f06a');
+  @include prompt('danger', '\f071');
 }
 
 mjx-container {
@@ -280,7 +280,7 @@ i {
     }
   }
 
-  [data-topbar-visible="true"] & > div {
+  [data-topbar-visible='true'] & > div {
     top: 6rem;
   }
 }
@@ -324,7 +324,7 @@ i {
 
     /* [scroll-focus] added by `smooth-scroll.js` */
     &:target:not([scroll-focus]),
-    &[scroll-focus="true"] > p {
+    &[scroll-focus='true'] > p {
       background-color: var(--footnote-target-bg);
       width: -moz-fit-content;
       width: -webkit-fit-content;
@@ -345,7 +345,7 @@ i {
 
   /* [scroll-focus] added by `smooth-scroll.js` */
   @at-root sup:target:not([scroll-focus]),
-    sup[scroll-focus="true"] > a#{&} {
+    sup[scroll-focus='true'] > a#{&} {
     background-color: var(--footnote-target-bg);
   }
 }
@@ -507,7 +507,7 @@ i {
       }
     }
 
-    input[type="checkbox"] {
+    input[type='checkbox'] {
       margin: 0 0.5rem 0.2rem -1.3rem;
       vertical-align: middle;
     }
@@ -560,7 +560,7 @@ i {
   background: var(--img-bg);
 
   &::before {
-    content: "";
+    content: '';
     position: absolute;
     background: var(--shimmer-bg);
     height: 100%;
@@ -704,7 +704,7 @@ figure .mfp-title {
 
 /* --- sidebar layout --- */
 
-$sidebar-display: "sidebar-display";
+$sidebar-display: 'sidebar-display';
 
 #sidebar {
   @include pl-pr(0);
@@ -717,7 +717,7 @@ $sidebar-display: "sidebar-display";
   width: $sidebar-width;
   z-index: 99;
   // background: var(--sidebar-bg);
-  background: url("/assets/img/bgimg.jpg");
+  background: url('/assets/img/bgimg.jpg');
   background-size: 100% 100%;
   background-position: center;
 
@@ -841,7 +841,7 @@ $sidebar-display: "sidebar-display";
           /* the cursor */
           display: table;
           visibility: hidden;
-          content: "";
+          content: '';
           position: relative;
           right: 1px;
           width: $cursor-width;
@@ -922,7 +922,7 @@ $sidebar-display: "sidebar-display";
       @extend %no-cursor;
 
       background-color: var(--sidebar-muted-color);
-      content: "";
+      content: '';
       width: 3px;
       height: 3px;
       border-radius: 50%;
@@ -965,7 +965,7 @@ $sidebar-display: "sidebar-display";
   border-bottom: 1px solid rgba(0, 0, 0, 0.07);
   background-color: var(--topbar-wrapper-bg);
 
-  [data-topbar-visible="false"] & {
+  [data-topbar-visible='false'] & {
     top: -$topbar-height; /* same as topbar height. */
   }
 }
@@ -988,7 +988,7 @@ $sidebar-display: "sidebar-display";
     span {
       &:not(:last-child) {
         &::after {
-          content: "›";
+          content: '›';
           padding: 0 0.3rem;
         }
       }
@@ -1068,7 +1068,7 @@ $sidebar-display: "sidebar-display";
     margin: 0 1.25rem 1rem 0;
 
     &::before {
-      content: "#";
+      content: '#';
       color: var(--text-muted-color);
       padding-right: 0.2rem;
     }
@@ -1309,7 +1309,7 @@ $sidebar-display: "sidebar-display";
     }
 
     .post-content {
-      > blockquote[class^="prompt-"] {
+      > blockquote[class^='prompt-'] {
         @include ml-mr(-1.25rem);
 
         border-radius: 0;
@@ -1445,7 +1445,7 @@ $sidebar-display: "sidebar-display";
 } /* max-width: 849px */
 
 @media all and (max-width: 849px) and (orientation: portrait) {
-  [data-topbar-visible="false"] #topbar-wrapper {
+  [data-topbar-visible='false'] #topbar-wrapper {
     top: 0;
   }
 }
