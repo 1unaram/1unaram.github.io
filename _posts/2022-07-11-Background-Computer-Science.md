@@ -1,7 +1,7 @@
 ---
 title: "[Dreamhack] Background - Computer Science"
 date: 2022-07-11 00:00:00
-categories: [Study, System Hacking]
+categories: [CS]
 tags: [assembly, dreamhack, quiz]
 published: True
 ---

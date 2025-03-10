@@ -1,7 +1,7 @@
 ---
-title: "[Study] Objdump Opcode 추출 명령어"
+title: "[pwnable] Objdump Opcode 추출 명령어"
 date: 2022-03-31 00:00:00
-categories: [Study, System Hacking]
+categories: [Study, Pwnable]
 tags: [pwnable]
 ---
 
