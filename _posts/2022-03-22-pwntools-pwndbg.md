@@ -263,3 +263,5 @@ def slog(n, m): return success(": ".join([n, hex(m)]))
 - `b` : breakpoint 설정
 
     e.g.) `pwndbg> b*main` : `main` 함수에 중단점 설정
+
+- `bt` : 스택 프레임의 백트레이스 출력
