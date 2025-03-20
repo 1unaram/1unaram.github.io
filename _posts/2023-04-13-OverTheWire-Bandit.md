@@ -1,7 +1,7 @@
 ---
-title: '[Wargame] Over The Wire - Bandit'
+title: '[pwnable] Over The Wire - Bandit'
 date: 2023-04-13 00:00:00
-categories: [Write-Up, Pwnable, System Hacking]
+categories: [Wargame, Pwnable]
 tags: [wargame, overthewire, bandit]
 published: true
 ---

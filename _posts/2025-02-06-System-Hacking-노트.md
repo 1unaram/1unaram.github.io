@@ -1,7 +1,7 @@
 ---
-title: '[Study] System Hacking 노트'
+title: '[pwnable] System Hacking 노트'
 date: 2025-02-06 00:00:00
-categories: [Study, System Hacking]
+categories: [Study, Pwnable]
 tags: [pwnable]
 published: True
 ---
@@ -53,3 +53,33 @@ ELF 바이너리에는 실행에 필요한 함수 및 변수의 주소를 저장
     ```sh
     readelf -s ./basic_rop_x64 | grep "main"
     ```
+
+
+<br>
+
+# gdb.attach()
+
+---
+
+WSL에서는 python 코드 내에서 `gdb.attach(p)`를 실행해도 터미널을 선택하라는 문구와 함께 실행되지 않는다. 이는 python 익스플로잇 파일을 실행할 때의 pid를 인자로 하여 직접 gdb를 실행해야 한다.
+
+1. 디버깅하고 싶은 부분에서 `pause()` 구문 추가
+
+    주로, 페이로드 전송 전에서 사용한다.
+
+2. `python file.py`를 통해 익스플로잇 파일 실행
+
+    실행 시 `[+] Starting local process './basic_rop_x86': pid 317`와 같이 pid 번호가 출력된다
+
+3. 앞에서 얻은 pid를 인자로 하여 새로운 터미널에서 `gdb -p 317` 실행
+
+4. 내가 걸고자 하는 곳에 브레이크포인트 설정
+
+    `b * main+40`
+
+5. gdb에서 `c`를 입력하여 continue
+
+6. 파이썬을 실행한 터미널에서 아무 키나 눌러서 pause 해제
+
+7. gdb를 확인하면 브레이크를 설정한 주소에서 멈춘 것을 확인할 수 있음
+
