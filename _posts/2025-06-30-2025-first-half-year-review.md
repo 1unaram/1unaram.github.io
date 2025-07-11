@@ -2,7 +2,7 @@
 title: "[Record] 2025년 상반기 정리"
 date: 2025-06-30 00:00:00
 categories: [Record, etc]
-tags: []
+tags: [record]
 published: False
 ---
 
