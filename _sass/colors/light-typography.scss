@@ -38,6 +38,7 @@
 
   /* Sidebar */
   --sidebar-bg: #eeeeee;
+  --subtitle-color: rgb(210, 210, 210);
   --sidebar-muted-color: rgb(210, 210, 210);
   --sidebar-active-color: #272727;
   --nav-cursor-color: #757575;
@@ -89,7 +90,7 @@
   --prompt-danger-bg: rgb(248, 215, 218, 0.56);
   --prompt-danger-icon-color: #df3c30;
 
-  [class^="prompt-"] {
+  [class^='prompt-'] {
     --link-underline-color: rgb(219, 216, 216);
   }
 
