@@ -12,7 +12,7 @@ published: True
 
 <br>
 
-모든 내용은 프로젝트 보고서에 포함되어 있고, 이 글에서는 핵심 내용만 뽑아 간단히 정리하였다.
+모든 내용은 프로젝트 보고서에 자세히 기술되어 있기에 이 글에서는 핵심 내용만 간단히 정리하였다.
 
 > Project Reports <br>
 > - [BPFDoor_분석_및_실습_프로젝트.pdf](https://github.com/1unaram/BPFDoor_Project/blob/main/%EA%B9%80%ED%95%98%EB%9E%8C/BPFDoor_%EB%B6%84%EC%84%9D_%EB%B0%8F_%EC%8B%A4%EC%8A%B5_%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8_%EA%B9%80%ED%95%98%EB%9E%8C.pdf) <br>
@@ -25,7 +25,7 @@ published: True
 
 # #분석
 
-우선 인터넷에 올라와있는 블로그와 분석 보고서 등을 참고하여 BPFDoor의 동작 과정을 이해하려고 노력하였다. 그러나, 이미 올라와있는 많은 문서들은 BPFDoor 악성코드의 변형 파일들에 대한 기술이 많이 되어있었고, 이해하기에도 쉽지 않았다. 그래서 가장 먼저 공개되어 있는 악성코드의 소스코드부터 분석해보기로 했다.
+우선 인터넷에 올라와있는 블로그와 분석 보고서 등을 참고하여 BPFDoor의 동작 과정을 이해하려고 노력하였다. 그러나, 이미 올라와있는 많은 문서들은 변형된 BPFDoor 악성코드에 대한 기술이 대부분이었고, 이해하기에도 쉽지 않았다. 그래서 가장 먼저 공격 시나리오를 분석하였고, 이어서 공개되어 있는 악성코드의 소스코드를 분석해보기로 했다.
 
 > BPFDoor Github Repository (Red Menshen) <br>
 > [https://github.com/gwillgues/BPFDoor](https://github.com/gwillgues/BPFDoor)
@@ -33,7 +33,32 @@ published: True
 
 <br>
 
-## Source Code 분석 - main 함수
+## 공격 시나리오 분석
+
+BPFDoor 악성코드를 이용한 공격 시나리오는 다음의 3개의 Step으로 나눌 수 있다.
+
+<br>
+
+1. 모종의 경로로 사전에 BPFDoor 프로그램을 서버 시스템에서 **관리자 권한(root)으로** 실행한다.
+
+    ![image](/assets/posts/250811-15.png){: width="500" }
+
+2. BPFDoor가 실행 중인 서버에 BPFDoor 프로그램에서 정의해둔 BPF 필터를 통과하는 **매직 패킷*(Magic Packet)**을 전송한다.
+
+    ![image](/assets/posts/250811-16.png){: width="500" }
+
+3.  공격자가 전송한 매직 패킷의 내용에 따라 BPFDoor가 **특정 기능(Bind Shell/Reverse Shell 제공)**을 수행한다.
+
+    ![image](/assets/posts/250811-17.png){: width="500" }
+
+
+일련의 과정을 통해 공격자는 <u>관리자 권한(root)으로 Shell을 획득</u>하게 된다.
+
+<br>
+
+<br>
+
+## Source Code 분석 - main
 
 :프로세스 실행에 필요한 각종 초기화를 수행하고, BPFDoor 프로세스가 감시자로부터 탐지되지 않도록 위장 등을 진행한다.
 
@@ -141,7 +166,7 @@ setsid();
 
 <br>
 
-## Source Code 분석 - packet_loop 함수
+## Source Code 분석 - packet_loop
 
 :BPFDoor가 네트워크를 감청하고, 미리 정의된 매직 패킷을 식별하여 악성 기능을 트리거하는 무한 루프 동작을 수행한다.
 
@@ -257,7 +282,7 @@ if (size_ip < 20) continue;
 >
 > - 기본 소켓은 os가 IP 헤더, TCP/UDP 헤더 등을 제거하고 애플리케이션이 필요로 하는 데이터(페이로드)만을 전달한다.
 > - raw socket은 이러한 추상화 없이, 데이터 링크 계층 또는 네트워크 계층의 완전한 패킷을 직접 수신할 수 있다.
-> ![img1](/assets/posts/250811-1.png)
+> ![image](/assets/posts/250811-1.png)
 {: .prompt-warning }
 
 <br>
