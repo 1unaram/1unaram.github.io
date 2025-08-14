@@ -6,8 +6,8 @@ order: 4
 
 <div align="center">
 
-<h1>Hi there. I am 1unaram 🖐</h1>
-<p>I am a student studying <b>Computer Science & Engineering</b> and <b>Cyber Security</b> at <a href="https://www.cau.ac.kr/index.do" target="_blank">Chung-Ang University</a>.</p>
+<h1>Hi there. I'm 1unaram 🖐</h1>
+<p>I'm a student studying <b>Computer Science & Engineering</b> and <b>Cyber Security</b> at <a href="https://cse.cau.ac.kr/main.php" target="_blank">Chung-Ang University</a>.</p>
 
 <br>
 <br>
@@ -17,6 +17,7 @@ order: 4
 <p>- [2021.10.28 ~ 2023.02.28] 중앙대학교 소프트웨어학부 학과 동아리 CAUtion 회장</p>
 <p>- [2022.03.02 ~ 2023.02.28] 중앙대학교 웹/앱 개발 중앙동아리 COMP 부회장</p>
 <p>- [2022.12.30 ~ 2023.03] 2022년 대학생 보안 컨퍼런스 INCOGNITO 운영진</p>
+<p>- [2025.02.26 ~ NOW] 중앙대학교 소프트웨어학부 보안 동아리 CAUtion 부회장</p>
 
 
 <h2>🚀 Projects 🚀</h2>
@@ -30,5 +31,10 @@ order: 4
 
 <h2>🏆 Awards 🏆</h2>
 <p>- [2022.11.27] 제 4회 TS보안 허점을 찾아라 공모전 장려상</p>
+<p>- [2024.01.29 ~ 2024.01.30] 2024 CAUtion X ISANG Uniton CTF 4위</p>
+
+<h2>📑 Certificate 📑</h2>
+<p>- [2024.06.04] 인터넷보안전문가 2급 - 한국정보통신자격협회</p>
+<p>- [2024.12.24] 정보보안산업기사 - 한국방송통신전파진흥원</p>
 
 </div>
