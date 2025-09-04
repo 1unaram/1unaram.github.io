@@ -1785,3 +1785,8 @@ $sidebar-display: 'sidebar-display';
     } /* .sidebar-bottom */
   } /* #sidebar */
 } /* min-width: 1650px */
+
+::selection {
+  background: #ffca28;
+  color: #181818;
+}
