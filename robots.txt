@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: [https://1unaram.github.io/sitemap.xml](https://1unaram.github.io/sitemap.xml)
+Sitemap: https://1unaram.github.io/sitemap.xml
