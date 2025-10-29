@@ -18,7 +18,7 @@ order: 4
 <p>- [2022.03.02. ~ 2023.02.28.] 중앙대학교 웹/앱 개발 중앙동아리 COMP 부회장</p>
 <p>- [2022.12.30. ~ 2023.03.] 2022년 대학생 보안 컨퍼런스 INCOGNITO 운영진</p>
 <p>- [2025.02.26. ~ NOW] 중앙대학교 소프트웨어학부 보안 동아리 CAUtion 부회장</p>
-<p>- [2025.10.24. ~ NOW] Stealien Security Leader 6기</p>
+<p>- [2025.10.27. ~ NOW] Stealien Security Leader 6기</p>
 
 
 <h2>🚀 Projects 🚀</h2>
