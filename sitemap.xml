@@ -3,27 +3,26 @@ layout: null
 ---
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  {% assign now = site.time | date: "%s" %}
+
   {% for post in site.posts %}
+    {% assign post_time = post.date | date: "%s" %}
+
+    {% if post.lastmod %}
+      {% assign lm = post.lastmod | date: "%s" %}
+    {% else %}
+      {% assign lm = post_time %}
+    {% endif %}
+
+    {% if lm > now %}
+      {% assign lm = now %}
+    {% endif %}
+
     <url>
       <loc>{{ site.url }}{{ post.url }}</loc>
-      {% if post.lastmod == null %}
-        <lastmod>{{ post.date | date_to_xmlschema }}</lastmod>
-      {% else %}
-        <lastmod>{{ post.lastmod | date_to_xmlschema }}</lastmod>
-      {% endif %}
-
-      {% if post.sitemap.changefreq == null %}
-        <changefreq>weekly</changefreq>
-      {% else %}
-        <changefreq>{{ post.sitemap.changefreq }}</changefreq>
-      {% endif %}
-
-      {% if post.sitemap.priority == null %}
-          <priority>0.5</priority>
-      {% else %}
-        <priority>{{ post.sitemap.priority }}</priority>
-      {% endif %}
-
+      <lastmod>{{ lm | date: "%Y-%m-%dT%H:%M:%S%:z" }}</lastmod>
     </url>
   {% endfor %}
+
 </urlset>

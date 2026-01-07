@@ -1,6 +1,6 @@
 ---
 title: '[PortSwigger] Academy: Server-side request forgery (SSRF) attacks'
-date: 2024-10-16 00:00:00
+date: 2024-10-16 00:00:00 +0900
 categories: [Study, PortSwigger]
 tags: [webhacking, portswigger]
 published: True

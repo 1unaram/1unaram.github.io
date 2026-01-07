@@ -1,6 +1,6 @@
 ---
 title: '[Wargame] Webhacking.kr old-31 (nc)'
-date: 2024-03-03 00:00:00
+date: 2024-03-03 00:00:00 +0900
 categories: [Wargame, webhacking.kr]
 tags: [webhacking, webhacking.kr]
 published: True

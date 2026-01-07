@@ -1,6 +1,6 @@
 ---
 title: '[pwnable] System Hacking 노트'
-date: 2025-02-06 00:00:00
+date: 2025-02-06 00:00:00 +0900
 categories: [Study, Pwnable]
 tags: [pwnable]
 published: True

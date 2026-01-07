@@ -1,6 +1,6 @@
 ---
 title: '[Study] Memory Layout'
-date: 2022-03-06 00:00:00
+date: 2022-03-06 00:00:00 +0900
 categories: [Study, CS]
 tags: [os, memory, linux]
 ---

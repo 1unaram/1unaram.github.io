@@ -1,6 +1,6 @@
 ---
 title: '[Wargame] Webhacking.kr Write-Ups'
-date: 2023-02-06 00:00:00
+date: 2023-02-06 00:00:00 +0900
 categories: [Wargame, webhacking.kr]
 tags: [webhacking, webhacking.kr]
 published: true

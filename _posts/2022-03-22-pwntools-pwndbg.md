@@ -1,6 +1,6 @@
 ---
 title: '[pwnable] pwntools & pwndbg'
-date: 2022-03-22 00:00:00
+date: 2022-03-22 00:00:00 +0900
 categories: [Study, Pwnable]
 tags: [pwnable, pwntools, pwndbg]
 ---

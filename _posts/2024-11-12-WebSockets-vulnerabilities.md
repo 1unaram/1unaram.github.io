@@ -1,6 +1,6 @@
 ---
 title: '[PortSwigger] Academy: WebSockets vulnerabilities '
-date: 2024-11-12 00:00:00
+date: 2024-11-12 00:00:00 +0900
 categories: [Study, PortSwigger]
 tags: [webhacking, portswigger]
 published: True

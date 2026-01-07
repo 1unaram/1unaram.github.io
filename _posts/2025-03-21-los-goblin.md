@@ -1,6 +1,6 @@
 ---
 title: "[LOS] goblin"
-date: 2025-03-21 00:00:00
+date: 2025-03-21 00:00:00 +0900
 categories: [Wargame, Lord of SQL Injection]
 tags: [webhacking, sqli]
 published: True

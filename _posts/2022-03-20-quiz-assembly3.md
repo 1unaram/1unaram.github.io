@@ -1,6 +1,6 @@
 ---
 title: "[Dreamhack] Quiz: x86 Assembly 3"
-date: 2022-03-20 00:00:00
+date: 2022-03-20 00:00:00 +0900
 categories: [Write-Up, Dreamhack]
 tags: [assembly, dreamhack, quiz]
 ---

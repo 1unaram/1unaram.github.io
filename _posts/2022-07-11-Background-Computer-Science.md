@@ -1,6 +1,6 @@
 ---
 title: "[Dreamhack] Background - Computer Science"
-date: 2022-07-11 00:00:00
+date: 2022-07-11 00:00:00 +0900
 categories: [CS]
 tags: [assembly, dreamhack, quiz]
 published: True
