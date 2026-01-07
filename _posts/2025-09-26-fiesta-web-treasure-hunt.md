@@ -1,6 +1,6 @@
 ---
-title: '[Write-Up] 2025 Fiesta - Web Treasure Hunt'
-date: 2025-09-26 00:00:00 +0900
+title: '[2025 Fiesta] Web Treasure Hunt'
+date: 2025-09-26 00:00:00 +09:00
 categories: [Write-Up, Web]
 tags: []
 published: True
