@@ -202,3 +202,5 @@ jekyll-archives:
   permalinks:
     tag: /tags/:name/
     category: /categories/:name/
+
+future: true # google search console 에서 페이지가 인덱싱되지 않는 문제 해결을 위해 추가
