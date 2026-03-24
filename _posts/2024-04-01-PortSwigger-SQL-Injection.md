@@ -1,6 +1,7 @@
 ---
 title: '[PortSwigger] Academy: SQL Injection'
 date: 2024-04-01 00:00:00 +0900
+last_modified_at: 2024-04-01
 categories: [Study, PortSwigger]
 tags: [webhacking, portswigger]
 published: True

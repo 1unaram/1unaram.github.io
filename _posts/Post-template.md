@@ -1,6 +1,7 @@
 ---
 title: '[Study] PowerShell Obfuscation'
 date: 2025-09-02 00:00:00 +0900
+last_modified_at: 2025-09-02
 categories: [Study, Windows]
 tags: []
 published: True

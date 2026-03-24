@@ -1,6 +1,7 @@
 ---
 title: "[pwnable] Objdump Opcode 추출 명령어"
 date: 2022-03-31 00:00:00 +0900
+last_modified_at: 2022-03-31
 categories: [Study, Pwnable]
 tags: [pwnable]
 ---

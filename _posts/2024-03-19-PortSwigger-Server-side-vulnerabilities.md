@@ -1,6 +1,7 @@
 ---
 title: '[PortSwigger] Academy: Server-side vulnerabilities'
 date: 2024-03-19 00:00:00 +0900
+last_modified_at: 2024-03-19
 categories: [Study, PortSwigger]
 tags: [webhacking, portswigger]
 published: True

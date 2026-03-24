@@ -1,6 +1,7 @@
 ---
 title: "[LOS] gremlin"
 date: 2025-03-20 00:00:00 +0900
+last_modified_at: 2025-03-20
 categories: [Wargame, Lord of SQL Injection]
 tags: [webhacking, sqli]
 published: True

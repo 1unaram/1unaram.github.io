@@ -1,6 +1,7 @@
 ---
 title: '[Study] XSS Filtering Bypass'
 date: 2023-01-23 00:00:00 +0900
+last_modified_at: 2023-01-23
 categories: [Study, Web Hacking]
 tags: [xss]
 ---

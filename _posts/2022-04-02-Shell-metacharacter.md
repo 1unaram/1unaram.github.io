@@ -1,6 +1,7 @@
 ---
 title: "[pwnable] Shell Metacharacter"
 date: 2022-04-02 00:00:00 +0900
+last_modified_at: 2022-04-02
 categories: [Study, Pwnable]
 tags: [linux, os]
 ---

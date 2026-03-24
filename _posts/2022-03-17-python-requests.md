@@ -1,6 +1,7 @@
 ---
 title: "[Study] Python - requests"
 date: 2022-03-17 00:00:00 +0900
+last_modified_at: 2022-03-17
 categories: [Study, python]
 tags: [webhacking, python]
 ---

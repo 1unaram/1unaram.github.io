@@ -1,6 +1,7 @@
 ---
 title: '[pwnable] System Hacking 노트'
 date: 2025-02-06 00:00:00 +0900
+last_modified_at: 2025-02-06
 categories: [Study, Pwnable]
 tags: [pwnable]
 published: True

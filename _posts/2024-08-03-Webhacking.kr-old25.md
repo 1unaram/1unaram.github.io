@@ -1,6 +1,7 @@
 ---
 title: '[Wargame] Webhacking.kr old-25 (PHP)'
 date: 2024-08-03 00:00:00 +0900
+last_modified_at: 2024-08-03
 categories: [Wargame, webhacking.kr]
 tags: [webhacking, webhacking.kr]
 published: True

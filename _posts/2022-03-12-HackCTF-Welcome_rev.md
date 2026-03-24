@@ -1,6 +1,7 @@
 ---
 title: "[HackCTF] Welcome_rev"
 date: 2022-03-12 00:00:00 +0900
+last_modified_at: 2022-03-12
 categories: [Wargame, HackCTF]
 tags: [hackctf, wargame, reversing]
 ---

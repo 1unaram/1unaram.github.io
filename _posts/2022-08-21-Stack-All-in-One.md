@@ -1,6 +1,7 @@
 ---
 title: '[Study] Stack All-in-One'
 date: 2022-08-21 00:00:00 +0900
+last_modified_at: 2022-08-21
 categories: [Study, CS]
 tags: [pwnable, stack]
 ---

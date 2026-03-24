@@ -1,6 +1,7 @@
 ---
 title: '[Study] Content Security Policy'
 date: 2023-01-24 00:00:00 +0900
+last_modified_at: 2023-01-24
 categories: [Study, Web Hacking]
 tags: [webhacking]
 published: true

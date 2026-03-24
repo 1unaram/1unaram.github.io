@@ -1,6 +1,7 @@
 ---
 title: '[2025 Fiesta] Web Treasure Hunt'
 date: 2025-09-26 00:00:00 +0900
+last_modified_at: 2025-09-26
 categories: [Write-Up, Web]
 tags: []
 published: True

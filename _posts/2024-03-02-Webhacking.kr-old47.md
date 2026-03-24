@@ -1,6 +1,7 @@
 ---
 title: '[Wargame] Webhacking.kr old-47 (SMTP Injection)'
 date: 2024-03-02 00:00:00 +0900
+last_modified_at: 2024-03-02
 categories: [Wargame, webhacking.kr]
 tags: [webhacking, webhacking.kr]
 published: True

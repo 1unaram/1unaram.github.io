@@ -1,6 +1,7 @@
 ---
 title: '[Wargame] Webhacking.kr old-42 (Base64)'
 date: 2023-12-03 00:00:00 +0900
+last_modified_at: 2023-12-03
 categories: [Wargame, webhacking.kr]
 tags: [webhacking, webhacking.kr]
 published: True

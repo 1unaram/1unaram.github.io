@@ -1,6 +1,7 @@
 ---
 title: '[PortSwigger] Academy: Path traversal'
 date: 2024-07-05 00:00:00 +0900
+last_modified_at: 2024-07-05
 categories: [Study, PortSwigger]
 tags: [webhacking, portswigger]
 published: True

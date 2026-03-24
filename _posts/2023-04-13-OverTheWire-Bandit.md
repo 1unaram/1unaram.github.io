@@ -1,6 +1,7 @@
 ---
 title: '[pwnable] Over The Wire - Bandit'
 date: 2023-04-13 00:00:00 +0900
+last_modified_at: 2023-04-13
 categories: [Wargame, Pwnable]
 tags: [wargame, overthewire, bandit]
 published: true

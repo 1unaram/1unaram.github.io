@@ -1,6 +1,7 @@
 ---
 title: "[PortSwigger] Academy: Web Cache Deception"
 date: 2025-01-11 00:00:00 +0900
+last_modified_at: 2025-01-11
 categories: [Study, PortSwigger]
 tags: [webhacking, portswigger]
 published: True
