@@ -3,6 +3,8 @@
 */
 
 html {
+  font-size: 16px;
+
   @media (prefers-color-scheme: light) {
     &:not([data-mode]),
     &[data-mode='light'] {
@@ -24,8 +26,6 @@ html {
       @include light-scheme;
     }
   }
-
-  font-size: 16px;
 }
 
 body {
@@ -675,7 +675,9 @@ i {
   box-shadow: none;
   border-color: var(--input-focus-border-color) !important;
   background: center !important;
-  transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+  transition:
+    background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out;
 }
 
 .left {
@@ -762,7 +764,9 @@ $sidebar-display: 'sidebar-display';
       height: 100%;
       transition: -webkit-transform 0.5s;
       transition: transform 0.5s;
-      transition: transform 0.5s, -webkit-transform 0.5s;
+      transition:
+        transform 0.5s,
+        -webkit-transform 0.5s;
 
       &:hover {
         -webkit-transform: scale(1.2);
@@ -1217,7 +1221,9 @@ $sidebar-display: 'sidebar-display';
   border: 1px solid var(--btn-backtotop-border-color);
   transition: -webkit-transform 0.2s ease-out;
   transition: transform 0.2s ease-out;
-  transition: transform 0.2s ease-out, -webkit-transform 0.2s ease-out;
+  transition:
+    transform 0.2s ease-out,
+    -webkit-transform 0.2s ease-out;
   -webkit-transition: transform 0.2s ease-out;
 
   i {
