@@ -28,7 +28,7 @@ published: True
 ### 2. 프로젝트 폴더 생성
 
 ```powershell
-mkdir C:\\Users\\r4m\\r4m-mcp-server
+mkdir C:\\Users\\사용자명\\r4m-mcp-server
 ```
 
 <br>
@@ -44,6 +44,10 @@ pip install mcp
 ### 4. MCP server 파일 생성
 
 프로젝트 폴더 내에 `nmap-mcp-server.py` 파일을 생성하고, 아래와 같이 MCP 서버 코드를 작성한다.
+
+<details>
+<summary>nmap-mcp-server.py</summary>
+<div markdown="1">
 
 ```python
 import asyncio
@@ -391,6 +395,10 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 ```
+</div>
+</details>
+
+<br>
 
 [📎 source code 출처](https://hagsig.tistory.com/356#2-2.%20Nmap%20MCP%20Server%20%EC%84%A4%EC%B9%98%C2%A0-1-4)
 
@@ -472,6 +480,17 @@ http://localhost:4444 주소로 접속하여 metasploitable2의 웹 서비스가
 nmap을 사용해서 http://localhost:4444 서버의 상위 1000개 포트를 TCP 스캔으로 스캔해줘.
 ```
 
+![image4](/assets/posts/260327-4.png)
+
+혹시라도 클로드가 나중에 nmap으로 다른 서버를 허락없이 스캔하는 것을 방지하기 위해, 한 번만 실행으로 실행해주자.
+~~캡쳐할 때 안 사실인데, 클로드 무늬 가운데 공간이 하트 모양과 닮았다~~
+
+
+<br>
+
+![image5](/assets/posts/260327-5.png)
+
+결과는 Claude가 정상적으로 nmap 도구를 로드하여 명령을 실행하고, 결과값을 MCP로부터 받아와 출력하는 것을 확인할 수 있다!
 
 
 <br>
