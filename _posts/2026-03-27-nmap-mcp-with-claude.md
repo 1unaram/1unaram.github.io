@@ -1,8 +1,8 @@
 ---
-title: '[AI for Security] Nmap MCP로 서버 스캔하기 with Claude'
+title: 'Nmap MCP로 서버 스캔하기 with Claude'
 date: 2026-03-27 00:00:00 +0900
 last_modified_at: 2026-03-27
-categories: [Pentest]
+categories: [AI, AI for Security]
 tags: []
 published: True
 ---
