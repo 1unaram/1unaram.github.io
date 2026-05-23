@@ -1,5 +1,5 @@
 ---
-title: "Burp Suite + Claude Code + MCP를 활용한 webhacking.kr 문제 풀이"
+title: "Burp Suite + Claude Code + MCP를 활용한 webhacking.kr 문제 풀이 프로젝트"
 date: 2026-05-02 00:00:00 +0900
 last_modified_at: 2026-05-02
 categories: [AI, AI for Security]
