@@ -110,3 +110,15 @@ CLAUDE.md에 명시한대로 문제 풀이가 잘 진행되는 것을 확인할 
 ![image](/assets/posts/260502-11.png)
 
 개선된 이후에 62k의 컨텍스트로 성공적으로 문제 풀이를 진행하고, writeup 까지 작성한 것을 확인할 수 있었다.
+
+<br>
+
+## old-21
+
+![image](/assets/posts/260502-12.png)
+
+![image](/assets/posts/260502-13.png)
+
+<br>
+
+
